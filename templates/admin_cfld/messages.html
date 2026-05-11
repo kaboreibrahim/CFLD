@@ -1,0 +1,54 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}Messages{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Communication</span>
+    <h1>Messages <span style="font-size:18px;color:var(--muted);font-weight:400;">{{ total }}</span></h1>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="f-pills">
+    <a href="?" class="f-pill {% if filtre == 'all' %}active{% endif %}">Tous</a>
+    <a href="?filtre=non_lu" class="f-pill {% if filtre == 'non_lu' %}active{% endif %}">Non lus{% if unread_count %} ({{ unread_count }}){% endif %}</a>
+  </div>
+</div>
+
+<div class="t-wrap">
+  <div class="t-row t-head" style="grid-template-columns:12px 1fr 200px 110px 60px 80px;">
+    <div></div>
+    <div>Message</div>
+    <div>Expéditeur</div>
+    <div>Date</div>
+    <div>Lu</div>
+    <div style="text-align:right;">Actions</div>
+  </div>
+  {% for msg in messages_list %}
+  <div class="t-row" id="row-msg{{ msg.pk }}" style="grid-template-columns:12px 1fr 200px 110px 60px 80px;">
+    <div>
+      {% if not msg.lu %}
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
+      {% endif %}
+    </div>
+    <div>
+      <div style="font-weight:{% if not msg.lu %}600{% else %}400{% endif %};font-size:13px;">{{ msg.sujet|truncatechars:60 }}</div>
+      <div style="font-size:11px;color:var(--muted);">{{ msg.message|truncatechars:100 }}</div>
+    </div>
+    <div>
+      <div style="font-size:13px;">{{ msg.nom }}</div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ msg.email }}</div>
+    </div>
+    <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">{{ msg.date_envoi|date:"d/m/Y" }}<br>{{ msg.date_envoi|date:"H:i" }}</div>
+    <div style="font-family:var(--font-mono);font-size:11px;">{% if msg.lu %}✓{% else %}<span style="color:var(--green);">●</span>{% endif %}</div>
+    <div class="actions">
+      <a href="{% url 'admin_message_detail' msg.pk %}" class="t-btn" title="Lire">→</a>
+      <button class="t-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_message_delete' msg.pk %}', document.getElementById('row-msg{{ msg.pk }}'))">✕</button>
+    </div>
+  </div>
+  {% empty %}
+  <div class="empty-state">Aucun message</div>
+  {% endfor %}
+</div>
+{% endblock %}

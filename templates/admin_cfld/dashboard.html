@@ -1,0 +1,111 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Vue d'ensemble</span>
+    <h1>Tableau de bord</h1>
+  </div>
+</div>
+
+<!-- KPI -->
+<div class="kpi-row">
+  <div class="kpi green">
+    <div class="k-label">Joueurs actifs</div>
+    <div class="k-val">{{ joueurs_count }}</div>
+    <div class="k-sub"><a href="{% url 'admin_joueurs' %}" style="color:var(--green)">Gérer l'effectif →</a></div>
+  </div>
+  <div class="kpi">
+    <div class="k-label">Matchs à venir</div>
+    <div class="k-val">{{ matchs_count }}</div>
+    <div class="k-sub"><a href="{% url 'admin_matchs' %}" style="color:var(--muted)">Voir le calendrier →</a></div>
+  </div>
+  <div class="kpi{% if pending_count %} orange{% endif %}">
+    <div class="k-label">Candidatures en attente</div>
+    <div class="k-val">{{ pending_count }}</div>
+    <div class="k-sub"><a href="{% url 'admin_candidatures' %}?statut=pending" style="color:{% if pending_count %}#c98700{% else %}var(--muted){% endif %}">Traiter →</a></div>
+  </div>
+  <div class="kpi{% if unread_count %} red{% endif %}">
+    <div class="k-label">Messages non lus</div>
+    <div class="k-val">{{ unread_count }}</div>
+    <div class="k-sub"><a href="{% url 'admin_messages' %}?filtre=non_lu" style="color:{% if unread_count %}#b73f3f{% else %}var(--muted){% endif %}">Consulter →</a></div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+  <!-- Candidatures récentes -->
+  <div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="font-size:14px;font-family:var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0;">Candidatures récentes</h3>
+      <a href="{% url 'admin_candidatures' %}" style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Tout voir →</a>
+    </div>
+    <div class="t-wrap">
+      {% if recent_cands %}
+        {% for c in recent_cands %}
+        <div class="t-row" style="grid-template-columns:1fr auto auto;">
+          <div>
+            <div style="font-weight:500;font-size:13px;">{{ c.prenom }} {{ c.nom }}</div>
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ c.reference }} · {{ c.get_poste_display }}</div>
+          </div>
+          <span class="badge-status bs-{{ c.statut }}">{{ c.get_statut_display }}</span>
+          <a href="{% url 'admin_candidatures' %}?q={{ c.reference }}" class="t-btn">→</a>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">Aucune candidature</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Prochains matchs -->
+  <div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="font-size:14px;font-family:var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0;">Prochains matchs</h3>
+      <a href="{% url 'admin_matchs' %}" style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Tout voir →</a>
+    </div>
+    <div class="t-wrap">
+      {% if prochains_matchs %}
+        {% for m in prochains_matchs %}
+        <div class="t-row" style="grid-template-columns:1fr auto;">
+          <div>
+            <div style="font-weight:500;font-size:13px;">{{ m.equipe_domicile }} — {{ m.equipe_exterieur }}</div>
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ m.date|date:"d/m/Y H:i" }} · {{ m.competition }}</div>
+          </div>
+          <a href="{% url 'admin_match_edit' m.pk %}" class="t-btn">✏</a>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">Aucun match à venir</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Messages récents -->
+  <div style="grid-column:span 2;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="font-size:14px;font-family:var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0;">Messages récents</h3>
+      <a href="{% url 'admin_messages' %}" style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Tout voir →</a>
+    </div>
+    <div class="t-wrap">
+      {% if recent_msgs %}
+        {% for msg in recent_msgs %}
+        <div class="t-row" style="grid-template-columns:auto 1fr auto auto;">
+          <div style="width:8px;height:8px;border-radius:50%;background:{% if not msg.lu %}var(--green){% else %}transparent{% endif %};flex-shrink:0;margin-top:3px;"></div>
+          <div>
+            <div style="font-weight:{% if not msg.lu %}600{% else %}400{% endif %};font-size:13px;">{{ msg.nom }} <span style="color:var(--muted);font-weight:400;">— {{ msg.sujet }}</span></div>
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ msg.date_envoi|date:"d/m/Y H:i" }}</div>
+          </div>
+          <span style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{% if msg.lu %}Lu{% else %}Non lu{% endif %}</span>
+          <a href="{% url 'admin_message_detail' msg.pk %}" class="t-btn">→</a>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">Aucun message</div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

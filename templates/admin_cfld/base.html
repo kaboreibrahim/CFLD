@@ -1,0 +1,257 @@
+{% load static %}
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Admin{% endblock %} — CFLD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter+Tight:wght@400..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'style.css' %}">
+<style>
+/* ── Reset admin ── */
+body { background:#f0ede6; overflow-x:hidden; }
+
+/* ── Layout ── */
+.admin-shell { display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
+.admin-main  { padding:32px 40px; min-width:0; }
+
+/* ── Sidebar ── */
+.sidebar {
+  background:var(--ink); color:var(--paper);
+  padding:0; display:flex; flex-direction:column;
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+}
+.sidebar-top { padding:24px 20px 20px; border-bottom:1px solid rgba(246,244,239,.06); }
+.sidebar-brand { display:flex; align-items:center; gap:10px; color:var(--paper); text-decoration:none; }
+.sidebar-brand .bm { width:32px; height:32px; background:var(--green-bright); color:var(--ink); display:grid; place-items:center; font-family:var(--font-display); font-weight:700; font-size:15px; border-radius:2px; flex-shrink:0; }
+.sidebar-brand .bt { font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:rgba(246,244,239,.5); line-height:1.2; }
+
+.sidebar-nav { flex:1; padding:16px 12px; display:flex; flex-direction:column; gap:4px; }
+.nav-section { margin-top:16px; padding:0 8px 6px; font-family:var(--font-mono); font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:rgba(246,244,239,.3); }
+.nav-section:first-child { margin-top:0; }
+.sidebar a {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:9px 10px; border-radius:4px; font-size:13px; font-weight:500;
+  color:rgba(246,244,239,.6); text-decoration:none; transition:all .15s;
+}
+.sidebar a:hover { background:rgba(246,244,239,.06); color:var(--paper); }
+.sidebar a.active { background:rgba(20,160,90,.18); color:var(--green-bright); }
+.sidebar a .icon { font-size:15px; margin-right:8px; width:18px; text-align:center; flex-shrink:0; }
+.sidebar a .lbl { flex:1; }
+.sidebar a .badge { background:var(--green-bright); color:var(--ink); border-radius:999px; padding:2px 7px; font-family:var(--font-mono); font-size:10px; font-weight:700; }
+.sidebar a .badge.red { background:#ee2630; color:#fff; }
+
+.sidebar-footer { padding:16px 12px; border-top:1px solid rgba(246,244,239,.06); }
+.sidebar-user { display:flex; align-items:center; gap:10px; padding:8px 10px; }
+.sidebar-user .av { width:34px; height:34px; border-radius:50%; background:var(--green); color:var(--paper); display:grid; place-items:center; font-family:var(--font-display); font-size:13px; font-weight:600; flex-shrink:0; }
+.sidebar-user .info { font-size:12px; color:rgba(246,244,239,.7); line-height:1.3; }
+.sidebar-user .info strong { display:block; color:var(--paper); font-size:13px; }
+
+/* ── Page header ── */
+.page-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px; gap:16px; flex-wrap:wrap; }
+.page-header h1 { font-size:32px; line-height:1; margin:0; }
+.page-header .eyebrow { font-family:var(--font-mono); font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; display:block; }
+.page-header .hd-actions { display:flex; gap:10px; align-items:center; flex-shrink:0; }
+
+/* ── KPI cards ── */
+.kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px; }
+.kpi { background:#fff; border:1px solid var(--line); border-radius:6px; padding:20px 22px; }
+.kpi .k-label { font-family:var(--font-mono); font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+.kpi .k-val { font-family:var(--font-display); font-size:52px; font-weight:500; line-height:1; letter-spacing:-.02em; margin-top:10px; }
+.kpi .k-sub { font-family:var(--font-mono); font-size:11px; margin-top:6px; color:var(--muted); }
+.kpi.green .k-val { color:var(--green); }
+.kpi.orange .k-val { color:#c98700; }
+.kpi.muted  .k-val { color:rgba(11,11,11,.35); }
+.kpi.red    .k-val { color:#b73f3f; }
+
+/* ── Filter bar ── */
+.filter-bar { background:#fff; border:1px solid var(--line); border-radius:6px; padding:14px 18px; display:flex; gap:14px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+.filter-bar .search-wrap { flex:1; min-width:180px; display:flex; align-items:center; gap:10px; }
+.filter-bar .search-wrap input { flex:1; border:0; padding:6px 0; font-size:14px; outline:none; background:transparent; font-family:var(--font-text); }
+.filter-bar .search-wrap .ico { color:var(--muted); font-size:16px; }
+.f-pills { display:flex; gap:6px; flex-wrap:wrap; }
+.f-pill { padding:5px 12px; border-radius:999px; font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; border:1px solid var(--line); text-decoration:none; color:var(--ink); transition:all .15s; }
+.f-pill:hover { border-color:var(--ink); }
+.f-pill.active { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+
+/* ── Table ── */
+.t-wrap { background:#fff; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+.t-row { display:grid; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line); font-size:13px; gap:14px; }
+.t-row:last-child { border-bottom:0; }
+.t-head { background:rgba(11,11,11,.025); font-family:var(--font-mono); font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+.t-row .actions { display:flex; gap:4px; justify-content:flex-end; }
+.t-btn { width:30px; height:30px; border-radius:4px; border:1px solid var(--line); background:#fff; display:grid; place-items:center; font-size:13px; cursor:pointer; text-decoration:none; color:var(--ink); transition:all .15s; }
+.t-btn:hover { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.t-btn.del:hover { background:#b73f3f; border-color:#b73f3f; }
+.t-btn.ok:hover  { background:var(--green); border-color:var(--green); }
+
+/* ── Status badges ── */
+.badge-status { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:999px; font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; font-weight:500; }
+.badge-status::before { content:""; width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.bs-pending  { background:#fff5e0; color:#8b5a00; }
+.bs-pending::before  { background:#c98700; }
+.bs-accepted { background:#e0f3e8; color:#0a5c2e; }
+.bs-accepted::before { background:var(--green); }
+.bs-refused  { background:rgba(11,11,11,.05); color:rgba(11,11,11,.5); }
+.bs-refused::before  { background:rgba(11,11,11,.3); }
+.bs-waiting  { background:#e8eef9; color:#2a4d8a; }
+.bs-waiting::before  { background:#4a7ad9; }
+.bs-publie   { background:#e0f3e8; color:#0a5c2e; }
+.bs-publie::before   { background:var(--green); }
+.bs-brouillon{ background:rgba(11,11,11,.05); color:var(--muted); }
+.bs-brouillon::before{ background:rgba(11,11,11,.25); }
+.bs-avenir   { background:#e8eef9; color:#2a4d8a; }
+.bs-avenir::before   { background:#4a7ad9; }
+.bs-resultat { background:rgba(11,11,11,.05); color:var(--muted); }
+.bs-resultat::before { background:rgba(11,11,11,.3); }
+
+/* ── Form ── */
+.form-card { background:#fff; border:1px solid var(--line); border-radius:6px; padding:32px; max-width:720px; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.form-grid.full { grid-template-columns:1fr; }
+.field { display:grid; gap:6px; }
+.field.span2 { grid-column:span 2; }
+.field label { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+.field input, .field select, .field textarea {
+  width:100%; padding:10px 12px; border:1px solid var(--line);
+  border-radius:4px; font-size:14px; font-family:var(--font-text);
+  background:#fff; color:var(--ink); transition:border-color .15s; outline:none;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color:var(--ink); }
+.field textarea { resize:vertical; min-height:120px; }
+.field .help { font-size:11px; color:var(--muted); }
+.field-check { display:flex; align-items:center; gap:10px; padding:10px 0; }
+.field-check input { width:auto; accent-color:var(--green); }
+.field-check label { font-size:13px; font-family:var(--font-text); text-transform:none; letter-spacing:0; color:var(--ink); }
+.field .errorlist { list-style:none; padding:0; margin:0; font-size:11px; color:#b73f3f; }
+.form-actions { display:flex; gap:10px; margin-top:24px; padding-top:20px; border-top:1px solid var(--line); }
+
+/* ── Misc ── */
+.empty-state { padding:48px 0; text-align:center; color:var(--muted); font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; }
+.pill { display:inline-block; padding:3px 9px; border-radius:999px; font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; background:var(--paper-2); color:var(--ink); }
+
+/* ── Toast ── */
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--paper); padding:12px 24px; border-radius:999px; font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; opacity:0; transition:all .3s; z-index:200; white-space:nowrap; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.toast.ok   { background:var(--green); }
+.toast.err  { background:#b73f3f; }
+</style>
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="admin-shell">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <a href="{% url 'admin_dashboard' %}" class="sidebar-brand">
+        <span class="bm">C</span>
+        <span class="bt">CFLD<br>Espace admin</span>
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">Vue d'ensemble</div>
+      <a href="{% url 'admin_dashboard' %}" {% if section == 'dashboard' %}class="active"{% endif %}>
+        <span class="icon">⊞</span><span class="lbl">Tableau de bord</span>
+      </a>
+
+      <div class="nav-section">Équipe</div>
+      <a href="{% url 'admin_joueurs' %}" {% if section == 'joueurs' %}class="active"{% endif %}>
+        <span class="icon">👤</span><span class="lbl">Joueurs</span>
+      </a>
+      <a href="{% url 'admin_matchs' %}" {% if section == 'matchs' %}class="active"{% endif %}>
+        <span class="icon">⚽</span><span class="lbl">Matchs</span>
+      </a>
+      <a href="{% url 'admin_classement' %}" {% if section == 'classement' %}class="active"{% endif %}>
+        <span class="icon">🏆</span><span class="lbl">Classement</span>
+      </a>
+
+      <div class="nav-section">Contenu</div>
+      <a href="{% url 'admin_articles' %}" {% if section == 'articles' %}class="active"{% endif %}>
+        <span class="icon">📰</span><span class="lbl">Articles</span>
+      </a>
+      <a href="{% url 'admin_photos' %}" {% if section == 'photos' %}class="active"{% endif %}>
+        <span class="icon">🖼</span><span class="lbl">Photos</span>
+      </a>
+      <a href="{% url 'admin_videos' %}" {% if section == 'videos' %}class="active"{% endif %}>
+        <span class="icon">▶</span><span class="lbl">Vidéos</span>
+      </a>
+      <a href="{% url 'admin_ticker' %}" {% if section == 'ticker' %}class="active"{% endif %}>
+        <span class="icon">📡</span><span class="lbl">Ticker</span>
+      </a>
+
+      <div class="nav-section">Recrutement</div>
+      <a href="{% url 'admin_candidatures' %}" {% if section == 'candidatures' %}class="active"{% endif %}>
+        <span class="icon">📋</span><span class="lbl">Candidatures</span>
+        {% if pending_count %}<span class="badge">{{ pending_count }}</span>{% endif %}
+      </a>
+
+      <div class="nav-section">Communication</div>
+      <a href="{% url 'admin_messages' %}" {% if section == 'messages' %}class="active"{% endif %}>
+        <span class="icon">✉</span><span class="lbl">Messages</span>
+        {% if unread_count %}<span class="badge red">{{ unread_count }}</span>{% endif %}
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="av">{{ request.user.first_name|slice:":1"|upper }}{{ request.user.last_name|slice:":1"|upper }}</div>
+        <div class="info">
+          <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+          {{ request.user.email }}
+        </div>
+      </div>
+      <a href="{% url 'accueil' %}" style="color:rgba(246,244,239,.5);font-size:12px;padding:8px 10px;display:flex;align-items:center;gap:8px;">
+        <span>↗</span> Voir le site
+      </a>
+      <a href="{% url 'logout' %}" style="color:rgba(246,244,239,.4);font-size:12px;padding:8px 10px;display:flex;align-items:center;gap:8px;">
+        <span>⏻</span> Déconnexion
+      </a>
+    </div>
+  </aside>
+
+  <!-- ── CONTENU ── -->
+  <main class="admin-main">
+    {% if messages %}
+    <div style="margin-bottom:16px;">
+      {% for m in messages %}
+      <div style="background:#e0f3e8;color:#0a5c2e;padding:10px 16px;border-radius:4px;font-size:13px;margin-bottom:6px;">{{ m }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function confirmDelete(url, row) {
+  if (!confirm('Supprimer cet élément ?')) return;
+  fetch(url, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      if (row) row.remove();
+      showToast('Supprimé', 'ok');
+    } else {
+      showToast('Erreur', 'err');
+    }
+  }).catch(() => showToast('Erreur réseau', 'err'));
+}
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

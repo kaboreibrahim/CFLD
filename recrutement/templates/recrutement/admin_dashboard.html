@@ -1,0 +1,238 @@
+{% load static %}
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — CFLD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter+Tight:wght@400..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'style.css' %}">
+<style>
+body { background:#f3f1ec; }
+.admin-shell { display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
+.sidebar { background:var(--ink); color:var(--paper); padding:24px; display:grid; align-content:start; gap:32px; }
+.sidebar .brand { color:var(--paper); display:flex; align-items:center; gap:10px; }
+.sidebar .brand-mark { background:var(--green-bright); color:var(--ink); width:32px; height:32px; display:grid; place-items:center; font-family:var(--font-display); font-weight:700; border-radius:2px; }
+.sidebar .section-label { font-family:var(--font-mono); font-size:10px; letter-spacing:.18em; color:rgba(246,244,239,.4); text-transform:uppercase; margin-bottom:12px; }
+.sidebar nav { display:grid; gap:4px; }
+.sidebar nav a { padding:10px 12px; border-radius:4px; font-size:13px; color:rgba(246,244,239,.7); display:flex; justify-content:space-between; align-items:center; }
+.sidebar nav a:hover { background:rgba(246,244,239,.05); color:var(--paper); }
+.sidebar nav a.active { background:rgba(20,160,90,.15); color:var(--green-bright); }
+.sidebar nav a .badge { background:var(--green-bright); color:var(--ink); border-radius:999px; padding:2px 8px; font-family:var(--font-mono); font-size:10px; font-weight:600; }
+.admin-main { padding:32px 40px; max-width:1400px; }
+.admin-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; }
+.admin-head h1 { font-size:36px; line-height:1; }
+.admin-head .right { display:flex; gap:12px; align-items:center; }
+.admin-head .user { display:flex; align-items:center; gap:10px; font-size:13px; }
+.admin-head .avatar { width:36px; height:36px; border-radius:50%; background:var(--green); color:var(--paper); display:grid; place-items:center; font-family:var(--font-display); font-size:14px; font-weight:600; }
+.kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:32px; }
+.kpi { background:var(--paper); border:1px solid var(--line); border-radius:4px; padding:24px; }
+.kpi .label { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+.kpi .value { font-family:var(--font-display); font-size:56px; font-weight:500; line-height:1; letter-spacing:-.02em; margin-top:12px; }
+.kpi .delta { font-size:12px; color:var(--green); margin-top:8px; font-family:var(--font-mono); letter-spacing:.08em; }
+.kpi.pending .value { color:#c98700; }
+.kpi.accepted .value { color:var(--green); }
+.kpi.refused .value { color:rgba(11,11,11,.4); }
+.filter-bar { background:var(--paper); border:1px solid var(--line); border-radius:4px; padding:16px 20px; display:flex; gap:16px; align-items:center; margin-bottom:16px; }
+.filter-bar form { flex:1; display:flex; gap:16px; align-items:center; }
+.filter-bar input { flex:1; border:0; padding:8px 0; font-size:14px; outline:none; background:transparent; }
+.f-pills { display:flex; gap:6px; }
+.f-pill { padding:6px 12px; border-radius:999px; font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; cursor:pointer; border:1px solid var(--line); text-decoration:none; color:var(--ink); }
+.f-pill.active { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.table { background:var(--paper); border:1px solid var(--line); border-radius:4px; overflow:hidden; }
+.tr { display:grid; grid-template-columns:56px 1.4fr 1fr .8fr 1fr 1fr auto; align-items:center; padding:16px 20px; border-bottom:1px solid var(--line); font-size:13px; gap:16px; }
+.tr:last-child { border-bottom:0; }
+.tr.head { background:rgba(11,11,11,.03); font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+.tr .candidate { display:flex; gap:12px; align-items:center; }
+.tr .avatar-sm { width:36px; height:36px; border-radius:50%; background:var(--paper-2); display:grid; place-items:center; font-family:var(--font-display); font-size:13px; font-weight:600; color:var(--ink); flex-shrink:0; }
+.tr .candidate .name { font-weight:500; font-family:var(--font-display); font-size:16px; letter-spacing:-.01em; }
+.tr .candidate .ref { font-family:var(--font-mono); font-size:10px; letter-spacing:.1em; color:var(--muted); }
+.status { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; font-weight:500; }
+.status::before { content:""; width:6px; height:6px; border-radius:50%; }
+.status.pending { background:#fff5e0; color:#8b5a00; }
+.status.pending::before { background:#c98700; }
+.status.accepted { background:#e0f3e8; color:var(--green-deep); }
+.status.accepted::before { background:var(--green); }
+.status.refused { background:rgba(11,11,11,.05); color:rgba(11,11,11,.5); }
+.status.refused::before { background:rgba(11,11,11,.4); }
+.status.waiting { background:#e8eef9; color:#2a4d8a; }
+.status.waiting::before { background:#4a7ad9; }
+.actions { display:flex; gap:4px; justify-content:flex-end; }
+.act { width:32px; height:32px; border-radius:4px; border:1px solid var(--line); background:var(--paper); display:grid; place-items:center; font-size:14px; cursor:pointer; transition:all .2s; }
+.act:hover { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.act.accept:hover { background:var(--green); border-color:var(--green); }
+.act.refuse:hover { background:#b73f3f; border-color:#b73f3f; }
+.position-pill { font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; background:var(--paper-2); padding:4px 10px; border-radius:999px; display:inline-block; color:var(--ink); }
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--paper); padding:14px 24px; border-radius:999px; font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; opacity:0; transition:all .3s; z-index:100; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.toast.green { background:var(--green); }
+</style>
+</head>
+<body data-screen-label="09 Admin">
+<div class="admin-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">C</span>
+      <span>CFLD · Admin</span>
+    </div>
+    <div>
+      <div class="section-label">Recrutement</div>
+      <nav>
+        <a href="{% url 'admin_dashboard' %}" class="active">
+          Candidatures <span class="badge">{{ stats.pending }}</span>
+        </a>
+        <a href="#">Détections planifiées</a>
+        <a href="{% url 'effectif' %}">Joueurs intégrés</a>
+      </nav>
+    </div>
+    <div>
+      <div class="section-label">Club</div>
+      <nav>
+        <a href="{% url 'effectif' %}">Effectif</a>
+        <a href="{% url 'matchs' %}">Matchs &amp; calendrier</a>
+        <a href="{% url 'medias' %}">Médias</a>
+      </nav>
+    </div>
+    <div>
+      <div class="section-label">Compte</div>
+      <nav>
+        <a href="{% url 'admin:index' %}">Django Admin</a>
+        <a href="{% url 'accueil' %}">Voir le site →</a>
+        <a href="{% url 'logout' %}">Déconnexion</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-head">
+      <div>
+        <span class="eyebrow">Tableau de bord · Recrutement</span>
+        <h1 style="margin-top:8px;">Candidatures</h1>
+      </div>
+      <div class="right">
+        <a href="?export=csv" class="btn btn-ghost" style="padding:10px 18px;font-size:13px;">Exporter CSV</a>
+        <div class="user">
+          <div class="avatar">{{ request.user.first_name|slice:":1"|upper }}{{ request.user.last_name|slice:":1"|upper }}</div>
+          <span>{{ request.user.get_full_name|default:request.user.username }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi"><div class="label">Total reçues</div><div class="value">{{ stats.total }}</div><div class="delta">Saison 2026—2027</div></div>
+      <div class="kpi pending"><div class="label">En attente</div><div class="value">{{ stats.pending }}</div><div class="delta" style="color:#c98700">À traiter sous 72h</div></div>
+      <div class="kpi accepted"><div class="label">Acceptées</div><div class="value">{{ stats.accepted }}</div><div class="delta">{% if stats.total %}{{ stats.accepted|floatformat:0 }}{% endif %} acceptées</div></div>
+      <div class="kpi refused"><div class="label">Refusées</div><div class="value">{{ stats.refused }}</div><div class="delta" style="color:var(--muted)">+ {{ stats.waiting }} en attente</div></div>
+    </div>
+
+    <div class="filter-bar">
+      <form method="GET" style="flex:1;display:flex;gap:16px;align-items:center;">
+        <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;">⌕</span>
+        <input name="q" value="{{ recherche }}" placeholder="Rechercher par nom, référence, email…">
+        <div class="f-pills">
+          <a href="?statut=all" class="f-pill {% if statut_actif == 'all' %}active{% endif %}">Tous</a>
+          <a href="?statut=pending" class="f-pill {% if statut_actif == 'pending' %}active{% endif %}">En attente</a>
+          <a href="?statut=waiting" class="f-pill {% if statut_actif == 'waiting' %}active{% endif %}">Mise en attente</a>
+          <a href="?statut=accepted" class="f-pill {% if statut_actif == 'accepted' %}active{% endif %}">Acceptés</a>
+          <a href="?statut=refused" class="f-pill {% if statut_actif == 'refused' %}active{% endif %}">Refusés</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="table" id="rows">
+      <div class="tr head">
+        <div></div><div>Candidat</div><div>Email · Tél.</div><div>Poste</div><div>Date dépôt</div><div>Statut</div><div></div>
+      </div>
+      {% for c in candidatures %}
+      <div class="tr" id="row-{{ c.pk }}">
+        <div class="tr-check"><input type="checkbox" style="accent-color:var(--green);"></div>
+        <div class="candidate">
+          {% if c.photo %}
+          <img class="avatar-sm" src="{{ c.photo.url }}" alt="{{ c.nom_complet }}" style="object-fit:cover;">
+          {% else %}
+          <div class="avatar-sm">{{ c.initiales }}</div>
+          {% endif %}
+          <div>
+            <div class="name">{{ c.nom_complet }}</div>
+            <div class="ref">{{ c.reference }} · {{ c.age }} ans</div>
+          </div>
+        </div>
+        <div style="font-size:12px;line-height:1.4;">
+          <div>{{ c.email }}</div>
+          <div style="color:var(--muted);font-family:var(--font-mono);font-size:11px;">{{ c.telephone_whatsapp }}</div>
+        </div>
+        <div><span class="position-pill">{{ c.get_poste_display }}</span></div>
+        <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--muted);">{{ c.date_soumission|date:"d M" }}</div>
+        <div><span class="status {{ c.statut }}" id="status-{{ c.pk }}">{{ c.get_statut_display }}</span></div>
+        <div class="actions">
+          <button class="act accept" title="Accepter" data-act="accept" data-pk="{{ c.pk }}">✓</button>
+          <button class="act" title="Mettre en attente" data-act="wait" data-pk="{{ c.pk }}">⏱</button>
+          <button class="act refuse" title="Refuser" data-act="refuse" data-pk="{{ c.pk }}">✕</button>
+          <button class="act" title="Notifier" data-act="notify" data-pk="{{ c.pk }}">✉</button>
+        </div>
+      </div>
+      {% empty %}
+      <div class="tr" style="grid-column:1/-1;justify-content:center;color:var(--muted);font-family:var(--font-mono);font-size:12px;">
+        Aucune candidature trouvée.
+      </div>
+      {% endfor %}
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CSRF = '{{ csrf_token }}';
+const STATUS_LABELS = { pending:'En attente', waiting:'Mise en attente', accepted:'Acceptée', refused:'Refusée' };
+const STATUS_MESSAGES = {
+  accept:'Candidature acceptée',
+  refuse:'Candidature refusée',
+  wait:'Candidature mise en attente',
+  notify:'Notification envoyée',
+};
+
+function showToast(msg, green=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('green', green);
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+document.getElementById('rows').addEventListener('click', async e => {
+  const btn = e.target.closest('[data-act]');
+  if (!btn) return;
+  const { act, pk } = btn.dataset;
+
+  try {
+    const resp = await fetch(`/admin-cfld/candidature/${pk}/action/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': CSRF,
+      },
+      body: `action=${act}`,
+    });
+    const data = await resp.json();
+    if (data.success) {
+      showToast(STATUS_MESSAGES[act], act === 'accept');
+      if (data.statut) {
+        const badge = document.getElementById(`status-${pk}`);
+        if (badge) {
+          badge.className = `status ${data.statut}`;
+          badge.textContent = STATUS_LABELS[data.statut] || data.statut;
+        }
+      }
+    } else {
+      showToast(data.error || 'Erreur');
+    }
+  } catch(err) {
+    showToast('Erreur de connexion');
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}Classement{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Équipe</span>
+    <h1>Classement</h1>
+  </div>
+  <div class="hd-actions">
+    <a href="{% url 'admin_classement_add' %}" style="display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;">
+      + Ajouter
+    </a>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="f-pills">
+    <a href="?" class="f-pill {% if not saison %}active{% endif %}">Toutes les saisons</a>
+    {% for s in saisons %}
+    <a href="?saison={{ s }}" class="f-pill {% if saison == s %}active{% endif %}">{{ s }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="t-wrap">
+  <div class="t-row t-head" style="grid-template-columns:36px 1fr 50px 50px 50px 50px 50px 50px 50px 60px 80px;">
+    <div>Rg</div>
+    <div>Équipe</div>
+    <div>Pts</div>
+    <div>J</div>
+    <div>V</div>
+    <div>N</div>
+    <div>D</div>
+    <div>BP</div>
+    <div>BC</div>
+    <div>Diff</div>
+    <div style="text-align:right;">Actions</div>
+  </div>
+  {% for row in classement %}
+  <div class="t-row" id="row-cl{{ row.pk }}" style="grid-template-columns:36px 1fr 50px 50px 50px 50px 50px 50px 50px 60px 80px;{% if row.est_cfld %}background:rgba(20,160,90,.04);{% endif %}">
+    <div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">{{ forloop.counter }}</div>
+    <div style="font-weight:{% if row.est_cfld %}700{% else %}400{% endif %};">
+      {{ row.equipe }}
+      {% if row.est_cfld %}<span style="font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-left:6px;">CFLD</span>{% endif %}
+    </div>
+    <div style="font-family:var(--font-mono);font-size:13px;font-weight:700;">{{ row.points }}</div>
+    <div style="font-family:var(--font-mono);font-size:12px;">{{ row.matchs_joues }}</div>
+    <div style="font-family:var(--font-mono);font-size:12px;color:var(--green);">{{ row.victoires }}</div>
+    <div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">{{ row.nuls }}</div>
+    <div style="font-family:var(--font-mono);font-size:12px;color:#b73f3f;">{{ row.defaites }}</div>
+    <div style="font-family:var(--font-mono);font-size:12px;">{{ row.buts_pour }}</div>
+    <div style="font-family:var(--font-mono);font-size:12px;">{{ row.buts_contre }}</div>
+    <div style="font-family:var(--font-mono);font-size:12px;font-weight:600;">{% if row.difference_buts > 0 %}+{% endif %}{{ row.difference_buts }}</div>
+    <div class="actions">
+      <a href="{% url 'admin_classement_edit' row.pk %}" class="t-btn" title="Modifier">✏</a>
+      <button class="t-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_classement_delete' row.pk %}', document.getElementById('row-cl{{ row.pk }}'))">✕</button>
+    </div>
+  </div>
+  {% empty %}
+  <div class="empty-state">Aucune donnée de classement</div>
+  {% endfor %}
+</div>
+{% endblock %}

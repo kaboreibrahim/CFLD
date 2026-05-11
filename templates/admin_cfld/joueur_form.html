@@ -1,0 +1,95 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}{% if obj %}Modifier {{ obj.nom_complet }}{% else %}Ajouter un joueur{% endif %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Équipe / Joueurs</span>
+    <h1>{% if obj %}{{ obj.nom_complet }}{% else %}Nouveau joueur{% endif %}</h1>
+  </div>
+  <div class="hd-actions">
+    <a href="{% url 'admin_joueurs' %}" style="padding:10px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
+      ← Retour
+    </a>
+  </div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="form-card">
+    <div class="form-grid">
+
+      <div class="field">
+        <label>Prénom</label>
+        {{ form.prenom }}
+        {% if form.prenom.errors %}<ul class="errorlist">{% for e in form.prenom.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+      <div class="field">
+        <label>Nom</label>
+        {{ form.nom }}
+        {% if form.nom.errors %}<ul class="errorlist">{% for e in form.nom.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="field">
+        <label>Numéro</label>
+        {{ form.numero }}
+        {% if form.numero.errors %}<ul class="errorlist">{% for e in form.numero.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+      <div class="field">
+        <label>Poste</label>
+        {{ form.poste }}
+        {% if form.poste.errors %}<ul class="errorlist">{% for e in form.poste.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="field">
+        <label>Âge</label>
+        {{ form.age }}
+        {% if form.age.errors %}<ul class="errorlist">{% for e in form.age.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+      <div class="field">
+        <label>Nationalité</label>
+        {{ form.nationalite }}
+        {% if form.nationalite.errors %}<ul class="errorlist">{% for e in form.nationalite.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="field">
+        <label>Matchs joués</label>
+        {{ form.matchs_joues }}
+      </div>
+      <div class="field">
+        <label>Buts</label>
+        {{ form.buts }}
+      </div>
+
+      <div class="field span2">
+        <label>Photo</label>
+        {% if obj and obj.photo %}
+          <div style="margin-bottom:10px;">
+            <img src="{{ obj.photo.url }}" alt="" style="height:80px;border-radius:4px;object-fit:cover;">
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:4px;">Image actuelle — remplacer ci-dessous</div>
+          </div>
+        {% endif %}
+        {{ form.photo }}
+        {% if form.photo.errors %}<ul class="errorlist">{% for e in form.photo.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="field span2">
+        <div class="field-check">
+          {{ form.actif }}
+          <label for="{{ form.actif.id_for_label }}">Joueur actif (affiché dans l'effectif)</label>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" style="padding:11px 24px;background:var(--ink);color:var(--paper);border:0;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">
+        {% if obj %}Enregistrer{% else %}Créer le joueur{% endif %}
+      </button>
+      <a href="{% url 'admin_joueurs' %}" style="padding:11px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
+        Annuler
+      </a>
+    </div>
+  </div>
+</form>
+{% endblock %}

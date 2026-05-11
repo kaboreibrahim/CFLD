@@ -1,0 +1,52 @@
+{% load static %}
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connexion — CFLD Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'style.css' %}">
+<style>
+body { background:var(--ink); min-height:100vh; display:grid; place-items:center; }
+.login-box { background:var(--paper); border-radius:4px; padding:48px; width:100%; max-width:400px; }
+.login-box h1 { font-size:36px; margin-bottom:8px; }
+.login-box .sub { color:var(--muted); font-size:14px; margin-bottom:32px; }
+.field { display:grid; gap:8px; margin-bottom:24px; }
+.field label { font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; }
+.field input { border:0; border-bottom:1px solid var(--line-strong); padding:10px 0; font-size:16px; outline:none; background:transparent; }
+.field input:focus { border-bottom-color:var(--green); }
+.errlist { background:#fff0f0; border:1px solid #fca5a5; border-radius:4px; padding:10px 14px; margin-bottom:20px; color:#7f1d1d; font-size:13px; font-family:var(--font-mono); list-style:none; }
+</style>
+</head>
+<body>
+<div class="login-box">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:32px;">
+    <span style="background:var(--green-bright);color:var(--ink);width:32px;height:32px;display:grid;place-items:center;font-family:var(--font-display);font-weight:700;border-radius:2px;">C</span>
+    <span style="font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;">CFLD · Admin</span>
+  </div>
+  <h1>Connexion</h1>
+  <p class="sub">Accès réservé au staff du CFLD.</p>
+  {% if form.errors %}
+  <ul class="errlist">
+    <li>Identifiants incorrects. Veuillez réessayer.</li>
+  </ul>
+  {% endif %}
+  <form method="POST">
+    {% csrf_token %}
+    <div class="field">
+      <label>Identifiant</label>
+      <input type="text" name="username" autofocus required>
+    </div>
+    <div class="field">
+      <label>Mot de passe</label>
+      <input type="password" name="password" required>
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;">
+      Se connecter →
+    </button>
+  </form>
+</div>
+</body>
+</html>

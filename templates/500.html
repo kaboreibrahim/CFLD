@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>500 — Erreur serveur · CFLD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter+Tight:wght@400..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0b0b0b;
+    --paper: #f6f4ef;
+    --green: #14a05a;
+    --green-bright: #1ed97a;
+    --red: rgba(238,38,48,.9);
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-text: 'Inter Tight', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--ink);
+    color: var(--paper);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-text);
+    overflow: hidden;
+  }
+
+  .bg {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse at 75% 25%, rgba(238,38,48,.2) 0%, transparent 50%),
+      radial-gradient(ellipse at 20% 80%, rgba(238,38,48,.06) 0%, transparent 40%),
+      repeating-linear-gradient(135deg, rgba(255,255,255,.02) 0 8px, rgba(255,255,255,.04) 8px 16px),
+      var(--ink);
+  }
+
+  .big-num {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-display);
+    font-size: clamp(200px, 28vw, 380px);
+    line-height: .85; letter-spacing: -.06em;
+    color: rgba(238,38,48,.05);
+    pointer-events: none; user-select: none;
+  }
+
+  .brand-bar {
+    position: fixed; top: 32px; left: 40px;
+    display: flex; align-items: center; gap: 12px;
+    z-index: 10; text-decoration: none;
+  }
+  .brand-mark {
+    width: 32px; height: 32px; border-radius: 2px;
+    background: var(--green-bright); color: var(--ink);
+    display: grid; place-items: center;
+    font-family: var(--font-display); font-weight: 700; font-size: 16px;
+  }
+  .brand-name {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: .18em; text-transform: uppercase;
+    color: rgba(246,244,239,.35);
+  }
+
+  .wrap {
+    position: relative; z-index: 1;
+    max-width: 640px; width: 100%; padding: 40px;
+    display: grid; gap: 32px; justify-items: center;
+    text-align: center;
+  }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: .2em; text-transform: uppercase;
+    color: var(--red);
+    border: 1px solid rgba(238,38,48,.3);
+    padding: 6px 16px; border-radius: 999px;
+  }
+  .badge::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--red);
+    animation: blink 1.4s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: .95; letter-spacing: -.02em;
+    color: var(--paper);
+  }
+  h1 em { font-style: italic; color: rgba(238,38,48,.85); }
+
+  .desc {
+    font-size: 16px; line-height: 1.65;
+    color: rgba(246,244,239,.55); max-width: 52ch;
+  }
+
+  .divider {
+    width: 40px; height: 1px;
+    background: rgba(246,244,239,.12);
+  }
+
+  .actions {
+    display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 24px; border-radius: 999px;
+    font-family: var(--font-mono); font-size: 12px;
+    letter-spacing: .14em; text-transform: uppercase;
+    background: var(--green-bright); color: var(--ink);
+    font-weight: 600; text-decoration: none;
+    transition: background .2s;
+  }
+  .btn-primary:hover { background: var(--paper); }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 24px; border-radius: 999px;
+    font-family: var(--font-mono); font-size: 12px;
+    letter-spacing: .14em; text-transform: uppercase;
+    border: 1px solid rgba(246,244,239,.18);
+    color: rgba(246,244,239,.55); text-decoration: none;
+    transition: border-color .2s, color .2s;
+  }
+  .btn-ghost:hover { border-color: var(--paper); color: var(--paper); }
+
+  .note {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: .08em; line-height: 1.7;
+    color: rgba(246,244,239,.22);
+  }
+  .note a { color: rgba(30,217,122,.5); text-decoration: none; }
+  .note a:hover { color: var(--green-bright); }
+
+  @media (max-width: 560px) {
+    .wrap { padding: 24px; gap: 24px; }
+    .brand-bar { top: 20px; left: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="big-num">500</div>
+
+<a href="/" class="brand-bar">
+  <span class="brand-mark">C</span>
+  <span class="brand-name">CFLD</span>
+</a>
+
+<div class="wrap">
+  <span class="badge">Erreur 500 · Serveur</span>
+
+  <h1>Le vestiaire<br>est en <em>panne</em>.</h1>
+
+  <p class="desc">
+    Une erreur interne s'est produite de notre côté. Notre équipe technique
+    en a été informée automatiquement. Veuillez réessayer dans quelques instants.
+  </p>
+
+  <div class="divider"></div>
+
+  <div class="actions">
+    <a href="/" class="btn-primary">← Retour à l'accueil</a>
+    <a href="/contact/" class="btn-ghost">Nous contacter</a>
+  </div>
+
+  <p class="note">
+    Si l'erreur persiste, écrivez-nous à
+    <a href="mailto:contact@cfld.ci">contact@cfld.ci</a><br>
+    en précisant l'heure et la page concernée.
+  </p>
+</div>
+</body>
+</html>

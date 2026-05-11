@@ -1,0 +1,63 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}Matchs{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Équipe</span>
+    <h1>Matchs <span style="font-size:18px;color:var(--muted);font-weight:400;">{{ total }}</span></h1>
+  </div>
+  <div class="hd-actions">
+    <a href="{% url 'admin_match_add' %}" style="display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;">
+      + Ajouter
+    </a>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="f-pills">
+    <a href="?" class="f-pill {% if type_actif == 'all' %}active{% endif %}">Tous</a>
+    <a href="?type=a_venir" class="f-pill {% if type_actif == 'a_venir' %}active{% endif %}">À venir</a>
+    <a href="?type=resultat" class="f-pill {% if type_actif == 'resultat' %}active{% endif %}">Résultats</a>
+  </div>
+</div>
+
+<div class="t-wrap">
+  <div class="t-row t-head" style="grid-template-columns:120px 1fr 1fr 100px 80px 80px 80px;">
+    <div>Date</div>
+    <div>Domicile</div>
+    <div>Extérieur</div>
+    <div>Compétition</div>
+    <div>Score</div>
+    <div>Type</div>
+    <div style="text-align:right;">Actions</div>
+  </div>
+  {% for m in matchs %}
+  <div class="t-row" id="row-m{{ m.pk }}" style="grid-template-columns:120px 1fr 1fr 100px 80px 80px 80px;">
+    <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">{{ m.date|date:"d/m/Y" }}<br>{{ m.date|date:"H:i" }}</div>
+    <div>
+      <div style="font-weight:{% if m.est_domicile %}600{% else %}400{% endif %};">{{ m.equipe_domicile }}</div>
+      {% if m.lieu %}<div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ m.lieu }}</div>{% endif %}
+    </div>
+    <div style="font-weight:{% if not m.est_domicile %}600{% else %}400{% endif %};">{{ m.equipe_exterieur }}</div>
+    <div style="font-size:12px;">{{ m.competition }}{% if m.journee %} J{{ m.journee }}{% endif %}</div>
+    <div style="font-family:var(--font-mono);font-size:13px;font-weight:600;">
+      {% if m.score_domicile is not None %}{{ m.score_domicile }} — {{ m.score_exterieur }}{% else %}<span style="color:var(--muted);">—</span>{% endif %}
+    </div>
+    <div>
+      {% if m.type_match == 'a_venir' %}
+        <span class="badge-status bs-avenir">À venir</span>
+      {% else %}
+        <span class="badge-status bs-resultat">Résultat</span>
+      {% endif %}
+    </div>
+    <div class="actions">
+      <a href="{% url 'admin_match_edit' m.pk %}" class="t-btn" title="Modifier">✏</a>
+      <button class="t-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_match_delete' m.pk %}', document.getElementById('row-m{{ m.pk }}'))">✕</button>
+    </div>
+  </div>
+  {% empty %}
+  <div class="empty-state">Aucun match</div>
+  {% endfor %}
+</div>
+{% endblock %}

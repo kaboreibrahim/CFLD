@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Médias — CFLD{% endblock %}
+{% block screen_label %}06 Médias{% endblock %}
+{% block current_page %}medias.html{% endblock %}
+
+{% block extra_css %}
+<style>
+.media-tabs { display:flex; gap:32px; padding:32px 0; border-bottom:1px solid var(--line); }
+.mtab { font-family:var(--font-mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); padding-bottom:4px; cursor:pointer; }
+.mtab.active { color:var(--ink); border-bottom:2px solid var(--green); }
+.mpanel { display:none; }
+.mpanel.active { display:block; }
+.feature { display:grid; grid-template-columns:1.4fr 1fr; gap:60px; padding:80px 0; border-bottom:1px solid var(--line); }
+.feature .ph { aspect-ratio:16/10; border-radius:2px; background:var(--paper-2); display:grid; place-items:center; font-family:var(--font-mono); font-size:11px; color:var(--muted); }
+.feature-text .eyebrow { margin-bottom:24px; }
+.feature-text h2 { font-size:clamp(32px,4vw,52px); line-height:1.05; margin-bottom:24px; }
+.feature-text p { font-size:15px; line-height:1.6; color:var(--muted); }
+.feature-text .meta { display:flex; gap:12px; margin-bottom:16px; font-family:var(--font-mono); font-size:11px; color:var(--muted); text-transform:uppercase; }
+.feature-text .meta .cat { color:var(--green); }
+.articles { padding:80px 0; border-bottom:1px solid var(--line); }
+.articles-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:32px; margin-top:40px; }
+.article-card { display:grid; gap:14px; }
+.article-card .ph { aspect-ratio:4/3; border-radius:2px; background:var(--paper-2); display:grid; place-items:center; font-family:var(--font-mono); font-size:11px; color:var(--muted); }
+.article-card .meta { font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase; display:flex; gap:12px; }
+.article-card .meta .cat { color:var(--green); }
+.article-card h3 { font-size:20px; line-height:1.15; }
+.gallery-section { padding:80px 0; border-bottom:1px solid var(--line); }
+.gallery-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:40px; }
+.gallery-item { aspect-ratio:1; border-radius:2px; overflow:hidden; background:var(--paper-2); display:grid; place-items:center; font-family:var(--font-mono); font-size:10px; color:var(--muted); cursor:pointer; transition:opacity .2s; }
+.gallery-item:hover { opacity:.85; }
+.gallery-item img { width:100%; height:100%; object-fit:cover; }
+.gallery-item:nth-child(3) { grid-column:span 2; aspect-ratio:2/1; }
+.videos-section { padding:80px 0; }
+.videos-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:40px; }
+.video-card { display:grid; gap:16px; }
+.video-thumb { aspect-ratio:16/9; border-radius:2px; background:var(--ink); overflow:hidden; position:relative; cursor:pointer; display:grid; place-items:center; }
+.video-thumb .play-btn { width:56px; height:56px; border-radius:50%; background:var(--green-bright); display:grid; place-items:center; font-size:20px; color:var(--ink); z-index:1; transition:transform .2s; }
+.video-thumb:hover .play-btn { transform:scale(1.1); }
+.video-thumb img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.6; }
+.video-card .type { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--green); }
+.video-card h3 { font-size:20px; line-height:1.15; }
+.video-card p { font-size:13px; color:var(--muted); margin:0; }
+@media(max-width:1023px){.feature{grid-template-columns:1fr;gap:40px}.articles-grid{grid-template-columns:1fr 1fr}.gallery-grid{grid-template-columns:repeat(3,1fr)}.videos-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:767px){.articles-grid{grid-template-columns:1fr}.gallery-grid{grid-template-columns:1fr 1fr}.gallery-item:nth-child(3){grid-column:span 1;aspect-ratio:1}.videos-grid{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="page">
+  <div class="page-title-spread">
+    <h1>Médias</h1>
+    <div class="meta">
+      <span>Section 06 / 08</span>
+      <span>Actualités · Photos · Vidéos</span>
+    </div>
+  </div>
+
+  <div class="media-tabs" id="mtabs">
+    <div class="mtab active" data-mtab="news">Actualités</div>
+    <div class="mtab" data-mtab="gallery">Galerie</div>
+    <div class="mtab" data-mtab="videos">Vidéos</div>
+  </div>
+
+  <!-- Actualités -->
+  <div class="mpanel active" id="news">
+    {% if article_une %}
+    <div class="feature">
+      <div>
+        {% if article_une.image %}
+        <img class="ph" src="{{ article_une.image.url }}" alt="{{ article_une.titre }}" style="object-fit:cover;width:100%;height:100%;">
+        {% else %}
+        <div class="ph">[ Photo · {{ article_une.get_categorie_display }} ]</div>
+        {% endif %}
+      </div>
+      <div class="feature-text">
+        <span class="eyebrow">À la une</span>
+        <div class="meta">
+          <span class="cat">{{ article_une.get_categorie_display }}</span>
+          <span>{{ article_une.date_publication|date:"d M Y"|upper }}</span>
+        </div>
+        <h2>{{ article_une.titre }}</h2>
+        <p>{{ article_une.accroche }}</p>
+      </div>
+    </div>
+    {% else %}
+    <div class="feature">
+      <div class="ph">[ Photo · Match U17 vs ASEC ]</div>
+      <div class="feature-text">
+        <span class="eyebrow">À la une</span>
+        <div class="meta"><span class="cat">Match</span><span>02 MAI 2026</span></div>
+        <h2>Les U17 s'imposent 3—0 face à Africa Sports et confirment leur place en finale régionale.</h2>
+        <p>Une démonstration collective au stade Champroux. Reportage et analyse tactique disponibles en intégralité.</p>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="articles">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2 style="font-size:clamp(28px,4vw,40px);">Toutes les actualités</h2>
+      </div>
+      <div class="articles-grid">
+        {% for article in articles %}
+        <article class="article-card reveal">
+          {% if article.image %}
+          <img class="ph" src="{{ article.image.url }}" alt="{{ article.titre }}" style="object-fit:cover;width:100%;height:100%;">
+          {% else %}
+          <div class="ph">[ {{ article.get_categorie_display }} ]</div>
+          {% endif %}
+          <div class="meta">
+            <span class="cat">{{ article.get_categorie_display }}</span>
+            <span>{{ article.date_publication|date:"d M Y"|upper }}</span>
+          </div>
+          <h3>{{ article.titre }}</h3>
+        </article>
+        {% empty %}
+        <article class="article-card reveal">
+          <div class="ph">[ Académie ]</div>
+          <div class="meta"><span class="cat">Académie</span><span>28 AVR 2026</span></div>
+          <h3>Trois jours de stage à Yamoussoukro pour la promotion 2026.</h3>
+        </article>
+        <article class="article-card reveal">
+          <div class="ph">[ Club ]</div>
+          <div class="meta"><span class="cat">Club</span><span>22 AVR 2026</span></div>
+          <h3>Nouveau partenariat avec l'équipementier Adidas Afrique.</h3>
+        </article>
+        <article class="article-card reveal">
+          <div class="ph">[ Joueur ]</div>
+          <div class="meta"><span class="cat">Joueur</span><span>18 AVR 2026</span></div>
+          <h3>Junior Akré signe son premier contrat professionnel en Belgique.</h3>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Galerie -->
+  <div class="mpanel" id="gallery">
+    <div class="gallery-section" style="padding-top:60px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2>Galerie photos</h2>
+      </div>
+      <div class="gallery-grid">
+        {% for photo in photos %}
+        <div class="gallery-item">
+          <img src="{{ photo.image.url }}" alt="{{ photo.legende }}" loading="lazy">
+        </div>
+        {% empty %}
+        {% for i in "12345678901" %}
+        <div class="gallery-item">[ Photo {{ forloop.counter }} ]</div>
+        {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Vidéos -->
+  <div class="mpanel" id="videos">
+    <div class="videos-section" style="padding-top:60px;">
+      <h2>Vidéos</h2>
+      <div class="videos-grid">
+        {% for video in videos %}
+        <div class="video-card reveal">
+          <div class="video-thumb" {% if video.url %}onclick="window.open('{{ video.url }}','_blank')"{% endif %}>
+            {% if video.thumbnail %}
+            <img src="{{ video.thumbnail.url }}" alt="{{ video.titre }}">
+            {% endif %}
+            <div class="play-btn">▶</div>
+          </div>
+          <div class="type">{{ video.get_type_video_display }}</div>
+          <h3>{{ video.titre }}</h3>
+          <p>{{ video.description }}</p>
+        </div>
+        {% empty %}
+        <div class="video-card reveal">
+          <div class="video-thumb"><div class="play-btn">▶</div></div>
+          <div class="type">Reportage</div>
+          <h3>Une journée au campus CFLD</h3>
+          <p>Immersion dans la vie quotidienne de l'académie pendant une semaine d'entraînement.</p>
+        </div>
+        <div class="video-card reveal">
+          <div class="video-thumb"><div class="play-btn">▶</div></div>
+          <div class="type">Documentaire</div>
+          <h3>La méthode CFLD — 15 ans de formation</h3>
+          <p>Retour sur l'histoire du club et ses méthodes pédagogiques uniques en Côte d'Ivoire.</p>
+        </div>
+        <div class="video-card reveal">
+          <div class="video-thumb"><div class="play-btn">▶</div></div>
+          <div class="type">Highlights</div>
+          <h3>Meilleurs buts — Saison 2025/26</h3>
+          <p>La compilation des plus beaux buts de la saison en cours.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.mtab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.mtab').forEach(x => x.classList.toggle('active', x===t));
+  const id = t.dataset.mtab;
+  document.querySelectorAll('.mpanel').forEach(p => p.classList.toggle('active', p.id===id));
+}));
+</script>
+{% endblock %}

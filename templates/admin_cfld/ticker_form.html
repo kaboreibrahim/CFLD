@@ -1,0 +1,96 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}{% if obj %}Modifier le ticker{% else %}Ajouter au ticker{% endif %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Communication / Ticker</span>
+    <h1>{% if obj %}Modifier l'élément{% else %}Nouvel élément{% endif %}</h1>
+  </div>
+  <div class="hd-actions">
+    <a href="{% url 'admin_ticker' %}" style="padding:10px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
+      ← Retour
+    </a>
+  </div>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="form-card">
+
+    <div style="background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:12px 16px;margin-bottom:24px;font-family:var(--font-mono);font-size:11px;color:var(--muted);">
+      Types disponibles :<br>
+      <strong style="color:var(--ink);">score_live</strong> — Score en temps réel (équipes + score + minute)<br>
+      <strong style="color:var(--ink);">score_resultat</strong> — Résultat de match (équipes + score final + catégorie)<br>
+      <strong style="color:var(--ink);">prochain_match</strong> — Prochain match (équipes + date dans texte + catégorie)<br>
+      <strong style="color:var(--ink);">annonce</strong> — Texte libre
+    </div>
+
+    <div class="form-grid">
+
+      <div class="field">
+        <label>Type</label>
+        {{ form.type }}
+        {% if form.type.errors %}<ul class="errorlist">{% for e in form.type.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+      <div class="field">
+        <label>Catégorie</label>
+        {{ form.categorie }}
+        <span class="help">Ex : U17, Ligue 1 CI</span>
+      </div>
+
+      <div class="field">
+        <label>Équipe domicile</label>
+        {{ form.equipe_dom }}
+      </div>
+      <div class="field">
+        <label>Équipe extérieur</label>
+        {{ form.equipe_ext }}
+      </div>
+
+      <div class="field">
+        <label>Score domicile</label>
+        {{ form.score_dom }}
+      </div>
+      <div class="field">
+        <label>Score extérieur</label>
+        {{ form.score_ext }}
+      </div>
+
+      <div class="field">
+        <label>Minute (live)</label>
+        {{ form.minute }}
+        <span class="help">Minute de jeu si score en direct</span>
+      </div>
+      <div class="field">
+        <label>Ordre d'affichage</label>
+        {{ form.ordre }}
+        <span class="help">Plus petit = affiché en premier</span>
+      </div>
+
+      <div class="field span2">
+        <label>Texte (pour annonce / prochain match)</label>
+        {{ form.texte }}
+        <span class="help">Affiché tel quel pour les types annonce et prochain_match</span>
+      </div>
+
+      <div class="field span2">
+        <div class="field-check">
+          {{ form.actif }}
+          <label for="{{ form.actif.id_for_label }}">Actif (visible dans le ticker du site)</label>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" style="padding:11px 24px;background:var(--ink);color:var(--paper);border:0;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">
+        {% if obj %}Enregistrer{% else %}Ajouter{% endif %}
+      </button>
+      <a href="{% url 'admin_ticker' %}" style="padding:11px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
+        Annuler
+      </a>
+    </div>
+  </div>
+</form>
+{% endblock %}

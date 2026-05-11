@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Le Club — CFLD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter+Tight:wght@400..700&family=Space+Grotesk:wght@400..700&family=Bebas+Neue&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.intro {
+  padding: 120px 0 100px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+  border-bottom: 1px solid var(--line);
+  align-items: end;
+}
+.intro h1 {
+  font-size: clamp(72px, 9vw, 160px);
+  line-height: 0.92;
+}
+.intro h1 em { font-style: italic; color: var(--green); }
+.intro .meta-col {
+  display: grid; gap: 24px; padding-bottom: 24px;
+}
+.intro .lede { font-size: 22px; }
+
+/* Timeline */
+.timeline-section { padding: 140px 0; border-bottom: 1px solid var(--line); }
+.timeline-section h2 { max-width: 18ch; margin-bottom: 80px; }
+.timeline-section h2 em { color: var(--green); font-style: italic; }
+.timeline {
+  position: relative;
+  display: grid;
+  grid-template-columns: 120px 1fr;
+}
+.timeline::before {
+  content: ""; position: absolute;
+  left: 120px; top: 0; bottom: 0;
+  width: 1px; background: var(--line);
+}
+.tl-item {
+  display: contents;
+}
+.tl-year {
+  font-family: var(--font-display);
+  font-size: 32px;
+  padding: 32px 24px 32px 0;
+  border-top: 1px solid var(--line);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--green);
+}
+.tl-content {
+  padding: 32px 0 32px 60px;
+  border-top: 1px solid var(--line);
+  position: relative;
+  display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px;
+  align-items: start;
+}
+.tl-content::before {
+  content: ""; position: absolute;
+  left: -5px; top: 40px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--green);
+}
+.tl-content h3 { font-size: 28px; margin-bottom: 12px; line-height: 1.1; }
+.tl-content p { color: var(--muted); font-size: 14px; line-height: 1.55; margin: 0; text-wrap: pretty; }
+.tl-image { aspect-ratio: 4/3; border-radius: 2px; }
+
+/* Mission band */
+.mission {
+  padding: 160px 0;
+  background: var(--green); color: var(--paper);
+  border-bottom: 1px solid var(--ink);
+}
+.mission .pillar-num { color: var(--ink) !important; }
+.mission h2 em { color: var(--ink) !important; }
+.mission-grid {
+  max-width: 1440px; margin: 0 auto; padding: 0 40px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+}
+.mission h2 { color: var(--paper); font-size: clamp(48px, 6vw, 96px); }
+.mission h2 em { color: var(--green-bright); font-style: italic; }
+.mission p {
+  color: rgba(246,244,239,0.75);
+  font-size: 18px; line-height: 1.55;
+  text-wrap: pretty;
+}
+.mission-pillars {
+  display: grid; gap: 24px;
+}
+.pillar {
+  border-top: 1px solid rgba(246,244,239,0.15);
+  padding-top: 20px;
+  display: grid; grid-template-columns: 60px 1fr;
+  gap: 24px; align-items: start;
+}
+.pillar-num {
+  font-family: var(--font-mono); font-size: 12px;
+  letter-spacing: 0.16em; color: var(--green-bright);
+  padding-top: 6px;
+}
+.pillar h4 { font-family: var(--font-display); font-size: 24px; margin: 0 0 8px; font-weight: 500; letter-spacing: -0.01em; }
+.pillar p { color: rgba(246,244,239,0.65); font-size: 14px; margin: 0; line-height: 1.55; }
+
+/* Staff */
+.staff { padding: 140px 0; border-bottom: 1px solid var(--line); }
+.staff-head { margin-bottom: 80px; }
+.staff-head h2 { max-width: 16ch; }
+.staff-grid {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 24px;
+}
+.staff-card {
+  display: grid; gap: 16px;
+}
+.staff-card .ph { aspect-ratio: 3/4; }
+.staff-card.lead .ph { aspect-ratio: 4/5; }
+.staff-card .role {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.16em; color: var(--green);
+  text-transform: uppercase;
+}
+.staff-card h3 { font-size: 24px; line-height: 1.1; }
+.staff-card.lead h3 { font-size: 36px; }
+.staff-card p { color: var(--muted); font-size: 13px; margin: 0; line-height: 1.55; }
+
+/* --- Responsive tablet --- */
+@media (max-width: 1023px) {
+  .intro { grid-template-columns: 1fr; gap: 40px; padding: 80px 0 60px; }
+  .tl-content { grid-template-columns: 1fr; gap: 24px; }
+  .mission-grid { grid-template-columns: 1fr; gap: 48px; }
+  .staff-grid { grid-template-columns: 1fr 1fr 1fr; }
+  .staff-card.lead { grid-column: 1 / -1; }
+  .staff-card.lead .ph { aspect-ratio: 16/9; }
+}
+
+/* --- Responsive mobile --- */
+@media (max-width: 767px) {
+  .intro { padding: 60px 0 40px; }
+  .intro h1 { font-size: clamp(60px, 16vw, 120px); }
+  .intro .lede { font-size: 18px; }
+
+  .timeline-section { padding: 80px 0; }
+  .timeline { grid-template-columns: 64px 1fr; }
+  .timeline::before { left: 64px; }
+  .tl-year { font-size: 20px; padding: 20px 10px 20px 0; }
+  .tl-content { padding: 20px 0 20px 28px; }
+  .tl-content::before { top: 28px; }
+
+  .mission { padding: 100px 0; }
+  .mission-grid { padding: 0 16px; }
+
+  .staff { padding: 80px 0; }
+  .staff-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .staff-card.lead .ph { aspect-ratio: 4/3; }
+}
+</style>
+</head>
+<body data-screen-label="02 Le Club">
+<div id="nav-mount"></div>
+
+<main class="page">
+  <div class="page-title-spread">
+    <h1>Le<br><em style="font-style:italic;color:var(--green)">Club</em></h1>
+    <div class="meta">
+      <span>Section 02 / 08</span>
+      <span>Histoire — Mission — Staff</span>
+      <span>Fondé en 2008</span>
+    </div>
+  </div>
+
+  <section class="intro">
+    <div class="reveal">
+      <span class="eyebrow">Notre histoire en un mot</span>
+      <h2 style="margin-top: 24px;"><em style="color:var(--green);font-style:italic">Persévérance.</em></h2>
+    </div>
+    <div class="meta-col reveal">
+      <p class="lede">
+        Né en 2008 dans la commune de Yopougon, le CFLD est parti d'un terrain en latérite,
+        de douze gamins et d'une conviction : l'Afrique forme le meilleur football du monde,
+        elle ne le sait simplement pas encore.
+      </p>
+      <p class="lede" style="font-size:16px;">
+        Dix-huit saisons plus tard, plus de 240 joueurs sont passés par notre académie,
+        certains évoluent aujourd'hui en Europe, beaucoup forment la colonne vertébrale
+        des sélections nationales jeunes. Notre méthode, elle, n'a pas changé.
+      </p>
+    </div>
+  </section>
+</main>
+
+<section class="timeline-section">
+  <div class="page">
+    <div class="reveal">
+      <span class="eyebrow">Chronologie</span>
+      <h2>Dix-huit ans, <em>quatre chapitres</em>.</h2>
+    </div>
+    <div class="timeline">
+      <div class="tl-item reveal">
+        <div class="tl-year">2008</div>
+        <div class="tl-content">
+          <div>
+            <h3>Le terrain de Yopougon</h3>
+            <p>Création informelle par Jean-Baptiste Diomandé, ancien joueur formé à l'ASEC. Premiers entraînements sur le terrain communal, sans vestiaire ni équipement. Douze joueurs, une seule paire de crampons partagée.</p>
+          </div>
+          <div class="ph tl-image">[ Photo · Premier groupe 2008 ]</div>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-year">2013</div>
+        <div class="tl-content">
+          <div>
+            <h3>Affiliation FIF & premier titre régional</h3>
+            <p>Le club obtient sa licence officielle et remporte le championnat régional U15 dès sa première participation. Inauguration du centre de formation de Cocody — quatre dortoirs, une salle de classe, un kiné.</p>
+          </div>
+          <div class="ph tl-image">[ Photo · Trophée régional 2013 ]</div>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-year">2019</div>
+        <div class="tl-content">
+          <div>
+            <h3>Internationalisation</h3>
+            <p>Trois joueurs signent professionnel en Europe (Belgique, Portugal, France). Lancement du programme scolaire en partenariat avec le Lycée Houphouët-Boigny — l'école et le ballon, jamais l'un sans l'autre.</p>
+          </div>
+          <div class="ph tl-image">[ Photo · Stage international ]</div>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-year">2026</div>
+        <div class="tl-content">
+          <div>
+            <h3>Une nouvelle ambition</h3>
+            <p>Saison de la maturité : équipe première en Ligue 1, académie reconnue par la CAF, partenariat équipementier avec Adidas Afrique. Ouverture des inscriptions toutes catégories pour 2026—2027.</p>
+          </div>
+          <div class="ph tl-image">[ Photo · Effectif 2026 ]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mission">
+  <div class="mission-grid">
+    <div class="reveal">
+      <span class="eyebrow" style="color:rgba(246,244,239,0.5)">Notre mission</span>
+      <h2 style="margin-top: 24px;">Former des hommes qui savent <em>jouer</em>.</h2>
+      <p style="margin-top: 32px;">
+        Au CFLD, le terrain n'est jamais une fin. C'est l'endroit où l'on apprend
+        à perdre avec dignité, à gagner avec humilité, à se relever quand le
+        corps dit non. Le ballon n'est qu'un prétexte — beau, magnifique,
+        mais un prétexte.
+      </p>
+    </div>
+    <div class="mission-pillars reveal">
+      <div class="pillar">
+        <div class="pillar-num">I</div>
+        <div>
+          <h4>Excellence sportive</h4>
+          <p>Formation technique et tactique exigeante, encadrement diplômé UEFA et CAF.</p>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">II</div>
+        <div>
+          <h4>Réussite scolaire</h4>
+          <p>Aucun joueur n'évolue sans son année validée. L'école d'abord, le terrain ensuite.</p>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">III</div>
+        <div>
+          <h4>Intégrité humaine</h4>
+          <p>Charte du joueur, suivi psychologique, médiateur à temps plein. Le respect n'est pas négociable.</p>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-num">IV</div>
+        <div>
+          <h4>Insertion professionnelle</h4>
+          <p>Cellule d'accompagnement vers l'Europe, mais aussi vers la reconversion. Un projet pour chaque joueur.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="staff" id="staff">
+  <div class="page">
+    <div class="staff-head reveal">
+      <span class="eyebrow">Encadrement</span>
+      <h2 style="margin-top: 16px;">L'équipe<br>derrière l'équipe.</h2>
+    </div>
+    <div class="staff-grid">
+      <div class="staff-card lead reveal">
+        <div class="ph">[ Portrait · J.-B. Diomandé ]</div>
+        <span class="role">Fondateur · Directeur technique</span>
+        <h3>Jean-Baptiste Diomandé</h3>
+        <p>Ancien milieu ASEC. Diplôme CAF Pro. Au club depuis le premier jour.</p>
+      </div>
+      <div class="staff-card reveal">
+        <div class="ph">[ Portrait · Coach Kéita ]</div>
+        <span class="role">Coach équipe première</span>
+        <h3>Aboubacar Kéita</h3>
+        <p>UEFA A. 6 saisons.</p>
+      </div>
+      <div class="staff-card reveal">
+        <div class="ph">[ Portrait · M. Bamba ]</div>
+        <span class="role">Préparation physique</span>
+        <h3>Mamadou Bamba</h3>
+        <p>DESS Sport. Ex-Stade Rennais.</p>
+      </div>
+      <div class="staff-card reveal">
+        <div class="ph">[ Portrait · Dr. Konaté ]</div>
+        <span class="role">Cellule médicale</span>
+        <h3>Dr. Aïcha Konaté</h3>
+        <p>Médecin du sport. Référente CAF.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="footer-mount"></div>
+<div id="fab-mount"></div>
+<script src="assets/shell.js"></script>
+<script>CFLD.mountShell('club.html');</script>
+</body>
+</html>

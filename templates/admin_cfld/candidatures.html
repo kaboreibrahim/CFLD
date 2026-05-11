@@ -1,0 +1,126 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}Candidatures{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Recrutement</span>
+    <h1>Candidatures</h1>
+  </div>
+</div>
+
+<!-- KPI -->
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="k-label">Total</div>
+    <div class="k-val">{{ stats.total }}</div>
+  </div>
+  <div class="kpi orange">
+    <div class="k-label">En attente</div>
+    <div class="k-val">{{ stats.pending }}</div>
+  </div>
+  <div class="kpi green">
+    <div class="k-label">Acceptées</div>
+    <div class="k-val">{{ stats.accepted }}</div>
+  </div>
+  <div class="kpi muted">
+    <div class="k-label">Refusées</div>
+    <div class="k-val">{{ stats.refused }}</div>
+  </div>
+</div>
+
+<form method="get">
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <span class="ico">🔍</span>
+      <input type="text" name="q" value="{{ recherche }}" placeholder="Nom, prénom, email ou référence…">
+    </div>
+    <div class="f-pills">
+      <a href="?" class="f-pill {% if statut_actif == 'all' %}active{% endif %}">Toutes</a>
+      <a href="?statut=pending{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'pending' %}active{% endif %}">En attente</a>
+      <a href="?statut=waiting{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'waiting' %}active{% endif %}">Mise en attente</a>
+      <a href="?statut=accepted{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'accepted' %}active{% endif %}">Acceptées</a>
+      <a href="?statut=refused{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'refused' %}active{% endif %}">Refusées</a>
+    </div>
+    {% if recherche %}<button type="submit" style="padding:6px 14px;background:var(--ink);color:var(--paper);border:0;border-radius:4px;font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;cursor:pointer;">Chercher</button>{% endif %}
+  </div>
+</form>
+
+<div class="t-wrap">
+  <div class="t-row t-head" style="grid-template-columns:100px 1fr 70px 80px 120px 80px 180px;">
+    <div>Réf.</div>
+    <div>Candidat</div>
+    <div>Poste</div>
+    <div>Âge</div>
+    <div>Contact</div>
+    <div>Statut</div>
+    <div style="text-align:right;">Actions</div>
+  </div>
+  {% for c in candidatures %}
+  <div class="t-row" id="row-c{{ c.pk }}" style="grid-template-columns:100px 1fr 70px 80px 120px 80px 180px;">
+    <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ c.reference }}</div>
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        {% if c.photo %}
+          <img src="{{ c.photo.url }}" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+        {% else %}
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--green);color:var(--paper);display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ c.initiales }}</div>
+        {% endif %}
+        <div>
+          <div style="font-weight:500;">{{ c.prenom }} {{ c.nom }}</div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ c.nationalite }}</div>
+        </div>
+      </div>
+    </div>
+    <div><span class="pill">{{ c.poste }}</span></div>
+    <div style="font-family:var(--font-mono);font-size:12px;">{{ c.age }} ans</div>
+    <div>
+      <div style="font-size:11px;">{{ c.email|truncatechars:20 }}</div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ c.telephone_whatsapp }}</div>
+    </div>
+    <div>
+      <span class="badge-status bs-{{ c.statut }}" id="badge-{{ c.pk }}">{{ c.get_statut_display }}</span>
+    </div>
+    <div class="actions" style="justify-content:flex-end;flex-wrap:wrap;gap:4px;">
+      {% if c.statut != 'accepted' %}
+      <button class="t-btn ok" title="Accepter" onclick="doAction({{ c.pk }}, 'accept')">✓</button>
+      {% endif %}
+      {% if c.statut != 'refused' %}
+      <button class="t-btn del" title="Refuser" onclick="doAction({{ c.pk }}, 'refuse')">✕</button>
+      {% endif %}
+      {% if c.statut == 'pending' %}
+      <button class="t-btn" title="Mettre en attente" onclick="doAction({{ c.pk }}, 'wait')">⏸</button>
+      {% endif %}
+    </div>
+  </div>
+  {% empty %}
+  <div class="empty-state">Aucune candidature</div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const LABELS = {pending:'En attente', waiting:'Mise en attente', accepted:'Acceptée', refused:'Refusée'};
+const CLASSES = {pending:'bs-pending', waiting:'bs-waiting', accepted:'bs-accepted', refused:'bs-refused'};
+
+function doAction(pk, action) {
+  const fd = new FormData();
+  fd.append('action', action);
+  fetch(`/admin-cfld/candidature/${pk}/action/`, {
+    method: 'POST',
+    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+    body: fd,
+  }).then(r => r.json()).then(d => {
+    if (d.success) {
+      const badge = document.getElementById('badge-' + pk);
+      badge.textContent = LABELS[d.statut] || d.statut;
+      badge.className = 'badge-status ' + (CLASSES[d.statut] || '');
+      showToast('Statut mis à jour', 'ok');
+    } else {
+      showToast('Erreur', 'err');
+    }
+  }).catch(() => showToast('Erreur réseau', 'err'));
+}
+</script>
+{% endblock %}

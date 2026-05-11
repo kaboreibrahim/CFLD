@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — CFLD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter+Tight:wght@400..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+body { background: #f3f1ec; }
+.admin-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+.sidebar {
+  background: var(--ink); color: var(--paper);
+  padding: 24px;
+  display: grid; align-content: start; gap: 32px;
+}
+.sidebar .brand { color: var(--paper); }
+.sidebar .brand-mark { background: var(--green-bright); color: var(--ink); }
+.sidebar .section-label {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.18em; color: rgba(246,244,239,0.4);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.sidebar nav { display: grid; gap: 4px; }
+.sidebar nav a {
+  padding: 10px 12px; border-radius: 4px;
+  font-size: 13px; color: rgba(246,244,239,0.7);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.sidebar nav a:hover { background: rgba(246,244,239,0.05); color: var(--paper); }
+.sidebar nav a.active { background: rgba(20,160,90,0.15); color: var(--green-bright); }
+.sidebar nav a .badge {
+  background: var(--green-bright); color: var(--ink);
+  border-radius: 999px; padding: 2px 8px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+}
+
+.admin-main { padding: 32px 40px; max-width: 1400px; }
+.admin-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+.admin-head h1 { font-size: 36px; line-height: 1; }
+.admin-head .right { display: flex; gap: 12px; align-items: center; }
+.admin-head .user {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px;
+}
+.admin-head .avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--green); color: var(--paper);
+  display: grid; place-items: center;
+  font-family: var(--font-display); font-size: 14px; font-weight: 600;
+}
+
+/* Stats */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+.kpi {
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: 4px; padding: 24px;
+}
+.kpi .label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.kpi .value { font-family: var(--font-display); font-size: 56px; font-weight: 500; line-height: 1; letter-spacing: -0.02em; margin-top: 12px; }
+.kpi .delta { font-size: 12px; color: var(--green); margin-top: 8px; font-family: var(--font-mono); letter-spacing: 0.08em; }
+.kpi.pending .value { color: #c98700; }
+.kpi.accepted .value { color: var(--green); }
+.kpi.refused .value { color: rgba(11,11,11,0.4); }
+
+/* Filter bar */
+.filter-bar {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 4px;
+  padding: 16px 20px;
+  display: flex; gap: 16px; align-items: center;
+  margin-bottom: 16px;
+}
+.filter-bar input {
+  flex: 1; border: 0; padding: 8px 0; font-size: 14px; outline: none;
+  background: transparent;
+}
+.f-pills { display: flex; gap: 6px; }
+.f-pill {
+  padding: 6px 12px; border-radius: 999px;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid var(--line);
+}
+.f-pill.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* Table */
+.table {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 4px;
+  overflow: hidden;
+}
+.tr {
+  display: grid;
+  grid-template-columns: 56px 1.4fr 1fr 0.8fr 1fr 1fr auto;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px; gap: 16px;
+}
+.tr:last-child { border-bottom: 0; }
+.tr.head {
+  background: rgba(11,11,11,0.03);
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted);
+}
+.tr .candidate { display: flex; gap: 12px; align-items: center; }
+.tr .avatar-sm {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--paper-2);
+  display: grid; place-items: center;
+  font-family: var(--font-display); font-size: 13px; font-weight: 600;
+  color: var(--ink);
+}
+.tr .candidate .name { font-weight: 500; font-family: var(--font-display); font-size: 16px; letter-spacing: -0.01em; }
+.tr .candidate .ref { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--muted); }
+
+.status {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 500;
+}
+.status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+.status.pending { background: #fff5e0; color: #8b5a00; }
+.status.pending::before { background: #c98700; }
+.status.accepted { background: #e0f3e8; color: var(--green-deep); }
+.status.accepted::before { background: var(--green); }
+.status.refused { background: rgba(11,11,11,0.05); color: rgba(11,11,11,0.5); }
+.status.refused::before { background: rgba(11,11,11,0.4); }
+.status.waiting { background: #e8eef9; color: #2a4d8a; }
+.status.waiting::before { background: #4a7ad9; }
+
+.actions { display: flex; gap: 4px; justify-content: flex-end; }
+.act {
+  width: 32px; height: 32px; border-radius: 4px;
+  border: 1px solid var(--line); background: var(--paper);
+  display: grid; place-items: center;
+  font-size: 14px; cursor: pointer;
+  transition: all .2s;
+}
+.act:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.act.accept:hover { background: var(--green); border-color: var(--green); }
+.act.refuse:hover { background: #b73f3f; border-color: #b73f3f; }
+
+.position-pill {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  background: var(--paper-2);
+  padding: 4px 10px; border-radius: 999px;
+  display: inline-block;
+  color: var(--ink);
+}
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: var(--paper);
+  padding: 14px 24px; border-radius: 999px;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em;
+  opacity: 0; transition: all .3s;
+  z-index: 100;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.green { background: var(--green); }
+</style>
+</head>
+<body data-screen-label="09 Admin">
+<div class="admin-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">C</span>
+      <span>CFLD · Admin</span>
+    </div>
+    <div>
+      <div class="section-label">Recrutement</div>
+      <nav>
+        <a href="#" class="active">Candidatures <span class="badge">14</span></a>
+        <a href="#">Détections planifiées</a>
+        <a href="#">Joueurs intégrés</a>
+      </nav>
+    </div>
+    <div>
+      <div class="section-label">Club</div>
+      <nav>
+        <a href="#">Effectif</a>
+        <a href="#">Matchs &amp; calendrier</a>
+        <a href="#">Médias</a>
+      </nav>
+    </div>
+    <div>
+      <div class="section-label">Compte</div>
+      <nav>
+        <a href="#">Paramètres</a>
+        <a href="accueil.html">Voir le site →</a>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-head">
+      <div>
+        <span class="eyebrow">Tableau de bord · Recrutement</span>
+        <h1 style="margin-top:8px;">Candidatures</h1>
+      </div>
+      <div class="right">
+        <button class="btn btn-ghost" style="padding: 10px 18px; font-size: 13px;">Exporter CSV</button>
+        <div class="user">
+          <div class="avatar">JD</div>
+          <span>J. Diomandé</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi"><div class="label">Total reçues</div><div class="value">128</div><div class="delta">+12 cette semaine</div></div>
+      <div class="kpi pending"><div class="label">En attente</div><div class="value">14</div><div class="delta" style="color:#c98700">À traiter sous 72h</div></div>
+      <div class="kpi accepted"><div class="label">Acceptées</div><div class="value">42</div><div class="delta">33% de taux d'acceptation</div></div>
+      <div class="kpi refused"><div class="label">Refusées</div><div class="value">72</div><div class="delta" style="color:var(--muted)">Saison 2026—2027</div></div>
+    </div>
+
+    <div class="filter-bar">
+      <span style="font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase;">⌕</span>
+      <input placeholder="Rechercher par nom, référence, email…">
+      <div class="f-pills" id="filters">
+        <span class="f-pill active" data-f="all">Tous</span>
+        <span class="f-pill" data-f="pending">En attente</span>
+        <span class="f-pill" data-f="waiting">Mise en attente</span>
+        <span class="f-pill" data-f="accepted">Acceptés</span>
+        <span class="f-pill" data-f="refused">Refusés</span>
+      </div>
+    </div>
+
+    <div class="table" id="rows">
+      <div class="tr head">
+        <div></div><div>Candidat</div><div>Email · Tél.</div><div>Poste</div><div>Date dépôt</div><div>Statut</div><div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const candidates = [
+  ['CFLD-208314','Yannick Kouassi','y.kouassi@email.com','+225 07 21 33 88 90','Attaquant','03 Mai',16,'pending'],
+  ['CFLD-208298','Aïcha Bamba','a.bamba@email.com','+225 05 60 12 44 21','Milieu Off.','02 Mai',15,'pending'],
+  ['CFLD-208271','Drissa Coulibaly','d.coulibaly@email.com','+225 07 88 02 11 36','Déf. Central','30 Avr',17,'waiting'],
+  ['CFLD-208240','Maxime Kéita','m.keita@email.com','+225 01 22 90 14 88','Ailier','29 Avr',14,'pending'],
+  ['CFLD-208218','Étienne N\'Dri','e.ndri@email.com','+225 07 14 56 22 09','Gardien','27 Avr',18,'accepted'],
+  ['CFLD-208194','Souleymane Diop','s.diop@email.com','+225 05 33 47 11 02','Latéral','25 Avr',16,'accepted'],
+  ['CFLD-208173','Karim Yao','k.yao@email.com','+225 07 90 18 65 41','Milieu Déf.','24 Avr',19,'refused'],
+  ['CFLD-208155','Junior Bah','j.bah@email.com','+225 01 67 34 25 90','Attaquant','22 Avr',15,'pending'],
+  ['CFLD-208137','Ousmane Traoré','o.traore@email.com','+225 07 28 11 99 04','Milieu Off.','20 Avr',17,'waiting'],
+  ['CFLD-208112','Pape Sangaré','p.sangare@email.com','+225 05 19 88 23 67','Déf. Central','18 Avr',18,'refused'],
+];
+const STATUS = {
+  pending: 'En attente',
+  waiting: 'Mise en attente',
+  accepted: 'Acceptée',
+  refused: 'Refusée',
+};
+
+function initials(name) {
+  return name.split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase();
+}
+function render(filter='all') {
+  const head = document.querySelector('.tr.head');
+  document.getElementById('rows').innerHTML = '';
+  document.getElementById('rows').appendChild(head);
+  candidates
+    .filter(c => filter==='all' || c[7]===filter)
+    .forEach(c => {
+    const [ref, name, email, phone, pos, date, age, status] = c;
+    const row = document.createElement('div');
+    row.className = 'tr';
+    row.innerHTML = `
+      <input type="checkbox" style="accent-color:var(--green);">
+      <div class="candidate">
+        <div class="avatar-sm">${initials(name)}</div>
+        <div><div class="name">${name}</div><div class="ref">${ref} · ${age} ans</div></div>
+      </div>
+      <div style="font-size:12px; line-height:1.4;">
+        <div>${email}</div>
+        <div style="color:var(--muted); font-family:var(--font-mono); font-size:11px;">${phone}</div>
+      </div>
+      <div><span class="position-pill">${pos}</span></div>
+      <div style="font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; color:var(--muted);">${date}</div>
+      <div><span class="status ${status}">${STATUS[status]}</span></div>
+      <div class="actions">
+        <button class="act" title="Voir le dossier">👁</button>
+        <button class="act accept" title="Accepter" data-act="accept" data-ref="${ref}">✓</button>
+        <button class="act" title="Mettre en attente" data-act="wait" data-ref="${ref}">⏱</button>
+        <button class="act refuse" title="Refuser" data-act="refuse" data-ref="${ref}">✕</button>
+        <button class="act" title="Notifier" data-act="notify" data-ref="${ref}">✉</button>
+      </div>`;
+    document.getElementById('rows').appendChild(row);
+  });
+}
+render();
+
+document.getElementById('filters').addEventListener('click', e => {
+  const p = e.target.closest('.f-pill');
+  if (!p) return;
+  document.querySelectorAll('.f-pill').forEach(x => x.classList.toggle('active', x===p));
+  render(p.dataset.f);
+});
+
+const messages = {
+  accept: 'Candidature acceptée — email envoyé',
+  refuse: 'Candidature refusée — email envoyé',
+  wait: 'Candidature mise en attente',
+  notify: 'Notification envoyée au candidat',
+};
+document.getElementById('rows').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if (!b) return;
+  const t = document.getElementById('toast');
+  t.textContent = messages[b.dataset.act];
+  t.classList.toggle('green', b.dataset.act === 'accept');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+});
+</script>
+</body>
+</html>

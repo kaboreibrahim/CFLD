@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>400 — Requête invalide · CFLD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter+Tight:wght@400..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0b0b0b;
+    --paper: #f6f4ef;
+    --paper-2: #ede9e0;
+    --green: #14a05a;
+    --green-bright: #1ed97a;
+    --muted: rgba(11,11,11,.45);
+    --line: rgba(11,11,11,.1);
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-text: 'Inter Tight', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--paper);
+    color: var(--ink);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-text);
+    overflow: hidden;
+  }
+
+  .bg {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      repeating-linear-gradient(135deg, rgba(11,11,11,.02) 0 8px, rgba(11,11,11,.04) 8px 16px),
+      var(--paper);
+  }
+
+  .brand-bar {
+    position: fixed; top: 32px; left: 40px;
+    display: flex; align-items: center; gap: 12px;
+    z-index: 10; text-decoration: none;
+  }
+  .brand-mark {
+    width: 32px; height: 32px; border-radius: 2px;
+    background: var(--green-bright); color: var(--ink);
+    display: grid; place-items: center;
+    font-family: var(--font-display); font-weight: 700; font-size: 16px;
+  }
+  .brand-name {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: .18em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .wrap {
+    position: relative; z-index: 1;
+    max-width: 640px; width: 100%;
+    padding: 40px;
+    display: grid; gap: 32px;
+  }
+
+  .error-header {
+    display: flex; align-items: center; gap: 16px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .error-num {
+    font-family: var(--font-display);
+    font-size: 64px; line-height: 1;
+    letter-spacing: -.04em;
+    color: var(--ink);
+  }
+
+  .error-meta { display: grid; gap: 4px; }
+  .error-meta .code {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: .2em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .error-meta .label {
+    font-family: var(--font-display); font-size: 24px;
+    letter-spacing: -.01em;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1; letter-spacing: -.02em;
+  }
+  h1 em { color: var(--green); font-style: italic; }
+
+  .desc {
+    font-size: 15px; line-height: 1.65;
+    color: var(--muted); max-width: 50ch;
+  }
+
+  .technical-box {
+    background: var(--ink); color: var(--paper);
+    border-radius: 4px; padding: 24px;
+    display: grid; gap: 12px;
+  }
+  .t-label {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: .18em; text-transform: uppercase;
+    color: rgba(246,244,239,.4);
+  }
+  .t-msg {
+    font-family: var(--font-mono); font-size: 13px;
+    color: var(--green-bright); letter-spacing: .04em;
+    line-height: 1.5;
+  }
+
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  .btn-dark {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 24px; border-radius: 999px;
+    font-family: var(--font-mono); font-size: 12px;
+    letter-spacing: .14em; text-transform: uppercase;
+    background: var(--ink); color: var(--paper);
+    font-weight: 600; text-decoration: none;
+    transition: background .2s;
+  }
+  .btn-dark:hover { background: var(--green); }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 24px; border-radius: 999px;
+    font-family: var(--font-mono); font-size: 12px;
+    letter-spacing: .14em; text-transform: uppercase;
+    border: 1px solid rgba(11,11,11,.2); color: var(--muted);
+    text-decoration: none; transition: border-color .2s, color .2s;
+  }
+  .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+
+  @media (max-width: 600px) {
+    .wrap { padding: 24px; gap: 24px; }
+    .brand-bar { top: 20px; left: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<a href="/" class="brand-bar">
+  <span class="brand-mark">C</span>
+  <span class="brand-name">CFLD</span>
+</a>
+
+<div class="wrap">
+  <div class="error-header">
+    <div class="error-num">400</div>
+    <div class="error-meta">
+      <span class="code">HTTP · Bad Request</span>
+      <span class="label">Requête invalide</span>
+    </div>
+  </div>
+
+  <h1>Passe <em>mal</em><br>joué.</h1>
+
+  <p class="desc">
+    La requête envoyée au serveur est incorrecte ou malformée.
+    Cela peut arriver si votre session a expiré, si vous avez
+    soumis un formulaire plusieurs fois, ou si l'URL est corrompue.
+  </p>
+
+  <div class="technical-box">
+    <div class="t-label">Détail technique</div>
+    <div class="t-msg">
+      400 Bad Request — La syntaxe de la requête est invalide.<br>
+      Vérifiez le token CSRF ou rechargez la page et réessayez.
+    </div>
+  </div>
+
+  <div class="actions">
+    <a href="/" class="btn-dark">← Retour à l'accueil</a>
+    <a href="javascript:history.back()" class="btn-ghost">Page précédente</a>
+  </div>
+</div>
+</body>
+</html>

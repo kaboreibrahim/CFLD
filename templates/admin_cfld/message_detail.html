@@ -1,0 +1,89 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}Message de {{ msg.nom }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Communication / Messages</span>
+    <h1>{{ msg.nom }}</h1>
+  </div>
+  <div class="hd-actions">
+    <button class="t-btn del" style="width:auto;padding:0 16px;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;" onclick="confirmDelete('{% url 'admin_message_delete' msg.pk %}', null, '{% url 'admin_messages' %}')">✕ Supprimer</button>
+    <a href="{% url 'admin_messages' %}" style="padding:10px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
+      ← Retour
+    </a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 300px;gap:24px;max-width:900px;">
+
+  <!-- Contenu message -->
+  <div class="form-card">
+    <div style="margin-bottom:24px;">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Sujet</div>
+      <div style="font-size:18px;font-weight:600;">{{ msg.get_sujet_display }}</div>
+    </div>
+    <div>
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Message</div>
+      <div style="font-size:15px;line-height:1.7;white-space:pre-wrap;">{{ msg.message }}</div>
+    </div>
+  </div>
+
+  <!-- Infos expéditeur -->
+  <div>
+    <div class="form-card" style="max-width:none;">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Expéditeur</div>
+
+      <div style="display:grid;gap:16px;">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);">Nom</div>
+          <div style="font-size:14px;font-weight:500;margin-top:3px;">{{ msg.nom }}</div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);">Email</div>
+          <a href="mailto:{{ msg.email }}" style="font-size:14px;color:var(--ink);font-family:var(--font-mono);font-size:12px;margin-top:3px;display:block;">{{ msg.email }}</a>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);">Reçu le</div>
+          <div style="font-size:14px;margin-top:3px;">{{ msg.date_envoi|date:"d/m/Y à H:i" }}</div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);">Statut</div>
+          <div style="margin-top:6px;">
+            {% if msg.lu %}
+              <span class="badge-status bs-accepted">Lu</span>
+            {% else %}
+              <span class="badge-status bs-pending">Non lu</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--line);">
+        <a href="mailto:{{ msg.email }}?subject=Re: {{ msg.get_sujet_display }}" style="display:block;text-align:center;padding:11px 16px;background:var(--ink);color:var(--paper);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;">
+          ✉ Répondre par email
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDelete(url, row, redirect) {
+  if (!confirm('Supprimer ce message ?')) return;
+  fetch(url, {
+    method: 'POST',
+    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      if (redirect) window.location = redirect;
+    } else {
+      showToast('Erreur', 'err');
+    }
+  }).catch(() => showToast('Erreur réseau', 'err'));
+}
+</script>
+{% endblock %}

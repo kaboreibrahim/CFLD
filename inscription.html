@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inscription — CFLD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter+Tight:wght@400..700&family=Space+Grotesk:wght@400..700&family=Bebas+Neue&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.form-section { padding: 60px 0 140px; display: grid; grid-template-columns: 1fr 2fr; gap: 80px; }
+.form-aside { position: sticky; top: 100px; align-self: start; display: grid; gap: 32px; }
+.form-aside .lede { font-size: 17px; }
+.aside-steps { display: grid; gap: 0; }
+.aside-step {
+  padding: 16px 0; border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: 32px 1fr; gap: 16px;
+  font-size: 14px; color: var(--muted);
+}
+.aside-step:last-child { border-bottom: 1px solid var(--line); }
+.aside-step .n { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; color: var(--green); }
+.aside-step.done .n { color: var(--ink); }
+.aside-step strong { color: var(--ink); display: block; font-weight: 500; margin-bottom: 4px; font-family: var(--font-display); font-size: 17px; letter-spacing: -0.01em; }
+
+.form-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 56px;
+}
+.form-card h2 { font-size: 40px; margin-bottom: 8px; }
+.form-card .sub { color: var(--muted); margin-bottom: 40px; font-size: 15px; }
+
+.fieldset { display: grid; gap: 24px; padding-bottom: 32px; border-bottom: 1px solid var(--line); margin-bottom: 32px; }
+.fieldset:last-of-type { border-bottom: 0; }
+.fieldset legend {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 8px;
+}
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+
+.field { display: grid; gap: 8px; }
+.field label {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink);
+}
+.field label .req { color: var(--green); margin-left: 2px; }
+.field input, .field select, .field textarea {
+  font-family: var(--font-text); font-size: 16px;
+  border: 0; border-bottom: 1px solid var(--line-strong);
+  background: transparent;
+  padding: 10px 0;
+  color: var(--ink);
+  outline: none;
+  transition: border-color .2s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-bottom-color: var(--green);
+}
+.field .hint { font-size: 12px; color: var(--muted); }
+
+/* Position picker */
+.pos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.pos-pill {
+  padding: 14px 8px;
+  text-align: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s;
+  background: var(--paper);
+}
+.pos-pill:hover { border-color: var(--ink); }
+.pos-pill.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* Photo upload */
+.photo-upload {
+  border: 2px dashed var(--line-strong);
+  border-radius: 4px;
+  padding: 40px;
+  text-align: center;
+  display: grid; gap: 12px; justify-items: center;
+  cursor: pointer;
+  transition: background .2s;
+}
+.photo-upload:hover { background: var(--paper-2); }
+.photo-upload .icon {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--green); color: var(--paper);
+  display: grid; place-items: center;
+  font-size: 22px;
+}
+.photo-upload .ttl { font-family: var(--font-display); font-size: 18px; }
+.photo-upload .sub { font-size: 13px; color: var(--muted); font-family: var(--font-mono); letter-spacing: 0.08em; }
+
+.checkbox-row {
+  display: flex; gap: 12px; align-items: start;
+  font-size: 13px; color: var(--muted);
+  line-height: 1.5;
+}
+.checkbox-row input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--green); }
+.checkbox-row a { text-decoration: underline; }
+
+.form-cta {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 40px; gap: 24px;
+}
+.form-cta .small { font-size: 12px; color: var(--muted); font-family: var(--font-mono); letter-spacing: 0.08em; max-width: 30ch; }
+
+/* --- Responsive tablet --- */
+@media (max-width: 1023px) {
+  .form-section { grid-template-columns: 1fr; gap: 48px; padding: 48px 0 100px; }
+  .form-aside { position: static; }
+  .form-card { padding: 40px; }
+  .row-3 { grid-template-columns: 1fr 1fr; }
+}
+
+/* --- Responsive mobile --- */
+@media (max-width: 767px) {
+  .form-section { padding: 40px 0 80px; }
+  .form-card { padding: 24px 20px; }
+  .form-card h2 { font-size: 32px; }
+  .row-2, .row-3 { grid-template-columns: 1fr; gap: 20px; }
+  .pos-grid { grid-template-columns: repeat(3, 1fr); }
+  .form-cta { flex-direction: column; align-items: flex-start; }
+}
+
+/* Confirmation */
+.confirmation {
+  display: none;
+  padding: 80px 56px;
+  text-align: center;
+  background: var(--green-deep);
+  color: var(--paper);
+  border-radius: 4px;
+}
+.confirmation.show { display: block; }
+.confirmation h2 { color: var(--paper); font-size: 56px; margin-bottom: 24px; }
+.confirmation h2 em { color: var(--green-bright); font-style: italic; }
+.confirmation p { color: rgba(246,244,239,0.85); max-width: 50ch; margin: 0 auto 24px; font-size: 16px; line-height: 1.55; }
+.confirmation .ref {
+  display: inline-block; margin: 16px 0;
+  font-family: var(--font-mono); font-size: 14px;
+  letter-spacing: 0.12em;
+  background: rgba(246,244,239,0.1);
+  padding: 12px 20px; border-radius: 2px;
+}
+</style>
+</head>
+<body data-screen-label="07 Inscription">
+<div id="nav-mount"></div>
+
+<main class="page">
+  <div class="page-title-spread">
+    <h1>S'<em style="color:var(--green);font-style:italic">inscrire</em></h1>
+    <div class="meta">
+      <span>Section 07 / 08</span>
+      <span>Saison 2026—2027</span>
+      <span>Réponse sous 72h</span>
+    </div>
+  </div>
+
+  <section class="form-section">
+    <aside class="form-aside">
+      <span class="eyebrow">À propos du dépôt</span>
+      <p class="lede">
+        Ce formulaire est gratuit et confidentiel. Aucun frais ne vous sera jamais demandé pour postuler au CFLD.
+      </p>
+      <div class="aside-steps">
+        <div class="aside-step done">
+          <span class="n">01</span>
+          <div><strong>Dépôt en ligne</strong>5 minutes pour remplir le dossier.</div>
+        </div>
+        <div class="aside-step">
+          <span class="n">02</span>
+          <div><strong>Accusé de réception</strong>Email automatique sous 5 minutes.</div>
+        </div>
+        <div class="aside-step">
+          <span class="n">03</span>
+          <div><strong>Étude du dossier</strong>Analyse par la cellule technique sous 72h.</div>
+        </div>
+        <div class="aside-step">
+          <span class="n">04</span>
+          <div><strong>Convocation détection</strong>Si retenu, samedi suivant au centre de Cocody.</div>
+        </div>
+      </div>
+    </aside>
+
+    <div>
+      <form class="form-card" id="form">
+        <h2>Formulaire de candidature</h2>
+        <p class="sub">Tous les champs marqués <span style="color:var(--green)">·</span> sont obligatoires.</p>
+
+        <fieldset class="fieldset">
+          <legend>Identité</legend>
+          <div class="row-2">
+            <div class="field">
+              <label>Nom de famille <span class="req">·</span></label>
+              <input type="text" required placeholder="Ex. Kouassi">
+            </div>
+            <div class="field">
+              <label>Prénom <span class="req">·</span></label>
+              <input type="text" required placeholder="Ex. Yannick">
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Date de naissance <span class="req">·</span></label>
+              <input type="date" required>
+            </div>
+            <div class="field">
+              <label>Nationalité <span class="req">·</span></label>
+              <select required>
+                <option value="">Sélectionner…</option>
+                <option>Côte d'Ivoire</option>
+                <option>Burkina Faso</option>
+                <option>Mali</option>
+                <option>Sénégal</option>
+                <option>Ghana</option>
+                <option>Autre</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend>Profil sportif</legend>
+          <div class="field">
+            <label>Poste de jeu préféré <span class="req">·</span></label>
+            <div class="pos-grid" id="posgrid">
+              <div class="pos-pill" data-pos="GK">Gardien</div>
+              <div class="pos-pill" data-pos="DC">Déf. Central</div>
+              <div class="pos-pill" data-pos="LAT">Latéral</div>
+              <div class="pos-pill" data-pos="MD">Milieu Déf.</div>
+              <div class="pos-pill" data-pos="MO">Milieu Off.</div>
+              <div class="pos-pill" data-pos="AIL">Ailier</div>
+              <div class="pos-pill" data-pos="ATT">Attaquant</div>
+              <div class="pos-pill" data-pos="OTH">Autre</div>
+            </div>
+          </div>
+          <div class="row-3">
+            <div class="field">
+              <label>Numéro préféré</label>
+              <input type="number" min="1" max="99" placeholder="Ex. 10">
+              <span class="hint">Selon disponibilité</span>
+            </div>
+            <div class="field">
+              <label>Pied fort <span class="req">·</span></label>
+              <select required>
+                <option value="">—</option>
+                <option>Droit</option>
+                <option>Gauche</option>
+                <option>Ambidextre</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Club précédent</label>
+              <input type="text" placeholder="Optionnel">
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend>Coordonnées</legend>
+          <div class="row-2">
+            <div class="field">
+              <label>Téléphone WhatsApp <span class="req">·</span></label>
+              <input type="tel" required placeholder="+225 07 00 00 00 00">
+            </div>
+            <div class="field">
+              <label>Adresse email <span class="req">·</span></label>
+              <input type="email" required placeholder="vous@exemple.com">
+            </div>
+          </div>
+          <div class="field">
+            <label>Adresse postale</label>
+            <input type="text" placeholder="Ville, quartier — pour la convocation détection">
+          </div>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend>Photo du joueur</legend>
+          <div class="field">
+            <label>Photo récente <span class="req">·</span></label>
+            <label class="photo-upload" for="photo-input">
+              <div class="icon">+</div>
+              <div class="ttl">Téléverser une photo</div>
+              <div class="sub">JPG ou PNG · 5 Mo MAX · Visage clairement visible</div>
+              <input type="file" id="photo-input" accept="image/*" hidden>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="consent" required>
+          <label for="consent">
+            J'autorise le CFLD à conserver mes données dans le cadre du processus de candidature et j'accepte la <a href="#">charte du joueur</a> et la <a href="#">politique de confidentialité</a>.
+          </label>
+        </div>
+
+        <div class="form-cta">
+          <span class="small">En soumettant, vous recevrez un email de confirmation immédiat.</span>
+          <button type="submit" class="btn btn-primary">
+            Envoyer ma candidature <span class="arrow">→</span>
+          </button>
+        </div>
+      </form>
+
+      <div class="confirmation" id="confirmation">
+        <span class="eyebrow" style="color:rgba(246,244,239,0.6)">Candidature reçue</span>
+        <h2 style="margin-top:24px;">Merci, votre dossier est <em>entre nos mains</em>.</h2>
+        <p>
+          Votre demande a bien été reçue. Nous allons l'analyser et vous contacter dans les meilleurs délais — généralement sous 72h. Un email de confirmation vient d'être envoyé à l'adresse renseignée.
+        </p>
+        <div class="ref">Référence dossier · CFLD-<span id="ref">000000</span></div>
+        <p style="font-size:14px;">
+          Pensez à vérifier votre dossier de courriers indésirables.
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="footer-mount"></div>
+<div id="fab-mount"></div>
+<script src="assets/shell.js"></script>
+<script>
+CFLD.mountShell('inscription.html');
+document.querySelectorAll('.pos-pill').forEach(p => p.addEventListener('click', () => {
+  document.querySelectorAll('.pos-pill').forEach(x => x.classList.toggle('active', x===p));
+}));
+document.getElementById('form').addEventListener('submit', e => {
+  e.preventDefault();
+  document.getElementById('form').style.display = 'none';
+  document.getElementById('ref').textContent = String(Math.floor(100000 + Math.random()*900000));
+  document.getElementById('confirmation').classList.add('show');
+  window.scrollTo({top: 200, behavior: 'smooth'});
+});
+</script>
+</body>
+</html>

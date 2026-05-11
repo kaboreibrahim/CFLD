@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Académie — CFLD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter+Tight:wght@400..700&family=Space+Grotesk:wght@400..700&family=Bebas+Neue&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.aca-hero {
+  display: grid; grid-template-columns: 1fr 1fr;
+  min-height: 70vh;
+  border-bottom: 1px solid var(--line);
+}
+.aca-hero .text { padding: 100px 60px; display: grid; align-content: center; gap: 24px; }
+.aca-hero .text h1 { font-size: clamp(56px, 7vw, 110px); }
+.aca-hero .text h1 em { color: var(--green); font-style: italic; }
+.aca-hero .ph { background-color: #1a3025; }
+
+.programme { padding: 140px 0; border-bottom: 1px solid var(--line); }
+.programme h2 { max-width: 18ch; margin-bottom: 80px; }
+.programme h2 em { font-style: italic; color: var(--green); }
+.cats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line);
+}
+.cat-card {
+  padding: 40px 24px;
+  border-right: 1px solid var(--line);
+  display: grid; gap: 16px; align-content: start;
+  min-height: 320px;
+  position: relative;
+  transition: background .3s;
+}
+.cat-card:last-child { border-right: 0; }
+.cat-card:hover { background: var(--paper-2); }
+.cat-card .age { font-family: var(--font-display); font-size: 64px; line-height: 1; color: var(--green); font-weight: 500; letter-spacing: -0.02em; }
+.cat-card h3 { font-size: 22px; margin-top: 8px; }
+.cat-card p { color: var(--muted); font-size: 13px; line-height: 1.55; margin: 0; }
+.cat-card .specs {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted);
+}
+
+.semaine {
+  padding: 140px 0; border-bottom: 1px solid var(--line);
+  background: var(--ink); color: var(--paper);
+}
+.semaine h2 { color: var(--paper); max-width: 16ch; margin-bottom: 60px; }
+.semaine h2 em { color: var(--green-bright); font-style: italic; }
+.timetable {
+  display: grid; grid-template-columns: 100px repeat(7, 1fr); gap: 1px;
+  background: rgba(246,244,239,0.1);
+  border: 1px solid rgba(246,244,239,0.1);
+}
+.tt-cell {
+  background: var(--ink);
+  padding: 16px 12px;
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.1em;
+  min-height: 56px;
+}
+.tt-head { background: rgba(246,244,239,0.05); text-align: center; text-transform: uppercase; color: rgba(246,244,239,0.6); }
+.tt-time { color: rgba(246,244,239,0.5); text-align: right; }
+.tt-act { background: var(--green-deep); color: var(--paper); border-left: 2px solid var(--green-bright); }
+.tt-act .name { font-family: var(--font-text); font-size: 13px; letter-spacing: 0; text-transform: none; font-weight: 500; }
+.tt-act .sub { font-size: 10px; color: rgba(246,244,239,0.7); margin-top: 2px; letter-spacing: 0.08em; }
+.tt-school { background: rgba(246,244,239,0.05); color: rgba(246,244,239,0.8); }
+.tt-school .name { font-family: var(--font-text); font-size: 12px; letter-spacing: 0; text-transform: none; }
+
+.intgr { padding: 140px 0; border-bottom: 1px solid var(--line); }
+.intgr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
+.intgr h2 em { color: var(--green); font-style: italic; }
+.steps { display: grid; gap: 0; margin-top: 40px; }
+.step {
+  display: grid; grid-template-columns: 80px 1fr;
+  padding: 32px 0; border-top: 1px solid var(--line); gap: 24px;
+}
+.step:last-child { border-bottom: 1px solid var(--line); }
+.step-num {
+  font-family: var(--font-display); font-size: 32px;
+  color: var(--green); font-weight: 500; letter-spacing: -0.02em;
+}
+.step h4 { font-family: var(--font-display); font-size: 22px; margin: 0 0 8px; font-weight: 500; letter-spacing: -0.01em; }
+.step p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+
+.cta-aca {
+  padding: 140px 0; text-align: center;
+  background: var(--green); color: var(--paper);
+}
+.cta-aca h2 { color: var(--paper); max-width: 16ch; margin: 0 auto 32px; }
+.cta-aca h2 em { color: var(--ink); font-style: italic; }
+.cta-aca .btn-primary { background: var(--ink); color: var(--paper); }
+.cta-aca .btn-primary:hover { background: var(--paper); color: var(--ink); }
+
+/* --- Responsive tablet --- */
+@media (max-width: 1023px) {
+  .aca-hero { grid-template-columns: 1fr; min-height: auto; }
+  .aca-hero .ph { min-height: 320px; order: -1; }
+  .aca-hero .text { padding: 60px 40px; }
+  .cats { grid-template-columns: 1fr 1fr; }
+  .cat-card:nth-child(2n) { border-right: 0; }
+  .semaine { overflow-x: auto; }
+  .timetable { min-width: 700px; }
+  .intgr-grid { grid-template-columns: 1fr; gap: 40px; }
+  .programme { padding: 100px 0; }
+}
+
+/* --- Responsive mobile --- */
+@media (max-width: 767px) {
+  .aca-hero .text { padding: 48px 16px; }
+  .aca-hero .ph { min-height: 240px; }
+  .programme { padding: 80px 0; }
+  .cats { grid-template-columns: 1fr; }
+  .cat-card {
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--line);
+    min-height: auto;
+    padding: 28px 16px;
+  }
+  .cat-card:last-child { border-bottom: 0; }
+  .semaine { padding: 80px 0; }
+  .intgr { padding: 80px 0; }
+  .cta-aca { padding: 100px 0; }
+}
+</style>
+</head>
+<body data-screen-label="04 Académie">
+<div id="nav-mount"></div>
+
+<section class="aca-hero">
+  <div class="text reveal">
+    <span class="eyebrow">Centre de formation CFLD</span>
+    <h1>L'académie<br><em>du jeu juste.</em></h1>
+    <p class="lede">
+      Un campus de trois hectares à Cocody. Quatre terrains, dortoir 60 lits,
+      salle de classe, cellule médicale. Ici, on s'entraîne, on étudie, on dort.
+    </p>
+    <div style="display:flex; gap:12px; margin-top:16px;">
+      <a href="inscription.html" class="btn btn-primary">Postuler</a>
+      <a href="#programme" class="btn btn-ghost">Le programme</a>
+    </div>
+  </div>
+  <div class="ph">[ Photo aérienne · Centre de Cocody ]</div>
+</section>
+
+<section class="programme" id="programme">
+  <div class="page">
+    <div class="reveal">
+      <span class="eyebrow">Programme sportif</span>
+      <h2>Sept catégories,<br>une <em>seule méthode</em>.</h2>
+    </div>
+  </div>
+  <div class="page">
+    <div class="cats">
+      <div class="cat-card reveal">
+        <span class="eyebrow">Initiation</span>
+        <div class="age">U9</div>
+        <h3>Premiers pas</h3>
+        <p>Découverte ludique du ballon. 2 séances / semaine. Aucune sélection : tous les enfants sont accueillis.</p>
+        <div class="specs"><span>2× / sem.</span><span>1h30</span></div>
+      </div>
+      <div class="cat-card reveal">
+        <span class="eyebrow">Pré-formation</span>
+        <div class="age">U11—U13</div>
+        <h3>Geste &amp; lecture</h3>
+        <p>Apprentissage technique fondamental. Détection en début de saison. Possibilité d'internat pour U13.</p>
+        <div class="specs"><span>3× / sem.</span><span>2h</span></div>
+      </div>
+      <div class="cat-card reveal">
+        <span class="eyebrow">Formation</span>
+        <div class="age">U15—U17</div>
+        <h3>Élite régionale</h3>
+        <p>Internat scolarité + sport. Compétition nationale. Suivi individualisé physique et mental.</p>
+        <div class="specs"><span>5× / sem.</span><span>3h</span></div>
+      </div>
+      <div class="cat-card reveal">
+        <span class="eyebrow">Pré-pro</span>
+        <div class="age">U19—Pro</div>
+        <h3>Saut professionnel</h3>
+        <p>Préparation au contrat pro. Stages chez nos clubs partenaires en Europe et au Maghreb.</p>
+        <div class="specs"><span>6× / sem.</span><span>3h+</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="semaine">
+  <div class="page">
+    <div class="reveal">
+      <span class="eyebrow" style="color:rgba(246,244,239,0.5)">Semaine type · Internat U15</span>
+      <h2>L'école <em>d'abord</em>,<br>le terrain ensuite.</h2>
+    </div>
+    <div class="timetable">
+      <div class="tt-cell tt-head"></div>
+      <div class="tt-cell tt-head">Lun</div>
+      <div class="tt-cell tt-head">Mar</div>
+      <div class="tt-cell tt-head">Mer</div>
+      <div class="tt-cell tt-head">Jeu</div>
+      <div class="tt-cell tt-head">Ven</div>
+      <div class="tt-cell tt-head">Sam</div>
+      <div class="tt-cell tt-head">Dim</div>
+
+      <div class="tt-cell tt-time">07:00</div>
+      <div class="tt-cell tt-school"><div class="name">Cours · Lycée</div></div>
+      <div class="tt-cell tt-school"><div class="name">Cours · Lycée</div></div>
+      <div class="tt-cell tt-school"><div class="name">Cours · Lycée</div></div>
+      <div class="tt-cell tt-school"><div class="name">Cours · Lycée</div></div>
+      <div class="tt-cell tt-school"><div class="name">Cours · Lycée</div></div>
+      <div class="tt-cell"></div>
+      <div class="tt-cell"></div>
+
+      <div class="tt-cell tt-time">14:00</div>
+      <div class="tt-cell"></div>
+      <div class="tt-cell tt-act"><div class="name">Préparation physique</div><div class="sub">Salle</div></div>
+      <div class="tt-cell tt-act"><div class="name">Technique individuelle</div><div class="sub">Terrain B</div></div>
+      <div class="tt-cell"></div>
+      <div class="tt-cell tt-act"><div class="name">Vidéo &amp; tactique</div><div class="sub">Salle vidéo</div></div>
+      <div class="tt-cell tt-act"><div class="name">Match</div><div class="sub">Compétition</div></div>
+      <div class="tt-cell tt-school"><div class="name">Récupération</div></div>
+
+      <div class="tt-cell tt-time">17:00</div>
+      <div class="tt-cell tt-act"><div class="name">Entraînement</div><div class="sub">Tactique collective</div></div>
+      <div class="tt-cell tt-act"><div class="name">Entraînement</div><div class="sub">Opposition</div></div>
+      <div class="tt-cell"></div>
+      <div class="tt-cell tt-act"><div class="name">Entraînement</div><div class="sub">Match-réduit</div></div>
+      <div class="tt-cell tt-act"><div class="name">Entraînement</div><div class="sub">Veille de match</div></div>
+      <div class="tt-cell"></div>
+      <div class="tt-cell"></div>
+
+      <div class="tt-cell tt-time">19:30</div>
+      <div class="tt-cell tt-school"><div class="name">Étude · Devoirs</div></div>
+      <div class="tt-cell tt-school"><div class="name">Étude · Devoirs</div></div>
+      <div class="tt-cell tt-school"><div class="name">Étude · Devoirs</div></div>
+      <div class="tt-cell tt-school"><div class="name">Étude · Devoirs</div></div>
+      <div class="tt-cell tt-school"><div class="name">Étude · Devoirs</div></div>
+      <div class="tt-cell"></div>
+      <div class="tt-cell tt-school"><div class="name">Sortie cadrée</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="intgr">
+  <div class="page">
+    <div class="intgr-grid">
+      <div class="reveal">
+        <span class="eyebrow">Intégration</span>
+        <h2>Comment <em>nous rejoindre</em>.</h2>
+        <p class="lede" style="margin-top:24px;">
+          Le processus est gratuit, ouvert à tous, et conçu pour évaluer le talent autant que la motivation.
+          Aucun frais ne vous sera jamais demandé pour postuler.
+        </p>
+      </div>
+      <div class="reveal">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">01</div>
+            <div>
+              <h4>Dépôt du dossier en ligne</h4>
+              <p>Formulaire d'inscription avec photo, infos personnelles, historique sportif. 5 minutes.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">02</div>
+            <div>
+              <h4>Étude par la cellule technique</h4>
+              <p>Analyse du dossier sous 72h. Réponse par email — acceptée, refusée, ou mise en attente.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">03</div>
+            <div>
+              <h4>Détection sur le terrain</h4>
+              <p>Convocation à une séance de détection au centre. Un samedi matin, sur invitation uniquement.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">04</div>
+            <div>
+              <h4>Intégration dans la catégorie</h4>
+              <p>Si retenu, signature de la charte du joueur et début de la saison avec votre groupe d'âge.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-aca">
+  <div class="page">
+    <span class="eyebrow" style="color:rgba(246,244,239,0.7)">Saison 2026—2027</span>
+    <h2 style="margin-top:24px;">Le terrain<br>t'<em>attend</em>.</h2>
+    <a href="inscription.html" class="btn btn-primary">Déposer mon dossier <span class="arrow">→</span></a>
+  </div>
+</section>
+
+<div id="footer-mount"></div>
+<div id="fab-mount"></div>
+<script src="assets/shell.js"></script>
+<script>CFLD.mountShell('academie.html');</script>
+</body>
+</html>

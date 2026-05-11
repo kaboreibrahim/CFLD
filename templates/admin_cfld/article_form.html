@@ -1,0 +1,87 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}{% if obj %}Modifier l'article{% else %}Nouvel article{% endif %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Contenu / Articles</span>
+    <h1>{% if obj %}{{ obj.titre|truncatechars:40 }}{% else %}Nouvel article{% endif %}</h1>
+  </div>
+  <div class="hd-actions">
+    <a href="{% url 'admin_articles' %}" style="padding:10px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
+      ← Retour
+    </a>
+  </div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="form-card" style="max-width:900px;">
+    <div class="form-grid">
+
+      <div class="field span2">
+        <label>Titre</label>
+        {{ form.titre }}
+        {% if form.titre.errors %}<ul class="errorlist">{% for e in form.titre.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="field span2">
+        <label>Accroche</label>
+        {{ form.accroche }}
+        <span class="help">Résumé court affiché dans les listes (max 300 caractères)</span>
+        {% if form.accroche.errors %}<ul class="errorlist">{% for e in form.accroche.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="field span2">
+        <label>Contenu</label>
+        {{ form.contenu }}
+        {% if form.contenu.errors %}<ul class="errorlist">{% for e in form.contenu.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="field">
+        <label>Catégorie</label>
+        {{ form.categorie }}
+      </div>
+      <div class="field">
+        <label>Date de publication</label>
+        {{ form.date_publication }}
+        {% if form.date_publication.errors %}<ul class="errorlist">{% for e in form.date_publication.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="field span2">
+        <label>Image de couverture</label>
+        {% if obj and obj.image %}
+          <div style="margin-bottom:10px;">
+            <img src="{{ obj.image.url }}" alt="" style="height:100px;border-radius:4px;object-fit:cover;max-width:100%;">
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:4px;">Image actuelle — remplacer ci-dessous</div>
+          </div>
+        {% endif %}
+        {{ form.image }}
+      </div>
+
+      <div class="field">
+        <div class="field-check">
+          {{ form.en_une }}
+          <label for="{{ form.en_une.id_for_label }}">Mettre en une (affiché en premier sur la page actualités)</label>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-check">
+          {{ form.publie }}
+          <label for="{{ form.publie.id_for_label }}">Publier l'article (visible sur le site)</label>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" style="padding:11px 24px;background:var(--ink);color:var(--paper);border:0;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">
+        {% if obj %}Enregistrer{% else %}Publier l'article{% endif %}
+      </button>
+      <a href="{% url 'admin_articles' %}" style="padding:11px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
+        Annuler
+      </a>
+    </div>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}{% if obj %}Modifier la vidéo{% else %}Ajouter une vidéo{% endif %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Contenu / Vidéos</span>
+    <h1>{% if obj %}{{ obj.titre|truncatechars:40 }}{% else %}Nouvelle vidéo{% endif %}</h1>
+  </div>
+  <div class="hd-actions">
+    <a href="{% url 'admin_videos' %}" style="padding:10px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
+      ← Retour
+    </a>
+  </div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="form-card">
+    <div class="form-grid">
+
+      <div class="field span2">
+        <label>Titre</label>
+        {{ form.titre }}
+        {% if form.titre.errors %}<ul class="errorlist">{% for e in form.titre.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="field span2">
+        <label>Description</label>
+        {{ form.description }}
+      </div>
+
+      <div class="field span2">
+        <label>URL de la vidéo</label>
+        {{ form.url }}
+        <span class="help">Lien YouTube, Vimeo, ou autre</span>
+        {% if form.url.errors %}<ul class="errorlist">{% for e in form.url.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="field">
+        <label>Type</label>
+        {{ form.type_video }}
+      </div>
+      <div class="field">
+        <label>Date</label>
+        {{ form.date }}
+      </div>
+
+      <div class="field span2">
+        <label>Miniature (thumbnail)</label>
+        {% if obj and obj.thumbnail %}
+          <div style="margin-bottom:10px;">
+            <img src="{{ obj.thumbnail.url }}" alt="" style="height:80px;border-radius:4px;object-fit:cover;">
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:4px;">Image actuelle — remplacer ci-dessous</div>
+          </div>
+        {% endif %}
+        {{ form.thumbnail }}
+      </div>
+
+      <div class="field span2">
+        <div class="field-check">
+          {{ form.afficher }}
+          <label for="{{ form.afficher.id_for_label }}">Afficher dans la médiathèque</label>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" style="padding:11px 24px;background:var(--ink);color:var(--paper);border:0;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">
+        {% if obj %}Enregistrer{% else %}Ajouter la vidéo{% endif %}
+      </button>
+      <a href="{% url 'admin_videos' %}" style="padding:11px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
+        Annuler
+      </a>
+    </div>
+  </div>
+</form>
+{% endblock %}

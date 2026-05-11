@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>404 — Page introuvable · CFLD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter+Tight:wght@400..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0b0b0b;
+    --paper: #f6f4ef;
+    --green: #14a05a;
+    --green-bright: #1ed97a;
+    --green-deep: #0a3d28;
+    --muted: rgba(11,11,11,0.45);
+    --line: rgba(11,11,11,0.1);
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-text: 'Inter Tight', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--ink);
+    color: var(--paper);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-text);
+    overflow: hidden;
+  }
+
+  .bg {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse at 20% 80%, rgba(20,160,90,.18) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(238,38,48,.1) 0%, transparent 45%),
+      repeating-linear-gradient(135deg, rgba(255,255,255,.025) 0 8px, rgba(255,255,255,.045) 8px 16px),
+      var(--ink);
+  }
+
+  .brand-bar {
+    position: fixed; top: 32px; left: 40px;
+    display: flex; align-items: center; gap: 12px;
+    z-index: 10; text-decoration: none;
+  }
+  .brand-mark {
+    width: 32px; height: 32px; border-radius: 2px;
+    background: var(--green-bright); color: var(--ink);
+    display: grid; place-items: center;
+    font-family: var(--font-display); font-weight: 700; font-size: 16px;
+  }
+  .brand-name {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: .18em; text-transform: uppercase;
+    color: rgba(246,244,239,.4);
+  }
+
+  .wrap {
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px; align-items: center;
+    max-width: 1100px; width: 100%; padding: 40px;
+  }
+
+  .left { display: grid; gap: 32px; }
+
+  .code-badge {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: .22em; text-transform: uppercase;
+    color: var(--green-bright);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .code-badge::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green-bright);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 6vw, 80px);
+    line-height: .95; letter-spacing: -.02em;
+    color: var(--paper);
+  }
+  h1 em { font-style: italic; color: var(--green-bright); }
+
+  .desc {
+    font-size: 16px; line-height: 1.6;
+    color: rgba(246,244,239,.6); max-width: 42ch;
+  }
+
+  .actions {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px;
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 24px; border-radius: 999px;
+    font-family: var(--font-mono); font-size: 12px;
+    letter-spacing: .14em; text-transform: uppercase;
+    background: var(--green-bright); color: var(--ink);
+    font-weight: 600; text-decoration: none;
+    transition: background .2s;
+  }
+  .btn-primary:hover { background: var(--paper); }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 24px; border-radius: 999px;
+    font-family: var(--font-mono); font-size: 12px;
+    letter-spacing: .14em; text-transform: uppercase;
+    border: 1px solid rgba(246,244,239,.2);
+    color: rgba(246,244,239,.65); text-decoration: none;
+    transition: border-color .2s, color .2s;
+  }
+  .btn-ghost:hover { border-color: var(--paper); color: var(--paper); }
+
+  .right {
+    display: grid; gap: 0;
+    border-top: 1px solid rgba(246,244,239,.1);
+  }
+
+  .nav-link {
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(246,244,239,.07);
+    display: flex; justify-content: space-between; align-items: center;
+    color: rgba(246,244,239,.45);
+    font-family: var(--font-display); font-size: 20px;
+    letter-spacing: -.01em; text-decoration: none;
+    transition: color .2s;
+  }
+  .nav-link:hover { color: var(--paper); }
+  .nav-link .arr {
+    font-family: var(--font-mono); font-size: 13px;
+    opacity: 0; transform: translateX(-8px);
+    transition: opacity .2s, transform .2s;
+  }
+  .nav-link:hover .arr { opacity: 1; transform: translateX(0); }
+
+  .big-num {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-display);
+    font-size: clamp(200px, 28vw, 380px);
+    line-height: .85; letter-spacing: -.06em;
+    color: rgba(246,244,239,.04);
+    pointer-events: none; user-select: none;
+  }
+
+  .footer-note {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: .2em; text-transform: uppercase;
+    color: rgba(246,244,239,.18);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 900px) {
+    .wrap { grid-template-columns: 1fr; gap: 48px; }
+    .right { display: none; }
+  }
+  @media (max-width: 560px) {
+    .wrap { padding: 24px; }
+    .brand-bar { top: 20px; left: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="big-num">404</div>
+
+<a href="/" class="brand-bar">
+  <span class="brand-mark">C</span>
+  <span class="brand-name">CFLD</span>
+</a>
+
+<div class="wrap">
+  <div class="left">
+    <span class="code-badge">Erreur 404 · Page introuvable</span>
+    <h1>Ce terrain<br>n'<em>existe</em> pas.</h1>
+    <p class="desc">
+      La page que vous cherchez a été déplacée, supprimée ou n'a jamais existé.
+      Peut-être avez-vous suivi un lien périmé ?
+    </p>
+    <div class="actions">
+      <a href="/" class="btn-primary">← Retour à l'accueil</a>
+      <a href="/inscription/" class="btn-ghost">Candidature →</a>
+    </div>
+  </div>
+
+  <nav class="right" aria-label="Navigation principale">
+    <a href="/" class="nav-link">Accueil <span class="arr">→</span></a>
+    <a href="/club/" class="nav-link">Le Club <span class="arr">→</span></a>
+    <a href="/academie/" class="nav-link">Académie <span class="arr">→</span></a>
+    <a href="/effectif/" class="nav-link">Effectif <span class="arr">→</span></a>
+    <a href="/matchs/" class="nav-link">Matchs <span class="arr">→</span></a>
+    <a href="/medias/" class="nav-link">Médias <span class="arr">→</span></a>
+    <a href="/inscription/" class="nav-link">Inscription <span class="arr">→</span></a>
+    <a href="/contact/" class="nav-link">Contact <span class="arr">→</span></a>
+  </nav>
+</div>
+
+<span class="footer-note">CFLD · Club Football La Différence · Abidjan</span>
+</body>
+</html>

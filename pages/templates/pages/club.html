@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Le Club — CFLD{% endblock %}
+{% block screen_label %}02 Club{% endblock %}
+{% block current_page %}club.html{% endblock %}
+
+{% block extra_css %}
+<style>
+.intro { padding:120px 0 100px; display:grid; grid-template-columns:1fr 1fr; gap:80px; border-bottom:1px solid var(--line); align-items:end; }
+.intro h1 { font-size:clamp(72px,9vw,160px); line-height:.92; letter-spacing:-.03em; }
+.intro h1 em { color:var(--green); font-style:italic; }
+.timeline { padding:120px 0; border-bottom:1px solid var(--line); }
+.tl-grid { display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--line); margin-top:60px; }
+.tl-item { padding:32px 24px 40px; border-right:1px solid var(--line); }
+.tl-item:last-child { border-right:0; }
+.tl-year { font-family:var(--font-display); font-size:72px; line-height:.95; letter-spacing:-.03em; color:rgba(11,11,11,.15); }
+.tl-label { font-family:var(--font-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--green); margin:12px 0 8px; }
+.tl-item h3 { font-size:22px; line-height:1.1; }
+.tl-item p { font-size:14px; color:var(--muted); line-height:1.55; margin:8px 0 0; }
+.mission { padding:120px 0; border-bottom:1px solid var(--line); background:var(--ink); color:var(--paper); }
+.mission-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+.mission-pillars { display:grid; grid-template-columns:1fr 1fr; gap:0; border-top:1px solid rgba(246,244,239,.1); }
+.pillar { padding:32px 24px; border-right:1px solid rgba(246,244,239,.1); border-bottom:1px solid rgba(246,244,239,.1); }
+.pillar:nth-child(2n) { border-right:0; }
+.pillar .num { font-family:var(--font-mono); font-size:11px; color:var(--green-bright); letter-spacing:.16em; }
+.pillar h3 { font-size:24px; margin:8px 0 10px; }
+.pillar p { font-size:14px; color:rgba(246,244,239,.7); line-height:1.55; margin:0; }
+.staff { padding:120px 0; border-bottom:1px solid var(--line); }
+.staff-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:32px; margin-top:60px; }
+.staff-card { display:grid; gap:16px; }
+.staff-card .photo { aspect-ratio:3/4; border-radius:2px; background:var(--paper-2); display:grid; place-items:center; font-family:var(--font-mono); font-size:11px; color:var(--muted); text-align:center; padding:20px; }
+.staff-card .role { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--green); }
+.staff-card h3 { font-size:22px; line-height:1.05; }
+.staff-card p { font-size:13px; color:var(--muted); line-height:1.5; margin:0; }
+@media(max-width:1023px){.intro{grid-template-columns:1fr;gap:40px;padding:80px 0 80px}.tl-grid{grid-template-columns:1fr 1fr}.tl-item:nth-child(2n){border-right:0}.mission-grid{grid-template-columns:1fr;gap:48px}.staff-grid{grid-template-columns:1fr 1fr;gap:24px}}
+@media(max-width:767px){.tl-grid{grid-template-columns:1fr}.tl-item{border-right:0;border-bottom:1px solid var(--line)}.mission-pillars{grid-template-columns:1fr}.pillar{border-right:0}.staff-grid{grid-template-columns:1fr 1fr}}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="page">
+  <div class="page-title-spread">
+    <h1>Le Club</h1>
+    <div class="meta">
+      <span>Section 02 / 08</span>
+      <span>Fondé en 2008</span>
+      <span>Abidjan · Côte d'Ivoire</span>
+    </div>
+  </div>
+
+  <section class="intro">
+    <div class="reveal">
+      <h1>Football,<br><em>différemment.</em></h1>
+    </div>
+    <div class="reveal">
+      <span class="eyebrow">Notre histoire</span>
+      <p class="lede" style="margin-top:24px;">
+        Fondé en 2008 sur un terrain en latérite dans le quartier de Cocody, le CFLD est né d'une conviction simple : le football pouvait être autre chose qu'un rêve. Sous la direction du Coach Diomandé, le club a grandi autour d'un projet humain autant que sportif.
+      </p>
+      <p style="color:var(--muted);font-size:15px;line-height:1.6;margin-top:24px;">
+        Aujourd'hui, le Club Football La Différence forme plus de deux cents jeunes par an dans sept catégories, de l'U7 au niveau professionnel. Trois titres régionaux et des dizaines de joueurs intégrés en professionnel témoignent d'une méthode qui fonctionne.
+      </p>
+      <div style="margin-top:32px;display:flex;gap:12px;">
+        <a href="{% url 'inscription' %}" class="btn btn-primary">Rejoindre le club</a>
+        <a href="{% url 'academie' %}" class="btn btn-ghost">Notre académie →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="timeline">
+    <div class="reveal">
+      <span class="eyebrow">Chronologie</span>
+      <h2 style="margin-top:16px;">18 années de <em style="color:var(--green);font-style:italic">construction</em>.</h2>
+    </div>
+    <div class="tl-grid">
+      <div class="tl-item reveal">
+        <div class="tl-year">2008</div>
+        <div class="tl-label">Fondation</div>
+        <h3>Le premier terrain</h3>
+        <p>Un terrain en latérite, douze joueurs et une vision. Le CFLD naît à Cocody avec une ambition : former des hommes via le football.</p>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-year">2013</div>
+        <div class="tl-label">Premier titre</div>
+        <h3>Champion régional</h3>
+        <p>Premier titre régional remporté. La méthode prouve son efficacité. Cinq joueurs intégrés en académies professionnelles.</p>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-year">2019</div>
+        <div class="tl-label">Nouveau centre</div>
+        <h3>Le campus de Cocody</h3>
+        <p>Inauguration du campus de 3 hectares : terrain synthétique, vestiaires, salle de vidéo, internat pour les U15—U19.</p>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-year">2026</div>
+        <div class="tl-label">Aujourd'hui</div>
+        <h3>Ligue 1 & expansion</h3>
+        <p>3ᵉ de Ligue 1, partenariat Adidas, 240+ joueurs formés, programme d'expansion vers Bouaké et San-Pédro.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="mission">
+    <div class="page">
+      <div class="mission-grid reveal">
+        <div>
+          <span class="eyebrow" style="color:var(--green-bright)">Notre mission</span>
+          <h2 style="color:var(--paper);margin-top:16px;max-width:18ch;">Former des <em style="color:var(--green-bright);font-style:italic">hommes</em> qui savent jouer.</h2>
+          <p style="color:rgba(246,244,239,.75);font-size:15px;line-height:1.6;margin-top:24px;max-width:50ch;">
+            Le CFLD est avant tout un projet éducatif. Chaque joueur bénéficie d'un suivi scolaire, d'un encadrement psychologique et d'une préparation à la vie professionnelle — dans le sport comme en dehors.
+          </p>
+        </div>
+        <div class="mission-pillars">
+          <div class="pillar reveal"><div class="num">01</div><h3>Excellence</h3><p>Exiger le meilleur de chaque joueur, chaque jour, à l'entraînement comme en compétition.</p></div>
+          <div class="pillar reveal"><div class="num">02</div><h3>Éducation</h3><p>Le terrain est une classe. Les valeurs apprises ici s'appliquent partout, pour la vie entière.</p></div>
+          <div class="pillar reveal"><div class="num">03</div><h3>Intégrité</h3><p>Le respect des règles, de l'adversaire et de l'arbitre n'est pas optionnel. C'est notre identité.</p></div>
+          <div class="pillar reveal"><div class="num">04</div><h3>Carrière</h3><p>Construire des trajectoires professionnelles — sportives ou non. L'après-football commence maintenant.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="staff">
+    <div class="reveal">
+      <span class="eyebrow">Notre staff</span>
+      <h2 style="margin-top:16px;">L'équipe qui <em style="color:var(--green);font-style:italic">encadre</em>.</h2>
+    </div>
+    <div class="staff-grid">
+      <div class="staff-card reveal">
+        <div class="photo">[ Photo · Fondateur ]</div>
+        <div class="role">Fondateur & Président</div>
+        <h3>Félix Diomandé</h3>
+        <p>Ancien joueur professionnel, il a fondé le CFLD avec la conviction que le football africain méritait sa propre voie.</p>
+      </div>
+      <div class="staff-card reveal">
+        <div class="photo">[ Photo · Entraîneur principal ]</div>
+        <div class="role">Directeur technique</div>
+        <h3>Coach Diomandé</h3>
+        <p>Formation UEFA B. 12 ans à la tête de l'équipe première. Architecte du style de jeu CFLD : technique, offensif, collectif.</p>
+      </div>
+      <div class="staff-card reveal">
+        <div class="photo">[ Photo · Préparateur physique ]</div>
+        <div class="role">Préparateur physique</div>
+        <h3>Alassane Koné</h3>
+        <p>Expert en préparation athlétique pour les jeunes. Protocoles adaptés aux catégories U9 à U19.</p>
+      </div>
+      <div class="staff-card reveal">
+        <div class="photo">[ Photo · Médecin ]</div>
+        <div class="role">Médecin du club</div>
+        <h3>Dr. Adjoua Kouamé</h3>
+        <p>Médecin du sport, spécialiste des traumatismes du jeune sportif. Suivi individuel de chaque joueur.</p>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}

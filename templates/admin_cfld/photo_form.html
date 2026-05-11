@@ -1,0 +1,73 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}{% if obj %}Modifier la photo{% else %}Ajouter une photo{% endif %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Contenu / Photos</span>
+    <h1>{% if obj %}{{ obj.legende|default:"Photo #"|add:obj.pk|stringformat:"s" }}{% else %}Nouvelle photo{% endif %}</h1>
+  </div>
+  <div class="hd-actions">
+    <a href="{% url 'admin_photos' %}" style="padding:10px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
+      ← Retour
+    </a>
+  </div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div style="display:grid;grid-template-columns:1fr 360px;gap:24px;max-width:900px;">
+
+    <div class="form-card">
+      <div class="form-grid full">
+
+        <div class="field">
+          <label>Fichier image</label>
+          {% if obj and obj.image %}
+            <div style="margin-bottom:10px;">
+              <img src="{{ obj.image.url }}" alt="" style="height:120px;border-radius:4px;object-fit:cover;">
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:4px;">Image actuelle</div>
+            </div>
+          {% endif %}
+          {{ form.image }}
+          {% if form.image.errors %}<ul class="errorlist">{% for e in form.image.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+
+        <div class="field">
+          <label>Légende</label>
+          {{ form.legende }}
+        </div>
+
+        <div class="field">
+          <label>Date</label>
+          {{ form.date }}
+        </div>
+
+        <div class="field">
+          <div class="field-check">
+            {{ form.afficher }}
+            <label for="{{ form.afficher.id_for_label }}">Afficher dans la galerie</label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" style="padding:11px 24px;background:var(--ink);color:var(--paper);border:0;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">
+          {% if obj %}Enregistrer{% else %}Ajouter la photo{% endif %}
+        </button>
+        <a href="{% url 'admin_photos' %}" style="padding:11px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
+          Annuler
+        </a>
+      </div>
+    </div>
+
+    {% if obj and obj.image %}
+    <div>
+      <img src="{{ obj.image.url }}" alt="" style="width:100%;border-radius:6px;display:block;">
+    </div>
+    {% endif %}
+
+  </div>
+</form>
+{% endblock %}

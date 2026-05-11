@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\LENOVO\\\\Desktop\\\\PROJET\\\\CFLD\" -Recurse -Force | ForEach-Object { $_.FullName })",
+      "Bash(python manage.py startapp pages)",
+      "Bash(python manage.py startapp effectif)",
+      "Bash(python manage.py startapp matchs)",
+      "Bash(python manage.py startapp medias)",
+      "Bash(python manage.py startapp recrutement)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000__TRACKED_VAR__)"
+    ]
+  }
+}

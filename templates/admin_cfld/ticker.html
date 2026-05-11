@@ -1,0 +1,60 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}Ticker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Communication</span>
+    <h1>Ticker <span style="font-size:18px;color:var(--muted);font-weight:400;">{{ items|length }}</span></h1>
+  </div>
+  <div class="hd-actions">
+    <a href="{% url 'admin_ticker_add' %}" style="display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;">
+      + Ajouter
+    </a>
+  </div>
+</div>
+
+<div style="background:#fff5e0;border:1px solid #f0d080;border-radius:6px;padding:12px 18px;margin-bottom:16px;font-family:var(--font-mono);font-size:11px;color:#7a4f00;">
+  📡 Les éléments actifs s'affichent en défilement dans la barre du site. Ordonnez-les avec le champ <strong>Ordre</strong>.
+</div>
+
+<div class="t-wrap">
+  <div class="t-row t-head" style="grid-template-columns:36px 110px 1fr 80px 60px 80px;">
+    <div>Ord.</div>
+    <div>Type</div>
+    <div>Contenu</div>
+    <div>Catégorie</div>
+    <div>Actif</div>
+    <div style="text-align:right;">Actions</div>
+  </div>
+  {% for item in items %}
+  <div class="t-row" id="row-tk{{ item.pk }}" style="grid-template-columns:36px 110px 1fr 80px 60px 80px;">
+    <div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">{{ item.ordre }}</div>
+    <div><span class="pill">{{ item.get_type_display }}</span></div>
+    <div>
+      {% if item.type in 'score_live,score_resultat' %}
+        <div style="font-size:13px;">{{ item.equipe_dom }} <strong>{% if item.score_dom is not None %}{{ item.score_dom }} — {{ item.score_ext }}{% else %}vs{% endif %}</strong> {{ item.equipe_ext }}</div>
+        {% if item.minute %}<div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ item.minute }}'</div>{% endif %}
+      {% else %}
+        <div style="font-size:13px;">{{ item.texte|truncatechars:80 }}</div>
+        {% if item.equipe_dom %}<div style="font-size:11px;color:var(--muted);">{{ item.equipe_dom }} vs {{ item.equipe_ext }}</div>{% endif %}
+      {% endif %}
+    </div>
+    <div style="font-size:12px;">{{ item.categorie|default:"—" }}</div>
+    <div>
+      {% if item.actif %}
+        <span class="badge-status bs-accepted">Oui</span>
+      {% else %}
+        <span class="badge-status bs-refused">Non</span>
+      {% endif %}
+    </div>
+    <div class="actions">
+      <a href="{% url 'admin_ticker_edit' item.pk %}" class="t-btn" title="Modifier">✏</a>
+      <button class="t-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_ticker_delete' item.pk %}', document.getElementById('row-tk{{ item.pk }}'))">✕</button>
+    </div>
+  </div>
+  {% empty %}
+  <div class="empty-state">Aucun élément dans le ticker</div>
+  {% endfor %}
+</div>
+{% endblock %}
