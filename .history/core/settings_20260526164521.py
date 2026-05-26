@@ -16,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-h6_@1$8kjsvjz9(h_7csg+*mevfp8_ey+lb(wy)#5a_w)5sx)h'
 
-DEBUG=False    
+DEBUG=True
 
 ALLOWED_HOSTS = ['*']
 
@@ -78,12 +78,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 # Password validation
@@ -142,9 +142,9 @@ EMAIL_HOST_PASSWORD = 'vlym rhmk nmht rhge'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME":'c2804120c_CFLD',
-        "USER":'c2804120c_user',
-        "PASSWORD": ";x#TqQ#=##RE+Gud",  # mettre le vrai mot de passe
+        "NAME":'c2745157c_E_biblotheque' ,
+        "USER":'c2745157c_user'  ,
+        "PASSWORD": "oY]e^~0Fch?ony3d",  # mettre le vrai mot de passe
         "HOST": os.environ.get("MYSQL_HOST", "127.0.0.1"),   # ou l’host fourni par ton hébergeur
         "PORT": os.environ.get("MYSQL_PORT", "3306"),
         'OPTIONS': {
