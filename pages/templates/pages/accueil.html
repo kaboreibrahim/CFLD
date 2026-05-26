@@ -1,8 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}CFLD — Club Football La Différence{% endblock %}
+{% block title %}CFLD — Académie de Football à Aboisso, Côte d'Ivoire{% endblock %}
 {% block screen_label %}01 Accueil{% endblock %}
+{% block description %}CFLD (Centre de Formation Lancine Diomande) — Académie de football à Aboisso, Côte d'Ivoire. Formez-vous avec des entraîneurs diplômés UEFA. Catégories U10, U13, U15, U17, section féminine. Inscriptions ouvertes.{% endblock %}
+{% block keywords %}CFLD, Centre Formation Lancine Diomande, académie football Aboisso, football Côte d'Ivoire, formation football jeunes CI, recrutement football Aboisso, club football Aboisso-Assouba, football U10 U13 U15 U17 Côte d'Ivoire, académie football africaine, Ligue 1 Côte d'Ivoire, FIF, football féminin CI, inscription football Aboisso{% endblock %}
+{% block og_title %}CFLD — Académie de Football à Aboisso, Côte d'Ivoire{% endblock %}
+{% block og_description %}Rejoignez le Centre de Formation Lancine Diomande à Aboisso. Entraîneurs diplômés UEFA, terrains réglementaires, internat, suivi scolaire. Inscriptions ouvertes pour les U10 à U17+ et la section féminine.{% endblock %}
+{% block tw_title %}CFLD — Académie Football Aboisso, Côte d'Ivoire{% endblock %}
+{% block tw_description %}Formation football jeunes à Aboisso CI. Catégories U10, U13, U15, U17, section féminine. Entraîneurs UEFA. Inscriptions ouvertes.{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -12,7 +18,7 @@
 .hero-image { position:absolute; right:0; top:0; bottom:0; width:52%; background:linear-gradient(90deg,var(--ink) 0%,transparent 30%),repeating-linear-gradient(135deg,rgba(255,255,255,.05) 0 8px,rgba(255,255,255,.09) 8px 16px),#3a0a0d; display:grid; place-items:center; }
 .hero-image .ph-label { font-family:var(--font-mono); font-size:11px; letter-spacing:.18em; color:rgba(246,244,239,.35); text-transform:uppercase; position:absolute; bottom:24px; right:32px; }
 .hero-content { position:relative; z-index:2; max-width:1440px; margin:0 auto; padding:80px 40px 60px; display:grid; grid-template-columns:1.1fr 1fr; gap:60px; min-height:92vh; align-content:end; }
-.hero h1 { color:var(--paper); font-size:clamp(80px,11vw,180px); line-height:.92; letter-spacing:-.03em; }
+.hero h1 { color:var(--paper); font-size:clamp(48px,7vw,110px); line-height:.92; letter-spacing:-.03em; }
 .hero h1 em { font-style:italic; color:var(--green-bright); font-weight:400; }
 .hero-meta { display:flex; gap:12px; margin-bottom:24px; font-family:var(--font-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:rgba(246,244,239,.6); }
 .hero-tagline { font-size:18px; max-width:38ch; color:rgba(246,244,239,.78); line-height:1.5; margin:32px 0 40px; text-wrap:pretty; }
@@ -26,6 +32,9 @@
 .ticker-score { color:var(--green-bright); font-weight:600; }
 .ticker-team { color:rgba(246,244,239,.6); }
 @keyframes ticker { to { transform:translateX(-50%); } }
+.scroll-arrow { position:absolute; bottom:32px; left:50%; transform:translateX(-50%); color:rgba(246,244,239,.5); display:flex; align-items:center; justify-content:center; width:44px; height:44px; border:1px solid rgba(246,244,239,.2); border-radius:50%; z-index:3; transition:color .2s,border-color .2s; animation:bounce 2s ease-in-out infinite; }
+.scroll-arrow:hover { color:var(--paper); border-color:rgba(246,244,239,.6); }
+@keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(8px)} }
 @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(20,160,90,.5)} 70%{box-shadow:0 0 0 10px rgba(20,160,90,0)} 100%{box-shadow:0 0 0 0 rgba(20,160,90,0)} }
 .countdown { background:var(--paper); padding:80px 0; border-bottom:1px solid var(--line); }
 .countdown-inner { max-width:1440px; margin:0 auto; padding:0 40px; display:grid; grid-template-columns:1fr 1.4fr; gap:80px; align-items:center; }
@@ -83,7 +92,7 @@
 @media(max-width:767px){
   .hero-image{display:none}
   .hero-content{padding:56px 16px 40px}
-  .hero h1{font-size:clamp(36px,10vw,60px);line-height:.96}
+  .hero h1{font-size:clamp(30px,10vw,60px);line-height:.96}
   .hero-meta{flex-wrap:wrap;gap:8px}
   .hero-tagline{font-size:16px;margin:20px 0 28px}
   .countdown{padding:48px 0}
@@ -124,7 +133,7 @@
       </div>
       <h1>Le football,<br><em>autrement.</em></h1>
       <p class="hero-tagline">
-        Depuis 2008, le Club Football La Différence forme, élève et révèle les talents
+        Depuis 2018, CFLD (le Centre de Formation Lancine Diomande), élève et révèle les talents
         du continent. Ici, le terrain est une école, et la passion une discipline.
       </p>
       <div class="hero-cta">
@@ -133,6 +142,9 @@
       </div>
     </div>
   </div>
+  <a href="#" class="scroll-arrow" aria-label="Défiler vers le bas" onclick="window.scrollBy({top:window.innerHeight,behavior:'smooth'});return false;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+  </a>
 </section>
 
 {% if ticker_items %}
@@ -208,10 +220,10 @@
 
 <section class="stats-band">
   <div class="stats-grid">
-    <div class="stat reveal"><div class="num">18<em>—</em></div><div class="lbl">Années de formation</div></div>
+    <div class="stat reveal"><div class="num">09<em>—</em></div><div class="lbl">Années de formation</div></div>
     <div class="stat reveal"><div class="num">240<em>+</em></div><div class="lbl">Joueurs formés</div></div>
-    <div class="stat reveal"><div class="num">07</div><div class="lbl">Catégories U7—Pro</div></div>
-    <div class="stat reveal"><div class="num">03<em>×</em></div><div class="lbl">Champion régional</div></div>
+    <div class="stat reveal"><div class="num">04 M </div><div class="lbl">Catégories U10—Pro</div></div>
+    <div class="stat reveal"><div class="num">02 F<em></em></div><div class="lbl">Catégories U12—Pro</div></div>
   </div>
 </section>
 
@@ -255,7 +267,7 @@
 <section class="quote-block">
   <div class="page">
     <blockquote class="reveal">« Ici, on ne forme pas des joueurs. On forme des <em>hommes</em> qui savent jouer. »</blockquote>
-    <cite class="reveal">— Coach Diomandé, directeur technique</cite>
+    <cite class="reveal">— Lanciné Diomandé, Fondateur & Président</cite>
   </div>
 </section>
 
@@ -263,7 +275,7 @@
   <div class="cta-band-inner">
     <span class="eyebrow" style="color:rgba(246,244,239,.5)">Recrutement saison 2026—2027</span>
     <h2 style="margin-top:24px;">Tu as le talent.<br>On a la <em>méthode</em>.</h2>
-    <p class="lede" style="color:rgba(246,244,239,.7);margin:0 auto 40px;max-width:50ch;">Détections ouvertes pour les catégories U13 à U19. Inscription en ligne, étude du dossier sous 72h.</p>
+    <p class="lede" style="color:rgba(246,244,239,.7);margin:0 auto 40px;max-width:50ch;">Détections ouvertes pour les catégories U10à U17. Inscription en ligne, étude du dossier sous 72h.</p>
     <a href="{% url 'inscription' %}" class="btn btn-primary" style="background:var(--green-bright)">Déposer ma candidature <span class="arrow">→</span></a>
   </div>
 </section>

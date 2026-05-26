@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Académie — CFLD{% endblock %}
+{% block screen_label %}04 Académie{% endblock %}
+{% block current_page %}academie.html{% endblock %}
+
+{% block extra_css %}
+<style>
+.academy-hero { background:var(--ink); color:var(--paper); padding:140px 0 100px; border-bottom:1px solid var(--ink); position:relative; overflow:hidden; }
+.academy-hero::before { content:""; position:absolute; inset:0; background:radial-gradient(ellipse at 30% 60%,rgba(20,160,90,.25),transparent 55%); }
+.academy-hero-inner { position:relative; z-index:1; display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:end; }
+.academy-hero h1 { font-size:clamp(64px,9vw,144px); line-height:.92; letter-spacing:-.03em; color:var(--paper); }
+.academy-hero h1 em { color:var(--green-bright); font-style:italic; }
+.categories { padding:120px 0; border-bottom:1px solid var(--line); }
+.cat-grid { display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--line); margin-top:60px; }
+.cat-item { padding:40px 24px; border-right:1px solid var(--line); display:grid; gap:16px; align-content:start; }
+.cat-item:last-child { border-right:0; }
+.cat-age { font-family:var(--font-display); font-size:56px; line-height:.95; letter-spacing:-.02em; }
+.cat-item .badge { background:var(--green); color:var(--paper); font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; padding:4px 10px; border-radius:999px; display:inline-block; }
+.cat-item h3 { font-size:22px; }
+.cat-item p { font-size:14px; color:var(--muted); line-height:1.55; margin:0; }
+.schedule { padding:120px 0; border-bottom:1px solid var(--line); background:var(--paper-2); }
+.schedule-table { margin-top:48px; border:1px solid var(--line); border-radius:4px; overflow:hidden; background:var(--paper); }
+.schedule-row { display:grid; grid-template-columns:120px 1fr 1fr 1fr; border-bottom:1px solid var(--line); }
+.schedule-row:last-child { border-bottom:0; }
+.schedule-row.head { background:var(--ink); color:var(--paper); }
+.schedule-cell { padding:16px 20px; font-size:14px; border-right:1px solid var(--line); }
+.schedule-cell:last-child { border-right:0; }
+.schedule-row.head .schedule-cell { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:rgba(246,244,239,.6); }
+.slot-match { background:var(--green); color:var(--paper); border-radius:2px; padding:4px 10px; font-family:var(--font-mono); font-size:11px; letter-spacing:.1em; display:inline-block; }
+.slot-training { background:rgba(20,160,90,.12); color:var(--green-deep); border-radius:2px; padding:4px 10px; font-family:var(--font-mono); font-size:11px; display:inline-block; }
+.slot-school { background:var(--paper-2); border-radius:2px; padding:4px 10px; font-family:var(--font-mono); font-size:11px; color:var(--muted); display:inline-block; }
+.process { padding:120px 0; border-bottom:1px solid var(--line); }
+.process-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:40px; margin-top:60px; }
+.process-step { display:grid; gap:16px; }
+.step-num { font-family:var(--font-display); font-size:80px; line-height:.9; letter-spacing:-.04em; color:rgba(11,11,11,.1); }
+.process-step h3 { font-size:24px; }
+.process-step p { font-size:14px; color:var(--muted); line-height:1.55; margin:0; }
+@media(max-width:1023px){.academy-hero-inner{grid-template-columns:1fr;gap:32px;padding:0 24px}.cat-grid{grid-template-columns:1fr 1fr}.cat-item:nth-child(2n){border-right:0}.schedule-row{grid-template-columns:80px 1fr 1fr 1fr}.process-grid{grid-template-columns:1fr 1fr;gap:24px}}
+@media(max-width:767px){.cat-grid{grid-template-columns:1fr}.cat-item{border-right:0;border-bottom:1px solid var(--line)}.schedule-row{grid-template-columns:1fr}.schedule-cell{border-right:0;border-bottom:1px solid var(--line)}.process-grid{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="academy-hero">
+  <div class="page">
+    <div class="academy-hero-inner">
+      <div>
+        <span class="eyebrow" style="color:var(--green-bright)">Centre de formation</span>
+        <h1 style="margin-top:24px;">L'<em>académie</em><br>CFLD.</h1>
+      </div>
+      <div>
+        <p class="lede" style="color:rgba(246,244,239,.78);max-width:44ch;">
+          Une académie moderne dotée d’un terrain réglementaire, d’un terrain synthétique, de vestiaires professionnels et d’un internat de 40 places. Un cadre idéal pour former et révéler les meilleurs talents.
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px;">
+          <div><div style="font-family:var(--font-display);font-size:56px;color:var(--green-bright);line-height:1;">2</div><div style="font-family:var(--font-mono);font-size:11px;color:rgba(246,244,239,.5);letter-spacing:.14em;">Catégories Feminine</div></div>
+          <div><div style="font-family:var(--font-display);font-size:56px;color:var(--green-bright);line-height:1;">4</div><div style="font-family:var(--font-mono);font-size:11px;color:rgba(246,244,239,.5);letter-spacing:.14em;">Catégories Masculine</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="categories">
+  <div class="page">
+    <div class="reveal">
+      <span class="eyebrow">Programme de formation</span>
+      <h2 style="margin-top:16px;">De l'U9 au <em style="color:var(--green);font-style:italic">professionnel</em>.</h2>
+    </div>
+  </div>
+  <div class="page">
+    <div class="cat-grid">
+      <div class="cat-item reveal">
+        <div class="cat-age">U9</div>
+        <span class="badge">Initiation</span>
+        <h3>Les fondamentaux</h3>
+        <p>Découverte du ballon, coordination, plaisir de jeu. 2 séances / semaine. L'objectif : aimer le football avant de le maîtriser.</p>
+      </div>
+      <div class="cat-item reveal">
+        <div class="cat-age">U11–13</div>
+        <span class="badge">Pré-formation</span>
+        <h3>Technique & règles</h3>
+        <p>Apprentissage technique intensif, premiers matchs officiels, initiation tactique simplifiée.</p>
+      </div>
+      <div class="cat-item reveal">
+        <div class="cat-age">U15–17</div>
+        <span class="badge">Élite</span>
+        <h3>Formation intensive</h3>
+        <p>Entraînements bi-quotidiens pour les internes, suivi scolaire obligatoire, compétitions régionales et nationales.</p>
+      </div>
+      <div class="cat-item reveal">
+        <div class="cat-age">U19+</div>
+        <span class="badge">Pré-pro</span>
+        <h3>Transition pro</h3>
+        <p>Intégration à l'équipe première, préparation aux tests professionnels, réseau de clubs partenaires en Europe et en Afrique.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="schedule">
+  <div class="page">
+    <span class="eyebrow">Organisation</span>
+    <h2 style="margin-top:16px;">Semaine type <em style="color:var(--green);font-style:italic">U15</em> (internat).</h2>
+    <div class="schedule-table">
+      <div class="schedule-row head">
+        <div class="schedule-cell">Créneau</div>
+        <div class="schedule-cell">Lun — Mer</div>
+        <div class="schedule-cell">Jeu — Ven</div>
+        <div class="schedule-cell">Samedi</div>
+      </div>
+      <div class="schedule-row">
+        <div class="schedule-cell">07:00 — 08:30</div>
+        <div class="schedule-cell"><span class="slot-training">Entraînement matin</span></div>
+        <div class="schedule-cell"><span class="slot-training">Entraînement matin</span></div>
+        <div class="schedule-cell"><span class="slot-match">Match officiel</span></div>
+      </div>
+      <div class="schedule-row">
+        <div class="schedule-cell">09:00 — 12:30</div>
+        <div class="schedule-cell"><span class="slot-school">École</span></div>
+        <div class="schedule-cell"><span class="slot-school">École</span></div>
+        <div class="schedule-cell"><span class="slot-match">Match (suite)</span></div>
+      </div>
+      <div class="schedule-row">
+        <div class="schedule-cell">15:00 — 17:30</div>
+        <div class="schedule-cell"><span class="slot-training">Entraînement après-midi</span></div>
+        <div class="schedule-cell"><span class="slot-training">Entraînement + vidéo</span></div>
+        <div class="schedule-cell"><span class="slot-school">Récupération</span></div>
+      </div>
+      <div class="schedule-row">
+        <div class="schedule-cell">18:00 — 20:00</div>
+        <div class="schedule-cell"><span class="slot-school">Études encadrées</span></div>
+        <div class="schedule-cell"><span class="slot-school">Études encadrées</span></div>
+        <div class="schedule-cell"><span class="slot-school">Libre</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="process">
+  <div class="page">
+    <span class="eyebrow">Processus d'intégration</span>
+    <h2 style="margin-top:16px;">Comment <em style="color:var(--green);font-style:italic">rejoindre</em> l'académie.</h2>
+    <div class="process-grid">
+      <div class="process-step reveal">
+        <div class="step-num">01</div>
+        <h3>Candidature en ligne</h3>
+        <p>Déposez votre dossier via le formulaire en ligne. Gratuit, confidentiel, réponse sous 72h.</p>
+        <a href="{% url 'inscription' %}" class="btn btn-primary" style="margin-top:8px;">Postuler →</a>
+      </div>
+      <div class="process-step reveal">
+        <div class="step-num">02</div>
+        <h3>Évaluation du dossier</h3>
+        <p>La cellule technique analyse votre profil, votre âge et les besoins actuels du club par catégorie.</p>
+      </div>
+      <div class="process-step reveal">
+        <div class="step-num">03</div>
+        <h3>Séance de détection</h3>
+        <p>Si votre profil correspond, vous êtes convoqué le samedi suivant pour une séance d'entraînement-test au campus de Cocody.</p>
+      </div>
+      <div class="process-step reveal">
+        <div class="step-num">04</div>
+        <h3>Intégration</h3>
+        <p>En cas de sélection, signature d'une charte, entretien avec les parents et intégration à la prochaine session.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

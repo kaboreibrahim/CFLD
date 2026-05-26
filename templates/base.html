@@ -4,11 +4,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{% block title %}CFLD — Club Football La Différence{% endblock %}</title>
-<meta name="description" content="{% block description %}Site officiel du Club Football La Différence (CFLD). Académie, effectif, matchs, médias et inscriptions.{% endblock %}">
+<title>{% block title %}CFLD — Centre Formation Lancine Diomande{% endblock %}</title>
+<meta name="description" content="{% block description %}Site officiel du Centre de Formation Lancine Diomande (CFLD). Académie de football à Aboisso, Côte d'Ivoire. Formation jeunes U10, U13, U15, U17, section féminine, recrutement et inscriptions.{% endblock %}">
+<meta name="keywords" content="{% block keywords %}CFLD, Centre Formation Lancine Diomande, académie football Côte d'Ivoire, formation football Aboisso, football jeunes Abidjan, académie football africaine, recrutement football CI, U10 U13 U15 U17 football, football féminin Côte d'Ivoire, club football Aboisso, FIF, Ligue 1 Côte d'Ivoire{% endblock %}">
+<meta name="author" content="Kaboré Ibrahim">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#14a05a">
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CFLD — Centre Formation Lancine Diomande">
+<meta property="og:title" content="{% block og_title %}CFLD — Centre Formation Lancine Diomande{% endblock %}">
+<meta property="og:description" content="{% block og_description %}Académie de football à Aboisso, Côte d'Ivoire. Formations U10 à U17+, section féminine. Rejoignez le CFLD et révélez votre talent.{% endblock %}">
+<meta property="og:image" content="{% block og_image %}{% load static %}{% static 'images/club/logo.png' %}{% endblock %}">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{% block tw_title %}CFLD — Centre Formation Lancine Diomande{% endblock %}">
+<meta name="twitter:description" content="{% block tw_description %}Académie de football à Aboisso, Côte d'Ivoire. Formations U10 à U17+, section féminine.{% endblock %}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter+Tight:wght@400..700&family=Space+Grotesk:wght@400..700&family=Bebas+Neue&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="{% static 'images/club/logo.png' %}">
 <link rel="stylesheet" href="{% static 'style.css' %}">
 {% block extra_css %}{% endblock %}
 </head>

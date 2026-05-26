@@ -1,0 +1,29 @@
+{% load static %}
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}CFLD — Club Football La Différence{% endblock %}</title>
+<meta name="description" content="{% block description %}Site officiel du Club Football La Différence (CFLD). Académie, effectif, matchs, médias et inscriptions.{% endblock %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter+Tight:wght@400..700&family=Space+Grotesk:wght@400..700&family=Bebas+Neue&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="{% static 'images/club/logo.png' %}">
+<link rel="stylesheet" href="{% static 'style.css' %}">
+{% block extra_css %}{% endblock %}
+</head>
+<body data-screen-label="{% block screen_label %}{% endblock %}">
+
+{% include "partials/_nav.html" %}
+
+{% block content %}{% endblock %}
+
+{% include "partials/_footer.html" %}
+{% include "partials/_fab.html" %}
+
+<script src="{% static 'shell.js' %}"></script>
+<script>CFLD.mountShell();</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

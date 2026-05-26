@@ -1,9 +1,15 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Le Club — CFLD{% endblock %}
+{% block title %}Le Club — Histoire & Staff | CFLD Aboisso{% endblock %}
 {% block screen_label %}02 Club{% endblock %}
 {% block current_page %}club.html{% endblock %}
+{% block description %}Découvrez l'histoire du CFLD (Centre de Formation Lancine Diomande), fondé en 2018 à Aboisso. Notre staff, notre mission et nos valeurs au service du football ivoirien.{% endblock %}
+{% block keywords %}CFLD histoire, Club Football Lancine Diomande, staff CFLD, mission académie football, football Aboisso-Assouba, coach Diomande, encadrement football Côte d'Ivoire, valeurs football jeunes CI{% endblock %}
+{% block og_title %}Le Club CFLD — Histoire & Staff | Aboisso, Côte d'Ivoire{% endblock %}
+{% block og_description %}Fondé en 2018 à Aboisso, le CFLD forme plus de 100 jeunes chaque année. Découvrez notre histoire, notre staff et notre philosophie de jeu.{% endblock %}
+{% block tw_title %}Le Club CFLD — Histoire & Staff{% endblock %}
+{% block tw_description %}Fondé en 2018 à Aboisso, le CFLD forme plus de 100 jeunes par an. Histoire, staff et mission du club.{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -29,7 +35,9 @@
 .staff { padding:120px 0; border-bottom:1px solid var(--line); }
 .staff-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:32px; margin-top:60px; }
 .staff-card { display:grid; gap:16px; }
-.staff-card .photo { aspect-ratio:3/4; border-radius:2px; background:var(--paper-2); display:grid; place-items:center; font-family:var(--font-mono); font-size:11px; color:var(--muted); text-align:center; padding:20px; }
+.staff-card .photo { aspect-ratio:3/4; border-radius:2px; background:var(--paper-2); display:grid; place-items:center; font-family:var(--font-mono); font-size:11px; color:var(--muted); text-align:center; padding:20px; overflow:hidden; }
+.staff-card .photo:has(img) { padding:0; }
+.staff-card .photo img { width:100%; height:100%; object-fit:cover; display:block; }
 .staff-card .role { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--green); }
 .staff-card h3 { font-size:22px; line-height:1.05; }
 .staff-card p { font-size:13px; color:var(--muted); line-height:1.5; margin:0; }
@@ -43,9 +51,9 @@
   <div class="page-title-spread">
     <h1>Le Club</h1>
     <div class="meta">
-      <span>Section 02 / 08</span>
-      <span>Fondé en 2008</span>
-      <span>Abidjan · Côte d'Ivoire</span>
+      {% comment %} <span>Section 02 / 08</span> {% endcomment %}
+      <span>Fondé en 2018</span>
+      <span>Aboisso-Assouba · Côte d'Ivoire</span>
     </div>
   </div>
 
@@ -56,11 +64,10 @@
     <div class="reveal">
       <span class="eyebrow">Notre histoire</span>
       <p class="lede" style="margin-top:24px;">
-        Fondé en 2008 sur un terrain en latérite dans le quartier de Cocody, le CFLD est né d'une conviction simple : le football pouvait être autre chose qu'un rêve. Sous la direction du Coach Diomandé, le club a grandi autour d'un projet humain autant que sportif.
+       Fondé en 2018 sur un terrain en latérite dans le quartier TP à Aboisso, le CFLD (Centre de Formation Lanssiné Diomandé) est né d’une conviction forte : faire du football une véritable opportunité pour les jeunes talents. Sous la direction du Coach Diomandé, le centre s’est construit autour d’un projet à la fois sportif et humain, basé sur la discipline, le travail et le dépassement de soi.
       </p>
       <p style="color:var(--muted);font-size:15px;line-height:1.6;margin-top:24px;">
-        Aujourd'hui, le Club Football La Différence forme plus de deux cents jeunes par an dans sept catégories, de l'U7 au niveau professionnel. Trois titres régionaux et des dizaines de joueurs intégrés en professionnel témoignent d'une méthode qui fonctionne.
-      </p>
+      Aujourd’hui, le CFLD forme plus d’une centaine de jeunes chaque année, répartis dans quatre catégories allant des U10 au niveau préprofessionnel. Grâce à un encadrement sérieux et à la qualité de sa formation, le centre a remporté plusieurs titres aussi bien dans le département d’Aboisso qu’au niveau du district d’Abidjan, affirmant ainsi sa place parmi les centres de formation prometteurs de la région.      </p>
       <div style="margin-top:32px;display:flex;gap:12px;">
         <a href="{% url 'inscription' %}" class="btn btn-primary">Rejoindre le club</a>
         <a href="{% url 'academie' %}" class="btn btn-ghost">Notre académie →</a>
@@ -71,9 +78,9 @@
   <section class="timeline">
     <div class="reveal">
       <span class="eyebrow">Chronologie</span>
-      <h2 style="margin-top:16px;">18 années de <em style="color:var(--green);font-style:italic">construction</em>.</h2>
+      <h2 style="margin-top:16px;">9 années de <em style="color:var(--green);font-style:italic">construction</em>.</h2>
     </div>
-    <div class="tl-grid">
+    {% comment %} <div class="tl-grid">
       <div class="tl-item reveal">
         <div class="tl-year">2008</div>
         <div class="tl-label">Fondation</div>
@@ -98,7 +105,7 @@
         <h3>Ligue 1 & expansion</h3>
         <p>3ᵉ de Ligue 1, partenariat Adidas, 240+ joueurs formés, programme d'expansion vers Bouaké et San-Pédro.</p>
       </div>
-    </div>
+    </div> {% endcomment %}
   </section>
 
   <section class="mission">
@@ -128,28 +135,28 @@
     </div>
     <div class="staff-grid">
       <div class="staff-card reveal">
-        <div class="photo">[ Photo · Fondateur ]</div>
+        <div class="photo"><img src="{% static 'images/club/Lanciné-Diomande.png' %}" alt="Serge Debetou Toh" loading="lazy"></div>
         <div class="role">Fondateur & Président</div>
-        <h3>Félix Diomandé</h3>
-        <p>Ancien joueur professionnel, il a fondé le CFLD avec la conviction que le football africain méritait sa propre voie.</p>
+        <h3>Lanciné Diomandé</h3>
+        {% comment %} <p>Ancien joueur professionnel, il a fondé le CFLD avec la conviction que le football africain méritait sa propre voie.</p> {% endcomment %}
       </div>
       <div class="staff-card reveal">
-        <div class="photo">[ Photo · Entraîneur principal ]</div>
-        <div class="role">Directeur technique</div>
-        <h3>Coach Diomandé</h3>
-        <p>Formation UEFA B. 12 ans à la tête de l'équipe première. Architecte du style de jeu CFLD : technique, offensif, collectif.</p>
+        <div class="photo"><img src="{% static 'images/club/vice-president.png' %}" alt="Serge Debetou Toh" loading="lazy"></div>
+        <div class="role">Vice President</div>
+        <h3>Debetou Toh Serge</h3>
+        {% comment %} <p>Formation UEFA B. 12 ans à la tête de l'équipe principale. Architecte du style de jeu CFLD : technique, offensif, collectif.</p> {% endcomment %}
       </div>
       <div class="staff-card reveal">
-        <div class="photo">[ Photo · Préparateur physique ]</div>
+        <div class="photo"><img src="{% static 'images/club/Préparateur-physique.png' %}" alt="Serge Debetou Toh" loading="lazy"></div>
         <div class="role">Préparateur physique</div>
         <h3>Alassane Koné</h3>
-        <p>Expert en préparation athlétique pour les jeunes. Protocoles adaptés aux catégories U9 à U19.</p>
+        {% comment %} <p>Expert en préparation athlétique pour les jeunes. Protocoles adaptés aux catégories U9 à U19.</p> {% endcomment %}
       </div>
       <div class="staff-card reveal">
-        <div class="photo">[ Photo · Médecin ]</div>
+        <div class="photo"><img src="{% static 'images/club/Médecin-du-club.png' %}" alt="Serge Debetou Toh" loading="lazy"></div>
         <div class="role">Médecin du club</div>
         <h3>Dr. Adjoua Kouamé</h3>
-        <p>Médecin du sport, spécialiste des traumatismes du jeune sportif. Suivi individuel de chaque joueur.</p>
+        {% comment %} <p>Médecin du sport, spécialiste des traumatismes du jeune sportif. Suivi individuel de chaque joueur.</p> {% endcomment %}
       </div>
     </div>
   </section>

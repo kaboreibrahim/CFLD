@@ -1,0 +1,32 @@
+{% load static %}
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="{% url 'accueil' %}" class="brand">
+      <span class="brand-mark">C</span>
+      <span>CFLD</span>
+    </a>
+    <div class="nav-links">
+      <a href="{% url 'accueil' %}"  {% if request.resolver_match.url_name == 'accueil'  %}class="active"{% endif %}>Accueil</a>
+      <a href="{% url 'club' %}"     {% if request.resolver_match.url_name == 'club'     %}class="active"{% endif %}>Le Club</a>
+      <a href="{% url 'effectif' %}" {% if request.resolver_match.url_name == 'effectif' %}class="active"{% endif %}>Effectif</a>
+      <a href="{% url 'academie' %}" {% if request.resolver_match.url_name == 'academie' %}class="active"{% endif %}>Académie</a>
+      <a href="{% url 'matchs' %}"   {% if request.resolver_match.url_name == 'matchs'   %}class="active"{% endif %}>Matchs</a>
+      <a href="{% url 'medias' %}"   {% if request.resolver_match.url_name == 'medias'   %}class="active"{% endif %}>Médias</a>
+      <a href="{% url 'contact' %}"  {% if request.resolver_match.url_name == 'contact'  %}class="active"{% endif %}>Contact</a>
+    </div>
+    <a href="{% url 'inscription' %}" class="nav-cta">Rejoindre le club</a>
+    <button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-drawer">
+      <a href="{% url 'accueil' %}"  {% if request.resolver_match.url_name == 'accueil'  %}class="active"{% endif %}>Accueil</a>
+      <a href="{% url 'club' %}"     {% if request.resolver_match.url_name == 'club'     %}class="active"{% endif %}>Le Club</a>
+      <a href="{% url 'effectif' %}" {% if request.resolver_match.url_name == 'effectif' %}class="active"{% endif %}>Effectif</a>
+      <a href="{% url 'academie' %}" {% if request.resolver_match.url_name == 'academie' %}class="active"{% endif %}>Académie</a>
+      <a href="{% url 'matchs' %}"   {% if request.resolver_match.url_name == 'matchs'   %}class="active"{% endif %}>Matchs</a>
+      <a href="{% url 'medias' %}"   {% if request.resolver_match.url_name == 'medias'   %}class="active"{% endif %}>Médias</a>
+      <a href="{% url 'contact' %}"  {% if request.resolver_match.url_name == 'contact'  %}class="active"{% endif %}>Contact</a>
+      <a href="{% url 'inscription' %}" class="nav-cta-drawer">Rejoindre le club</a>
+    </div>
+  </div>
+</nav>

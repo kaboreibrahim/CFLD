@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Effectif — CFLD{% endblock %}
+{% block screen_label %}03 Effectif{% endblock %}
+
+{% block extra_css %}
+<style>
+.filters { display:flex; gap:8px; flex-wrap:wrap; padding:32px 0 60px; border-bottom:1px solid var(--line); }
+.filter-btn { padding:10px 18px; border-radius:999px; border:1px solid var(--line); font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; background:var(--paper); transition:all .2s; }
+.filter-btn:hover { border-color:var(--ink); }
+.filter-btn.active { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.filter-btn .count { margin-left:8px; opacity:.5; font-weight:600; }
+.roster { padding:60px 0 140px; }
+.roster-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
+.player { perspective:1200px; aspect-ratio:3/4; cursor:pointer; position:relative; transition:opacity .4s,transform .4s; }
+.player.hidden { display:none; }
+.player-inner { position:relative; width:100%; height:100%; transition:transform .7s cubic-bezier(.4,.2,.2,1); transform-style:preserve-3d; }
+.player:hover .player-inner,.player.flipped .player-inner { transform:rotateY(180deg); }
+.player-face { position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; overflow:hidden; border-radius:2px; }
+.player-front { background:linear-gradient(180deg,transparent 50%,rgba(11,11,11,.85) 100%),repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0 8px,rgba(255,255,255,.08) 8px 16px),var(--ink); color:var(--paper); display:flex; flex-direction:column; justify-content:space-between; padding:20px; }
+.player-num { font-family:var(--font-display); font-size:96px; line-height:.85; font-weight:500; letter-spacing:-.04em; align-self:flex-end; color:rgba(246,244,239,.4); }
+.player-info .pos { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; color:var(--green-bright); text-transform:uppercase; margin-bottom:8px; }
+.player-info h3 { font-size:24px; line-height:1.05; color:var(--paper); font-family:var(--font-display); letter-spacing:-.01em; }
+.player-back { background:var(--green-deep); color:var(--paper); transform:rotateY(180deg); padding:24px; display:flex; flex-direction:column; justify-content:space-between; }
+.player-back .head { display:flex; justify-content:space-between; align-items:start; }
+.player-back .head .num { font-family:var(--font-display); font-size:56px; line-height:.9; letter-spacing:-.03em; }
+.player-back .head .pos { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:rgba(246,244,239,.7); text-align:right; }
+.player-back h3 { font-size:22px; line-height:1.05; }
+.player-back .stats { border-top:1px solid rgba(246,244,239,.2); padding-top:16px; display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.player-back .stats .s { font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:rgba(246,244,239,.6); }
+.player-back .stats .v { font-family:var(--font-display); font-size:24px; font-weight:500; line-height:1; margin-top:4px; }
+{% if joueurs.count == 0 %}.player-front { background:var(--ink); }{% endif %}
+.player-front-img { position:absolute; inset:0; object-fit:cover; width:100%; height:100%; opacity:.6; }
+.player-back .profile-btn { margin-top:16px; display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; background:rgba(30,217,122,.15); color:var(--green-bright); border:1px solid rgba(30,217,122,.3); padding:8px 14px; border-radius:999px; cursor:pointer; transition:background .2s; }
+.player-back .profile-btn:hover { background:rgba(30,217,122,.25); }
+
+/* Modal */
+.player-modal { position:fixed; inset:0; z-index:1000; display:flex; align-items:flex-end; justify-content:flex-end; pointer-events:none; }
+.player-modal.open { pointer-events:all; }
+.modal-backdrop { position:fixed; inset:0; background:rgba(11,11,11,.6); backdrop-filter:blur(4px); opacity:0; transition:opacity .35s; }
+.player-modal.open .modal-backdrop { opacity:1; }
+.modal-panel { position:relative; width:460px; max-width:100%; height:100vh; background:var(--ink); color:var(--paper); display:grid; grid-template-rows:auto 1fr; transform:translateX(100%); transition:transform .4s cubic-bezier(.4,.2,.2,1); overflow:hidden; }
+.player-modal.open .modal-panel { transform:translateX(0); }
+.modal-photo-area { position:relative; height:340px; background:linear-gradient(180deg,transparent 40%,var(--ink) 100%),repeating-linear-gradient(135deg,rgba(255,255,255,.03) 0 8px,rgba(255,255,255,.06) 8px 16px),#1a2a1e; }
+.modal-photo-area img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.55; }
+.modal-photo-num { position:absolute; bottom:24px; left:32px; font-family:var(--font-display); font-size:120px; line-height:.85; letter-spacing:-.05em; color:rgba(246,244,239,.08); pointer-events:none; user-select:none; }
+.modal-photo-pos { position:absolute; top:24px; left:32px; font-family:var(--font-mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--green-bright); background:rgba(30,217,122,.12); border:1px solid rgba(30,217,122,.25); padding:6px 12px; border-radius:999px; }
+.modal-close { position:absolute; top:20px; right:20px; z-index:10; width:36px; height:36px; border-radius:50%; background:rgba(246,244,239,.1); border:0; color:var(--paper); font-size:18px; cursor:pointer; display:grid; place-items:center; transition:background .2s; }
+.modal-close:hover { background:rgba(246,244,239,.2); }
+.modal-body { padding:32px; overflow-y:auto; display:grid; gap:24px; align-content:start; }
+.modal-name { font-family:var(--font-display); font-size:clamp(32px,5vw,48px); line-height:1; letter-spacing:-.02em; }
+.modal-stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:rgba(246,244,239,.08); border:1px solid rgba(246,244,239,.08); border-radius:4px; overflow:hidden; }
+.modal-stat { background:rgba(246,244,239,.03); padding:18px 20px; }
+.modal-stat .s-label { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:rgba(246,244,239,.4); margin-bottom:8px; }
+.modal-stat .s-val { font-family:var(--font-display); font-size:28px; font-weight:500; line-height:1; }
+.modal-stat .s-val.small { font-family:var(--font-text); font-size:15px; font-weight:400; margin-top:4px; }
+.modal-footer { font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:rgba(246,244,239,.25); padding-top:16px; border-top:1px solid rgba(246,244,239,.06); }
+
+@media(max-width:1023px){.roster-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:767px){
+  .roster-grid{grid-template-columns:1fr 1fr;gap:14px}
+  .player-num{font-size:72px}.player-back .head .num{font-size:44px}.filters{padding:24px 0 40px}
+  .modal-panel{width:100%;height:90vh;border-radius:12px 12px 0 0;}
+  .player-modal{align-items:flex-end;justify-content:center;}
+  .modal-photo-area{height:260px;}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="page">
+  <div class="page-title-spread">
+    <h1>Effectif</h1>
+    <div class="meta">
+      {% comment %} <span>Section 03 / 08</span> {% endcomment %}
+      <span>Saison 2025—2026</span>
+      <span>{{ counts.all }} joueurs</span>
+    </div>
+  </div>
+
+  <div class="filters" id="filters">
+    <a href="?poste=all" class="filter-btn {% if poste_actif == 'all' %}active{% endif %}">
+      Tous <span class="count">{{ counts.all }}</span>
+    </a>
+    <a href="?poste=GK" class="filter-btn {% if poste_actif == 'GK' %}active{% endif %}">
+      Gardiens <span class="count">{{ counts.GK }}</span>
+    </a>
+    <a href="?poste=DEF" class="filter-btn {% if poste_actif == 'DEF' %}active{% endif %}">
+      Défenseurs <span class="count">{{ counts.DEF }}</span>
+    </a>
+    <a href="?poste=MIL" class="filter-btn {% if poste_actif == 'MIL' %}active{% endif %}">
+      Milieux <span class="count">{{ counts.MIL }}</span>
+    </a>
+    <a href="?poste=ATT" class="filter-btn {% if poste_actif == 'ATT' %}active{% endif %}">
+      Attaquants <span class="count">{{ counts.ATT }}</span>
+    </a>
+  </div>
+
+  <section class="roster">
+    <div class="roster-grid" id="roster">
+      {% for joueur in joueurs %}
+      <div class="player"
+           data-nom="{{ joueur.nom_complet }}"
+           data-num="{{ joueur.numero|stringformat:'02d' }}"
+           data-poste="{{ joueur.get_poste_display }}"
+           data-age="{{ joueur.age }}"
+           data-matchs="{{ joueur.matchs_joues }}"
+           data-buts="{{ joueur.buts }}"
+           data-nat="{{ joueur.nationalite }}"
+           data-photo="{% if joueur.photo %}{{ joueur.photo.url }}{% endif %}"
+           onclick="this.classList.toggle('flipped')">
+        <div class="player-inner">
+          <div class="player-face player-front">
+            {% if joueur.photo %}
+            <img class="player-front-img" src="{{ joueur.photo.url }}" alt="{{ joueur.nom_complet }}">
+            {% endif %}
+            <div class="player-num">{{ joueur.numero|stringformat:"02d" }}</div>
+            <div class="player-info">
+              <div class="pos">{{ joueur.get_poste_display }}</div>
+              <h3>{{ joueur.prenom }} {{ joueur.nom }}</h3>
+            </div>
+          </div>
+          <div class="player-face player-back">
+            <div>
+              <div class="head">
+                <div class="num">{{ joueur.numero|stringformat:"02d" }}</div>
+                <div class="pos">{{ joueur.get_poste_display }}</div>
+              </div>
+              <h3 style="margin-top:24px;">{{ joueur.prenom }} {{ joueur.nom }}</h3>
+            </div>
+            <div class="stats">
+              <div><div class="s">Âge</div><div class="v">{{ joueur.age }}</div></div>
+              <div><div class="s">Matchs</div><div class="v">{{ joueur.matchs_joues }}</div></div>
+              <div><div class="s">Buts</div><div class="v">{{ joueur.buts }}</div></div>
+            </div>
+            <button class="profile-btn" onclick="event.stopPropagation(); openPlayerModal(this.closest('.player'))">
+              Voir le profil →
+            </button>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p style="color:var(--muted);font-family:var(--font-mono);font-size:13px;grid-column:1/-1;padding:40px 0;">
+        Aucun joueur enregistré pour le moment. Ajoutez des joueurs via l'interface d'administration.
+      </p>
+      {% endfor %}
+    </div>
+  </section>
+</main>
+
+<!-- Modal profil joueur -->
+<div class="player-modal" id="player-modal" aria-hidden="true" role="dialog" aria-label="Profil joueur">
+  <div class="modal-backdrop" onclick="closePlayerModal()"></div>
+  <div class="modal-panel">
+    <button class="modal-close" onclick="closePlayerModal()" aria-label="Fermer">✕</button>
+    <div class="modal-photo-area" id="modal-photo-area">
+      <img id="modal-photo-img" src="" alt="" style="display:none;">
+      <div class="modal-photo-num" id="modal-photo-num"></div>
+      <div class="modal-photo-pos" id="modal-photo-pos"></div>
+    </div>
+    <div class="modal-body">
+      <h2 class="modal-name" id="modal-name"></h2>
+      <div class="modal-stats-grid">
+        <div class="modal-stat">
+          <div class="s-label">Nationalité</div>
+          <div class="s-val small" id="modal-nat"></div>
+        </div>
+        <div class="modal-stat">
+          <div class="s-label">Âge</div>
+          <div class="s-val" id="modal-age"></div>
+        </div>
+        <div class="modal-stat">
+          <div class="s-label">Matchs joués</div>
+          <div class="s-val" id="modal-matchs"></div>
+        </div>
+        <div class="modal-stat">
+          <div class="s-label">Buts</div>
+          <div class="s-val" id="modal-buts"></div>
+        </div>
+      </div>
+      <div class="modal-footer">Saison 2025—2026 · CFLD</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const modal = document.getElementById('player-modal');
+
+function openPlayerModal(card) {
+  const d = card.dataset;
+  document.getElementById('modal-name').textContent    = d.nom;
+  document.getElementById('modal-photo-num').textContent = d.num;
+  document.getElementById('modal-photo-pos').textContent = d.poste;
+  document.getElementById('modal-age').textContent     = d.age + ' ans';
+  document.getElementById('modal-nat').textContent     = d.nat;
+  document.getElementById('modal-matchs').textContent  = d.matchs;
+  document.getElementById('modal-buts').textContent    = d.buts;
+
+  const img = document.getElementById('modal-photo-img');
+  if (d.photo) {
+    img.src = d.photo;
+    img.alt = d.nom;
+    img.style.display = 'block';
+  } else {
+    img.style.display = 'none';
+  }
+
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePlayerModal() {
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closePlayerModal();
+});
+</script>
+{% endblock %}

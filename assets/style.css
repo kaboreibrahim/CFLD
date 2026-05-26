@@ -74,10 +74,18 @@ h3 { font-size: clamp(24px, 2.6vw, 36px); }
 
 /* Top nav */
 .nav {
-  position: sticky; top: 0; z-index: 50;
-  background: var(--paper);
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  backdrop-filter: blur(0px);
+  transition: background .3s ease, border-color .3s ease, box-shadow .3s ease, backdrop-filter .3s ease;
+}
+body { padding-top: 76px; }
+.nav.scrolled {
+  background: rgba(var(--paper-rgb, 246,244,239), 0.92);
   border-bottom: 1px solid var(--line);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 24px rgba(0,0,0,.06);
 }
 .nav-inner {
   max-width: 1440px; margin: 0 auto;
@@ -187,6 +195,21 @@ h3 { font-size: clamp(24px, 2.6vw, 36px); }
   color: rgba(246,244,239,0.4);
   letter-spacing: 0.08em;
 }
+
+/* Back to top */
+.back-to-top {
+  position: fixed; right: 24px; bottom: 92px; z-index: 40;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--ink); color: var(--paper);
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  opacity: 0; pointer-events: none;
+  transform: translateY(12px);
+  transition: opacity .25s, transform .25s;
+}
+.back-to-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.back-to-top:hover { background: var(--green); }
 
 /* Floating WhatsApp */
 .whatsapp-fab {

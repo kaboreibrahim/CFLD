@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(env\\\\Scripts\\\\pip install *)",
+      "Bash(python -c \"import whitenoise; print\\('whitenoise version:', whitenoise.__version__\\)\")",
+      "Bash(pip install *)",
+      "Bash(python manage.py check --deploy)",
+      "Bash(findstr -i \"whitenoise\\\\|static\\\\|error\\\\|warning\")",
+      "Bash(python manage.py check)"
+    ]
+  }
+}

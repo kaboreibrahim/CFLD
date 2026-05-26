@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CFLD — Centre Formation Lancine Diomande</title>
+<meta name="description" content="Site officiel du Club Football La Différence (CFLD). Académie, effectif, matchs, médias et inscriptions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter+Tight:wght@400..700&family=Space+Grotesk:wght@400..700&family=Bebas+Neue&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+/* Hero */
+.hero {
+  position: relative;
+  min-height: 92vh;
+  background: var(--ink);
+  color: var(--paper);
+  overflow: hidden;
+  border-bottom: 1px solid var(--ink);
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 70% 40%, rgba(238,38,48,0.32) 0%, transparent 55%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 80px),
+    var(--ink);
+}
+.hero-bg::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0 6px, rgba(255,255,255,0.06) 6px 12px);
+  mix-blend-mode: overlay;
+  opacity: .4;
+}
+.hero-image {
+  position: absolute; right: 0; top: 0; bottom: 0; width: 52%;
+  background:
+    linear-gradient(90deg, var(--ink) 0%, transparent 30%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0 8px, rgba(255,255,255,0.09) 8px 16px),
+    #3a0a0d;
+  display: grid; place-items: center;
+}
+.hero-image .ph-label {
+  font-family: var(--font-mono);
+  font-size: 11px; letter-spacing: 0.18em;
+  color: rgba(246,244,239,0.35);
+  text-transform: uppercase;
+  position: absolute; bottom: 24px; right: 32px;
+}
+.hero-content {
+  position: relative; z-index: 2;
+  max-width: 1440px; margin: 0 auto;
+  padding: 80px 40px 60px;
+  display: grid; grid-template-columns: 1.1fr 1fr;
+  gap: 60px;
+  min-height: 92vh;
+  align-content: end;
+}
+.hero h1 {
+  color: var(--paper);
+  font-size: clamp(80px, 11vw, 180px);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--green-bright);
+  font-weight: 400;
+}
+.hero-meta {
+  display: flex; gap: 12px; margin-bottom: 24px;
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(246,244,239,0.6);
+}
+.hero-meta span:not(:last-child)::after {
+  content: "·"; margin-left: 12px;
+  color: rgba(246,244,239,0.3);
+}
+.hero-tagline {
+  font-size: 18px; max-width: 38ch;
+  color: rgba(246,244,239,0.78);
+  line-height: 1.5; margin: 32px 0 40px;
+  text-wrap: pretty;
+}
+.hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero .btn-primary { background: var(--green-bright); }
+.hero .btn-primary:hover { background: var(--paper); color: var(--ink); }
+.hero .btn-ghost { color: var(--paper); border-color: rgba(246,244,239,0.3); }
+.hero .btn-ghost:hover { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+
+/* Live ticker */
+.ticker {
+  background: var(--ink); color: var(--paper);
+  border-top: 1px solid rgba(246,244,239,0.1);
+  border-bottom: 1px solid rgba(246,244,239,0.1);
+  padding: 14px 0;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.ticker-track {
+  display: flex; gap: 48px;
+  white-space: nowrap;
+  animation: ticker 50s linear infinite;
+  width: max-content;
+}
+.ticker-item { display: inline-flex; align-items: center; gap: 12px; }
+.ticker-item .live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green-bright); display: inline-block;
+  box-shadow: 0 0 0 0 rgba(20,160,90,0.6);
+  animation: pulse 1.6s infinite;
+}
+.ticker-score { color: var(--green-bright); font-weight: 600; }
+.ticker-team { color: rgba(246,244,239,0.6); }
+@keyframes ticker {
+  to { transform: translateX(-50%); }
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(20,160,90,0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(20,160,90,0); }
+  100% { box-shadow: 0 0 0 0 rgba(20,160,90,0); }
+}
+
+/* Countdown */
+.countdown {
+  background: var(--paper);
+  padding: 80px 0;
+  border-bottom: 1px solid var(--line);
+}
+.countdown-inner {
+  max-width: 1440px; margin: 0 auto; padding: 0 40px;
+  display: grid; grid-template-columns: 1fr 1.4fr; gap: 80px;
+  align-items: center;
+}
+.countdown-meta { display: grid; gap: 16px; }
+.countdown-fixture {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+  padding: 32px;
+  background: var(--ink); color: var(--paper);
+  border-radius: 4px;
+}
+.fixture-team { text-align: center; display: grid; gap: 12px; justify-items: center; }
+.fixture-team .crest {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--green); display: grid; place-items: center;
+  font-family: var(--font-display); font-size: 22px; font-weight: 600;
+}
+.fixture-team .crest.away { background: rgba(246,244,239,0.1); border: 1px solid rgba(246,244,239,0.2); }
+.fixture-team .name { font-family: var(--font-display); font-size: 22px; }
+.fixture-vs {
+  display: grid; gap: 16px; justify-items: center;
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.16em; color: rgba(246,244,239,0.5);
+}
+.fixture-vs .countdown-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  text-align: center;
+}
+.fixture-vs .cd-num {
+  font-family: var(--font-display); font-size: 40px;
+  color: var(--green-bright); line-height: 1;
+  font-weight: 500;
+}
+.fixture-vs .cd-label {
+  font-size: 9px; color: rgba(246,244,239,0.4);
+  margin-top: 4px;
+}
+
+/* Values strip */
+.values { padding: 120px 0; border-bottom: 1px solid var(--line); }
+.values-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line);
+}
+.value-card {
+  padding: 40px 24px;
+  border-right: 1px solid var(--line);
+  display: grid; gap: 16px; align-content: start;
+  min-height: 280px;
+}
+.value-card:last-child { border-right: 0; }
+.value-num {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.18em; color: var(--muted);
+}
+.value-card h3 { font-size: 32px; }
+.value-card p { font-size: 14px; line-height: 1.55; color: var(--muted); margin: 0; text-wrap: pretty; }
+
+/* Stats band */
+.stats-band {
+  background: var(--green);
+  color: var(--paper);
+  padding: 80px 0;
+  border-bottom: 1px solid var(--ink);
+  background-image:
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.04) 0 12px, rgba(0,0,0,0.04) 12px 24px),
+    linear-gradient(180deg, var(--green-bright), var(--green));
+}
+.stats-grid {
+  max-width: 1440px; margin: 0 auto; padding: 0 40px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px;
+}
+.stat .num {
+  font-family: var(--font-display);
+  font-size: 96px; font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+}
+.stat .num em { font-style: italic; opacity: 0.75; }
+.stat .lbl {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  margin-top: 12px;
+  color: rgba(246,244,239,0.85);
+}
+
+/* News */
+.news { padding: 120px 0; border-bottom: 1px solid var(--line); }
+.news-head {
+  display: flex; justify-content: space-between; align-items: end;
+  margin-bottom: 60px; gap: 40px;
+}
+.news-grid {
+  display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 32px;
+}
+.news-card { display: grid; gap: 16px; }
+.news-card .ph { aspect-ratio: 4/3; border-radius: 2px; }
+.news-card.lead .ph { aspect-ratio: 16/10; }
+.news-card .meta {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.14em; color: var(--muted);
+  text-transform: uppercase;
+  display: flex; gap: 12px;
+}
+.news-card .meta .cat { color: var(--green); }
+.news-card h3 {
+  font-size: 22px; line-height: 1.15;
+  text-wrap: pretty;
+}
+.news-card.lead h3 { font-size: 36px; }
+
+/* Quote */
+.quote-block {
+  padding: 160px 0;
+  background: var(--paper);
+  text-align: center;
+  border-bottom: 1px solid var(--line);
+}
+.quote-block blockquote {
+  max-width: 24ch; margin: 0 auto;
+  font-family: var(--font-display);
+  font-size: clamp(48px, 6vw, 96px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.quote-block blockquote em { color: var(--green); font-style: italic; }
+.quote-block cite {
+  display: block; margin-top: 40px;
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  font-style: normal;
+  color: var(--muted);
+}
+
+/* CTA */
+.cta-band {
+  background: var(--green); color: var(--paper);
+  padding: 140px 0;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.cta-band::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0.35), transparent 60%);
+}
+.cta-band h2 em { color: var(--ink) !important; }
+.cta-band .btn-primary { background: var(--ink) !important; color: var(--paper) !important; }
+.cta-band .btn-primary:hover { background: var(--paper) !important; color: var(--ink) !important; }
+.cta-band-inner { position: relative; z-index: 1; }
+.cta-band h2 {
+  color: var(--paper); max-width: 18ch; margin: 0 auto 32px;
+  text-wrap: balance;
+}
+.cta-band h2 em { color: var(--green-bright); font-style: italic; }
+
+/* --- Responsive tablet --- */
+@media (max-width: 1023px) {
+  .hero-content {
+    grid-template-columns: 1fr;
+    padding: 60px 24px 48px;
+    min-height: auto;
+  }
+  .hero { min-height: auto; }
+  .hero-image { width: 40%; opacity: 0.45; }
+
+  .countdown-inner { grid-template-columns: 1fr; gap: 40px; padding: 0 24px; }
+
+  .values-grid { grid-template-columns: 1fr 1fr; }
+  .value-card:nth-child(2n) { border-right: 0; }
+
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 40px; padding: 0 24px; }
+
+  .news-grid { grid-template-columns: 1fr; gap: 40px; }
+  .news-head { flex-direction: column; align-items: flex-start; gap: 16px; }
+}
+
+/* --- Responsive mobile --- */
+@media (max-width: 767px) {
+  .hero-image { display: none; }
+  .hero-content { padding: 48px 16px 40px; }
+  .hero h1 { font-size: clamp(52px, 15vw, 110px); }
+  .hero-tagline { font-size: 15px; margin: 20px 0 28px; }
+  .hero-cta { gap: 10px; }
+
+  .countdown { padding: 60px 0; }
+  .countdown-inner { padding: 0 16px; }
+  .countdown-fixture { padding: 20px 14px; gap: 10px; }
+  .fixture-team .name { font-size: 16px; }
+  .fixture-team .crest { width: 48px; height: 48px; font-size: 16px; }
+  .fixture-vs .cd-num { font-size: 26px; }
+  .fixture-vs .countdown-grid { gap: 8px; }
+
+  .values { padding: 80px 0; }
+  .values-grid { grid-template-columns: 1fr; }
+  .value-card {
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--line);
+    min-height: auto;
+    padding: 28px 16px;
+  }
+  .value-card:last-child { border-bottom: 0; }
+
+  .stats-band { padding: 60px 0; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 24px; padding: 0 16px; }
+  .stat .num { font-size: 60px; }
+
+  .news-grid { grid-template-columns: 1fr; }
+  .news-card.lead h3 { font-size: 26px; }
+
+  .quote-block { padding: 100px 0; }
+
+  .cta-band { padding: 100px 0; }
+}
+</style>
+</head>
+<body data-screen-label="01 Accueil">
+
+<div id="nav-mount"></div>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-image">
+    <span class="ph-label">[ Photo équipe — entrée vestiaire ]</span>
+  </div>
+  <div class="hero-content">
+    <div>
+      <div class="hero-meta">
+        <span class="chip chip-dot" style="background:transparent;border-color:rgba(246,244,239,0.2);color:var(--paper)">Saison 2025—2026</span>
+        <span class="chip" style="background:transparent;border-color:rgba(246,244,239,0.2);color:var(--paper)">Ligue 1 · Côte d'Ivoire</span>
+      </div>
+      <h1>Le football,<br><em>autrement.</em></h1>
+      <p class="hero-tagline">
+        Depuis 2008, le Club Football La Différence forme, élève et révèle les talents
+        du continent. Ici, le terrain est une école, et la passion une discipline.
+      </p>
+      <div class="hero-cta">
+        <a href="inscription.html" class="btn btn-primary">
+          Rejoindre le club
+          <span class="arrow">→</span>
+        </a>
+        <a href="club.html" class="btn btn-ghost">Notre histoire</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ticker" aria-label="Score en direct">
+  <div class="ticker-track">
+    <span class="ticker-item"><span class="live-dot"></span><span>EN DIRECT</span></span>
+    <span class="ticker-item"><span class="ticker-team">CFLD</span><span class="ticker-score">2 — 1</span><span class="ticker-team">ASEC</span><span style="color:rgba(246,244,239,0.4)">68'</span></span>
+    <span class="ticker-item">U17 · CFLD <span class="ticker-score">3 — 0</span> Africa Sports</span>
+    <span class="ticker-item">U15 · Stade d'Abidjan <span class="ticker-score">1 — 1</span> CFLD</span>
+    <span class="ticker-item">PROCHAIN MATCH · CFLD vs Stella · Sam 09 Mai · 16h00</span>
+    <span class="ticker-item">RECRUTEMENT OUVERT · U13—U19</span>
+    <!-- duplicate for loop -->
+    <span class="ticker-item"><span class="live-dot"></span><span>EN DIRECT</span></span>
+    <span class="ticker-item"><span class="ticker-team">CFLD</span><span class="ticker-score">2 — 1</span><span class="ticker-team">ASEC</span><span style="color:rgba(246,244,239,0.4)">68'</span></span>
+    <span class="ticker-item">U17 · CFLD <span class="ticker-score">3 — 0</span> Africa Sports</span>
+    <span class="ticker-item">U15 · Stade d'Abidjan <span class="ticker-score">1 — 1</span> CFLD</span>
+    <span class="ticker-item">PROCHAIN MATCH · CFLD vs Stella · Sam 09 Mai · 16h00</span>
+    <span class="ticker-item">RECRUTEMENT OUVERT · U13—U19</span>
+  </div>
+</section>
+
+<section class="countdown">
+  <div class="countdown-inner">
+    <div class="countdown-meta reveal">
+      <span class="eyebrow">À venir · Journée 18</span>
+      <h2 style="font-size: clamp(40px,5vw,72px);">Stade Houphouët-Boigny<br><em style="color:var(--green);font-style:italic">samedi 09 mai</em></h2>
+      <p class="lede" style="color:var(--muted)">
+        Affiche d'ouverture du tournoi régional. Tribunes ouvertes à 14h00, coup d'envoi à 16h00.
+        Billetterie en ligne via le club.
+      </p>
+      <div style="display:flex; gap:12px; margin-top:8px;">
+        <a href="matchs.html" class="btn btn-ink">Voir le calendrier</a>
+        <a href="#" class="btn btn-ghost">Billetterie</a>
+      </div>
+    </div>
+    <div class="countdown-fixture reveal">
+      <div class="fixture-team">
+        <div class="crest">CFLD</div>
+        <div class="name">CFLD</div>
+        <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;color:rgba(246,244,239,0.5);text-transform:uppercase;">Domicile</div>
+      </div>
+      <div class="fixture-vs">
+        <div>VS</div>
+        <div class="countdown-grid" id="countdown">
+          <div><div class="cd-num" id="cd-d">04</div><div class="cd-label">Jours</div></div>
+          <div><div class="cd-num" id="cd-h">12</div><div class="cd-label">Heures</div></div>
+          <div><div class="cd-num" id="cd-m">38</div><div class="cd-label">Min</div></div>
+          <div><div class="cd-num" id="cd-s">22</div><div class="cd-label">Sec</div></div>
+        </div>
+        <div>SAM 16:00</div>
+      </div>
+      <div class="fixture-team">
+        <div class="crest away">ST</div>
+        <div class="name">Stella</div>
+        <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;color:rgba(246,244,239,0.5);text-transform:uppercase;">Extérieur</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="values">
+  <div class="page" style="padding-bottom: 60px;">
+    <div class="reveal">
+      <span class="eyebrow">Nos valeurs</span>
+      <h2 style="margin-top: 16px; max-width: 18ch;">Quatre principes,<br>une seule <em style="color:var(--green);font-style:italic">discipline</em>.</h2>
+    </div>
+  </div>
+  <div class="page">
+    <div class="values-grid">
+      <div class="value-card reveal">
+        <span class="value-num">01 / Discipline</span>
+        <h3>Travail</h3>
+        <p>L'effort quotidien, la rigueur dans le geste, la patience dans la progression. Le talent ne suffit jamais.</p>
+      </div>
+      <div class="value-card reveal">
+        <span class="value-num">02 / Esprit</span>
+        <h3>Collectif</h3>
+        <p>Onze sur le terrain, des centaines autour. Au club, l'individu se met au service du groupe — sans exception.</p>
+      </div>
+      <div class="value-card reveal">
+        <span class="value-num">03 / Identité</span>
+        <h3>Racines</h3>
+        <p>Un football africain qui s'assume : créatif, technique, joueur. Notre style avant les résultats.</p>
+      </div>
+      <div class="value-card reveal">
+        <span class="value-num">04 / Mission</span>
+        <h3>Avenir</h3>
+        <p>Former des hommes avant de former des joueurs. Le terrain est une école — et l'école continue après.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats-band">
+  <div class="stats-grid">
+    <div class="stat reveal">
+      <div class="num">18<em>—</em></div>
+      <div class="lbl">Années de formation</div>
+    </div>
+    <div class="stat reveal">
+      <div class="num">240<em>+</em></div>
+      <div class="lbl">Joueurs formés</div>
+    </div>
+    <div class="stat reveal">
+      <div class="num">07</div>
+      <div class="lbl">Catégories U7—Pro</div>
+    </div>
+    <div class="stat reveal">
+      <div class="num">03<em>×</em></div>
+      <div class="lbl">Champion régional</div>
+    </div>
+  </div>
+</section>
+
+<section class="news">
+  <div class="page">
+    <div class="news-head reveal">
+      <div>
+        <span class="eyebrow">Actualités</span>
+        <h2 style="margin-top: 16px;">Dernières du club</h2>
+      </div>
+      <a href="medias.html" class="btn btn-ghost">Voir tout <span class="arrow">→</span></a>
+    </div>
+    <div class="news-grid">
+      <article class="news-card lead reveal">
+        <div class="ph">[ Photo · Match U17 vs Africa Sports ]</div>
+        <div class="meta"><span class="cat">Match</span><span>02 MAI 2026</span></div>
+        <h3>Les U17 s'imposent 3—0 face à Africa Sports et confirment leur place en finale régionale.</h3>
+        <p style="color:var(--muted); font-size:14px; line-height:1.55; margin: 0; max-width: 60ch;">
+          Une démonstration collective au stade Champroux. Reportage et analyse tactique disponibles.
+        </p>
+      </article>
+      <article class="news-card reveal">
+        <div class="ph">[ Photo · Stage de cohésion ]</div>
+        <div class="meta"><span class="cat">Académie</span><span>28 AVR 2026</span></div>
+        <h3>Trois jours de stage à Yamoussoukro pour la promotion 2026.</h3>
+      </article>
+      <article class="news-card reveal">
+        <div class="ph">[ Photo · Signature partenariat ]</div>
+        <div class="meta"><span class="cat">Club</span><span>22 AVR 2026</span></div>
+        <h3>Nouveau partenariat avec l'équipementier Adidas Afrique.</h3>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="quote-block">
+  <div class="page">
+    <blockquote class="reveal">
+      « Ici, on ne forme pas des joueurs. On forme des <em>hommes</em> qui savent jouer. »
+    </blockquote>
+    <cite class="reveal">— Coach Diomandé, directeur technique</cite>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="cta-band-inner">
+    <span class="eyebrow" style="color:rgba(246,244,239,0.5)">Recrutement saison 2026—2027</span>
+    <h2 style="margin-top: 24px;">Tu as le talent.<br>On a la <em>méthode</em>.</h2>
+    <p class="lede" style="color:rgba(246,244,239,0.7); margin: 0 auto 40px; max-width: 50ch;">
+      Détections ouvertes pour les catégories U13 à U19. Inscription en ligne, étude du dossier sous 72h.
+    </p>
+    <a href="inscription.html" class="btn btn-primary" style="background:var(--green-bright)">
+      Déposer ma candidature
+      <span class="arrow">→</span>
+    </a>
+  </div>
+</section>
+
+<div id="footer-mount"></div>
+<div id="fab-mount"></div>
+
+<script src="assets/shell.js"></script>
+<script>
+  CFLD.mountShell('accueil.html');
+
+  // Countdown — match next saturday 16:00
+  function nextSat() {
+    const d = new Date();
+    d.setHours(16,0,0,0);
+    const day = d.getDay();
+    const diff = (6 - day + 7) % 7 || 7;
+    d.setDate(d.getDate() + diff);
+    return d;
+  }
+  const target = nextSat();
+  function tick() {
+    const ms = Math.max(0, target - new Date());
+    const d = Math.floor(ms / 86400000);
+    const h = Math.floor(ms / 3600000) % 24;
+    const m = Math.floor(ms / 60000) % 60;
+    const s = Math.floor(ms / 1000) % 60;
+    const pad = n => String(n).padStart(2,'0');
+    const dE = document.getElementById('cd-d'); if (dE) dE.textContent = pad(d);
+    const hE = document.getElementById('cd-h'); if (hE) hE.textContent = pad(h);
+    const mE = document.getElementById('cd-m'); if (mE) mE.textContent = pad(m);
+    const sE = document.getElementById('cd-s'); if (sE) sE.textContent = pad(s);
+  }
+  tick(); setInterval(tick, 1000);
+</script>
+
+<!-- Tweaks -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="assets/tweaks-panel.jsx"></script>
+<script type="text/babel" src="assets/tweaks.jsx"></script>
+</body>
+</html>

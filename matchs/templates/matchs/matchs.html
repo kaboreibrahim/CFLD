@@ -1,9 +1,15 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Matchs — CFLD{% endblock %}
+{% block title %}Matchs & Résultats — CFLD | Calendrier Saison 2025-2026{% endblock %}
 {% block screen_label %}05 Matchs{% endblock %}
 {% block current_page %}matchs.html{% endblock %}
+{% block description %}Calendrier, résultats et classement du CFLD pour la saison 2025-2026. Suivez toutes les rencontres du Centre de Formation Lancine Diomande en Ligue 1 Côte d'Ivoire.{% endblock %}
+{% block keywords %}matchs CFLD, résultats CFLD, calendrier CFLD, Ligue 1 Côte d'Ivoire CFLD, scores football Aboisso, classement CFLD saison 2025-2026, prochains matchs CFLD, football CI résultats{% endblock %}
+{% block og_title %}Matchs & Résultats CFLD — Saison 2025-2026{% endblock %}
+{% block og_description %}Calendrier et résultats du CFLD en Ligue 1 Côte d'Ivoire. Saison 2025-2026. Suivez tous les matchs du Centre de Formation Lancine Diomande.{% endblock %}
+{% block tw_title %}Matchs CFLD — Résultats & Calendrier{% endblock %}
+{% block tw_description %}Résultats et calendrier du CFLD saison 2025-2026. Ligue 1 Côte d'Ivoire.{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -47,9 +53,9 @@
   <div class="page-title-spread">
     <h1>Matchs</h1>
     <div class="meta">
-      <span>Section 05 / 08</span>
+      {% comment %} <span>Section 05 / 08</span> {% endcomment %}
       <span>Saison 2025—2026</span>
-      <span>Journée 17</span>
+      {% comment %} <span>Journée 17</span> {% endcomment %}
     </div>
   </div>
 

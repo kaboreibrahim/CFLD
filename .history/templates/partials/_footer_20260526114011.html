@@ -1,0 +1,41 @@
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <p class="footer-mark">Club Football<br><em>La Différence</em></p>
+      <p style="max-width:36ch;color:rgba(246,244,239,0.65);font-size:14px;line-height:1.55;">
+        Forger le talent africain de demain — sur le terrain et au-delà.
+      </p>
+    </div>
+    <div>
+      <h4>Le Club</h4>
+      <ul>
+        <li><a href="{% url 'club' %}">Histoire</a></li>
+        <li><a href="{% url 'club' %}#staff">Staff</a></li>
+        <li><a href="{% url 'effectif' %}">Effectif</a></li>
+        <li><a href="{% url 'academie' %}">Académie</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Activités</h4>
+      <ul>
+        <li><a href="{% url 'matchs' %}">Matchs</a></li>
+        <li><a href="{% url 'medias' %}">Actualités</a></li>
+        <li><a href="{% url 'inscription' %}">Inscription</a></li>
+        <li><a href="{% url 'admin_dashboard' %}">Admin</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <ul>
+        <li>Aboisso, Côte d'Ivoire</li>
+        <li>+225 07 00 00 00 00</li>
+        <li>info@cfld.com</li>
+        <li><a href="{% url 'contact' %}">Formulaire</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© {{ now|date('Y') }} CFLD - Tous droits réservés</span>
+    <span>Fondé en 2018 · Affilié FIF</span>
+  </div>
+</footer>

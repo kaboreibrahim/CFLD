@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Matchs — CFLD{% endblock %}
+{% block screen_label %}05 Matchs{% endblock %}
+{% block current_page %}matchs.html{% endblock %}
+
+{% block extra_css %}
+<style>
+.tabs { display:flex; gap:0; border-bottom:1px solid var(--line); margin:40px 0 0; }
+.tab { padding:20px 0; margin-right:40px; font-family:var(--font-mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; position:relative; color:var(--muted); cursor:pointer; }
+.tab.active { color:var(--ink); }
+.tab.active::after { content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px; background:var(--green); }
+.tab .count { opacity:.5; margin-left:6px; }
+.tab-panel { display:none; padding:60px 0 120px; }
+.tab-panel.active { display:block; }
+.match-row { display:grid; grid-template-columns:100px 1fr 1fr 200px 120px; align-items:center; padding:32px 0; border-bottom:1px solid var(--line); gap:24px; }
+.match-date { font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+.match-date .day { font-family:var(--font-display); font-size:32px; color:var(--ink); display:block; line-height:1; letter-spacing:-.02em; margin-bottom:4px; }
+.match-team { display:flex; align-items:center; gap:14px; font-family:var(--font-display); font-size:22px; font-weight:500; letter-spacing:-.01em; }
+.match-team.away { justify-content:flex-end; }
+.crest-sm { width:40px; height:40px; border-radius:50%; background:var(--paper-2); display:grid; place-items:center; font-family:var(--font-display); font-size:13px; font-weight:600; color:var(--ink); flex-shrink:0; }
+.crest-sm.home { background:var(--green); color:var(--paper); }
+.match-score-cell { font-family:var(--font-display); font-size:36px; font-weight:500; text-align:center; letter-spacing:-.02em; line-height:1; }
+.match-score-cell .vs { color:var(--muted); font-size:18px; }
+.match-score-cell .win { color:var(--green); }
+.match-score-cell .loss { color:rgba(11,11,11,.4); }
+.match-meta { font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); text-align:center; }
+.match-cta { text-align:right; }
+.match-cta a { font-family:var(--font-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; border-bottom:1px solid currentColor; padding-bottom:2px; color:var(--ink); }
+.standings { display:grid; grid-template-columns:60px 1fr 60px 60px 60px 60px 60px 80px; background:var(--ink); color:var(--paper); border-radius:4px; overflow:hidden; }
+.standings .h,.standings .c { padding:16px 12px; font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; border-bottom:1px solid rgba(246,244,239,.08); }
+.standings .h { color:rgba(246,244,239,.5); background:rgba(246,244,239,.04); }
+.standings .c { font-size:13px; letter-spacing:0; text-transform:none; }
+.standings .c.team { font-family:var(--font-display); font-size:16px; font-weight:500; letter-spacing:-.01em; }
+.standings .c.pos { color:rgba(246,244,239,.5); font-family:var(--font-display); font-size:18px; }
+.standings .row-cfld { background:var(--green-deep); }
+.standings .row-cfld .c.team { color:var(--green-bright); }
+.standings .pts { color:var(--green-bright); font-family:var(--font-display); font-size:20px; font-weight:500; }
+@media(max-width:1023px){.match-row{grid-template-columns:80px 1fr 1fr 140px 100px;gap:16px}.standings{overflow-x:auto;display:block}}
+@media(max-width:767px){.match-row{grid-template-columns:1fr 1fr;gap:12px;padding:20px 0}.match-date,.match-score-cell,.match-meta,.match-cta{grid-column:1/-1;text-align:left}.match-score-cell{font-size:28px}.match-team.away{justify-content:flex-start}.tabs{overflow-x:auto;flex-wrap:nowrap}.tab{white-space:nowrap;margin-right:24px;font-size:11px}}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="page">
+  <div class="page-title-spread">
+    <h1>Matchs</h1>
+    <div class="meta">
+      {% comment %} <span>Section 05 / 08</span> {% endcomment %}
+      <span>Saison 2025—2026</span>
+      {% comment %} <span>Journée 17</span> {% endcomment %}
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="upcoming">À venir <span class="count">{{ nb_a_venir }}</span></div>
+    <div class="tab" data-tab="results">Résultats <span class="count">{{ nb_resultats }}</span></div>
+    <div class="tab" data-tab="standings">Classement</div>
+  </div>
+
+  <!-- À venir -->
+  <div class="tab-panel active" id="upcoming">
+    {% for match in a_venir %}
+    <div class="match-row">
+      <div class="match-date">
+        <span class="day">{{ match.date|date:"d" }}</span>
+        {{ match.date|date:"D"|upper }} · {{ match.date|date:"M"|upper }}
+      </div>
+      {% if match.est_domicile %}
+      <div class="match-team"><span class="crest-sm home">CFLD</span>{{ match.equipe_domicile }}</div>
+      <div class="match-team away">{{ match.equipe_exterieur }}<span class="crest-sm">{{ match.equipe_exterieur|slice:":2"|upper }}</span></div>
+      {% else %}
+      <div class="match-team"><span class="crest-sm">{{ match.equipe_domicile|slice:":2"|upper }}</span>{{ match.equipe_domicile }}</div>
+      <div class="match-team away">{{ match.equipe_exterieur }}<span class="crest-sm home">CFLD</span></div>
+      {% endif %}
+      <div class="match-meta">
+        {{ match.date|date:"H:i" }} · {{ match.lieu }}<br>
+        {% if match.est_domicile %}Domicile{% else %}Extérieur{% endif %} · {% if match.journee %}J{{ match.journee }}{% else %}{{ match.competition }}{% endif %}
+      </div>
+      <div class="match-cta">
+        {% if match.billet_url %}<a href="{{ match.billet_url }}">Billetterie →</a>
+        {% else %}<a href="#">Détails →</a>{% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="match-row">
+      <div class="match-date"><span class="day">09</span>SAM · MAI</div>
+      <div class="match-team"><span class="crest-sm home">CFLD</span>CFLD</div>
+      <div class="match-team away">Stella<span class="crest-sm">ST</span></div>
+      <div class="match-meta">16:00 · Stade Champroux<br>Domicile · J18</div>
+      <div class="match-cta"><a href="#">Billetterie →</a></div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Résultats -->
+  <div class="tab-panel" id="results">
+    {% for match in resultats %}
+    <div class="match-row">
+      <div class="match-date">
+        <span class="day">{{ match.date|date:"d" }}</span>
+        {{ match.date|date:"D"|upper }} · {{ match.date|date:"M"|upper }}
+      </div>
+      {% if match.est_domicile %}
+      <div class="match-team"><span class="crest-sm home">CFLD</span>{{ match.equipe_domicile }}</div>
+      <div class="match-team away">{{ match.equipe_exterieur }}<span class="crest-sm">{{ match.equipe_exterieur|slice:":2"|upper }}</span></div>
+      <div class="match-score-cell">
+        <span class="{% if match.score_domicile > match.score_exterieur %}win{% elif match.score_domicile < match.score_exterieur %}loss{% endif %}">{{ match.score_domicile }}</span>
+        <span class="vs">—</span>
+        <span class="{% if match.score_exterieur > match.score_domicile %}win{% elif match.score_exterieur < match.score_domicile %}loss{% endif %}">{{ match.score_exterieur }}</span>
+      </div>
+      {% else %}
+      <div class="match-team"><span class="crest-sm">{{ match.equipe_domicile|slice:":2"|upper }}</span>{{ match.equipe_domicile }}</div>
+      <div class="match-team away">{{ match.equipe_exterieur }}<span class="crest-sm home">CFLD</span></div>
+      <div class="match-score-cell">
+        <span class="{% if match.score_domicile > match.score_exterieur %}loss{% elif match.score_domicile < match.score_exterieur %}win{% endif %}">{{ match.score_domicile }}</span>
+        <span class="vs">—</span>
+        <span class="{% if match.score_exterieur > match.score_domicile %}loss{% elif match.score_exterieur < match.score_domicile %}win{% endif %}">{{ match.score_exterieur }}</span>
+      </div>
+      {% endif %}
+      <div class="match-meta">
+        {% if match.journee %}J{{ match.journee }}{% else %}{{ match.competition }}{% endif %} · {% if match.est_domicile %}Domicile{% else %}Extérieur{% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="match-row">
+      <div class="match-date"><span class="day">02</span>SAM · MAI</div>
+      <div class="match-team"><span class="crest-sm home">CFLD</span>CFLD</div>
+      <div class="match-team away">ASEC<span class="crest-sm">AS</span></div>
+      <div class="match-score-cell"><span class="win">3</span> <span class="vs">—</span> <span class="loss">1</span></div>
+      <div class="match-meta">J17 · Domicile</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Classement -->
+  <div class="tab-panel" id="standings">
+    <div style="margin-bottom:24px;">
+      <span class="eyebrow">Ligue 1 · Côte d'Ivoire</span>
+      <p style="color:var(--muted);margin:8px 0 0;font-size:14px;">Classement après 17 journées sur 26.</p>
+    </div>
+    <div class="standings">
+      <div class="h">#</div><div class="h">Équipe</div><div class="h">J</div>
+      <div class="h">G</div><div class="h">N</div><div class="h">P</div>
+      <div class="h">+/—</div><div class="h">Pts</div>
+      {% for equipe in classement %}
+      <div class="c pos {% if equipe.est_cfld %}row-cfld{% endif %}">{{ forloop.counter|stringformat:"02d" }}</div>
+      <div class="c team {% if equipe.est_cfld %}row-cfld{% endif %}">{{ equipe.equipe }}</div>
+      <div class="c {% if equipe.est_cfld %}row-cfld{% endif %}">{{ equipe.matchs_joues }}</div>
+      <div class="c {% if equipe.est_cfld %}row-cfld{% endif %}">{{ equipe.victoires }}</div>
+      <div class="c {% if equipe.est_cfld %}row-cfld{% endif %}">{{ equipe.nuls }}</div>
+      <div class="c {% if equipe.est_cfld %}row-cfld{% endif %}">{{ equipe.defaites }}</div>
+      <div class="c {% if equipe.est_cfld %}row-cfld{% endif %}">{% if equipe.difference_buts >= 0 %}+{% endif %}{{ equipe.difference_buts }}</div>
+      <div class="c pts {% if equipe.est_cfld %}row-cfld{% endif %}">{{ equipe.points }}</div>
+      {% empty %}
+      <div class="c pos">03</div><div class="c team">CFLD</div>
+      <div class="c">17</div><div class="c">10</div><div class="c">4</div>
+      <div class="c">3</div><div class="c">+15</div><div class="c pts">34</div>
+      {% endfor %}
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x===t));
+  const id = t.dataset.tab;
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id===id));
+}));
+</script>
+{% endblock %}

@@ -1,8 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Effectif — CFLD{% endblock %}
+{% block title %}Effectif — Joueurs & Équipe | CFLD Aboisso{% endblock %}
 {% block screen_label %}03 Effectif{% endblock %}
+{% block description %}Découvrez l'effectif complet du CFLD : joueurs, gardiens, défenseurs, milieux et attaquants. Suivez les talents formés par le Centre de Formation Lancine Diomande à Aboisso.{% endblock %}
+{% block keywords %}effectif CFLD, joueurs CFLD, équipe football Aboisso, footballeurs Côte d'Ivoire, talents football CI, joueurs académie CFLD, roster CFLD, équipe première CFLD{% endblock %}
+{% block og_title %}Effectif CFLD — Joueurs & Équipe | Aboisso{% endblock %}
+{% block og_description %}L'effectif complet du CFLD : découvrez les joueurs formés par le Centre de Formation Lancine Diomande à Aboisso, Côte d'Ivoire.{% endblock %}
+{% block tw_title %}Effectif CFLD — Joueurs & Équipe{% endblock %}
+{% block tw_description %}Découvrez les joueurs formés par le CFLD à Aboisso, Côte d'Ivoire.{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -73,7 +79,7 @@
   <div class="page-title-spread">
     <h1>Effectif</h1>
     <div class="meta">
-      <span>Section 03 / 08</span>
+      {% comment %} <span>Section 03 / 08</span> {% endcomment %}
       <span>Saison 2025—2026</span>
       <span>{{ counts.all }} joueurs</span>
     </div>

@@ -26,6 +26,26 @@
         });
       }
 
+      // Back to top button
+      const backToTop = document.querySelector('.back-to-top');
+      if (backToTop) {
+        var toggleBackToTop = function() {
+          backToTop.classList.toggle('visible', window.scrollY > 300);
+        };
+        window.addEventListener('scroll', toggleBackToTop, { passive: true });
+        toggleBackToTop();
+      }
+
+      // Nav scroll effect
+      const nav = document.querySelector('.nav');
+      if (nav) {
+        var onScroll = function() {
+          nav.classList.toggle('scrolled', window.scrollY > 40);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+      }
+
       // Scroll reveal
       if ('IntersectionObserver' in window) {
         const obs = new IntersectionObserver(function(entries) {

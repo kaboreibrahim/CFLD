@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Contact — CFLD | Nous écrire{% endblock %}
+{% block screen_label %}08 Contact{% endblock %}
+{% block current_page %}contact.html{% endblock %}
+{% block description %}Contactez le Centre de Formation Lancine Diomande (CFLD) à Aboisso, Côte d'Ivoire. Pour toute demande d'information, inscription ou partenariat, notre équipe vous répond rapidement.{% endblock %}
+{% block keywords %}contact CFLD, contacter académie football Aboisso, adresse CFLD Côte d'Ivoire, partenariat club football CI, formulaire contact CFLD, information inscription football{% endblock %}
+{% block og_title %}Contactez le CFLD — Aboisso, Côte d'Ivoire{% endblock %}
+{% block og_description %}Une question sur le CFLD ? Inscription, partenariat ou information — contactez-nous. Notre équipe vous répond sous 72h.{% endblock %}
+{% block tw_title %}Contact CFLD{% endblock %}
+{% block tw_description %}Contactez le CFLD à Aboisso pour toute demande d'inscription, partenariat ou information. Réponse sous 72h.{% endblock %}
+
+{% block extra_css %}
+<style>
+.contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; padding:80px 0 140px; }
+.channels { display:grid; gap:0; }
+.channel { padding:32px 0; border-top:1px solid var(--line); display:grid; grid-template-columns:100px 1fr auto; gap:24px; align-items:center; }
+.channel:last-child { border-bottom:1px solid var(--line); }
+.channel .label { font-family:var(--font-mono); font-size:11px; letter-spacing:.16em; color:var(--muted); text-transform:uppercase; }
+.channel .value { font-family:var(--font-display); font-size:24px; font-weight:500; letter-spacing:-.01em; }
+.channel .value small { display:block; font-family:var(--font-text); font-size:13px; color:var(--muted); margin-top:4px; }
+.channel a.action { font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; border-bottom:1px solid currentColor; padding-bottom:2px; }
+.channel a.action.wa { color:#128c4f; }
+.map { margin-top:40px; aspect-ratio:16/10; border-radius:4px; background:linear-gradient(45deg,transparent 49.5%,rgba(11,11,11,.15) 49.5% 50.5%,transparent 50.5%),linear-gradient(-30deg,transparent 49.7%,rgba(11,11,11,.1) 49.7% 50.3%,transparent 50.3%),radial-gradient(ellipse at 60% 40%,rgba(20,160,90,.15),transparent 50%),var(--paper-2); position:relative; overflow:hidden; border:1px solid var(--line); }
+.map .pin { position:absolute; left:56%; top:44%; width:24px; height:24px; border-radius:50%; background:var(--green); box-shadow:0 0 0 8px rgba(20,160,90,.2),0 0 0 20px rgba(20,160,90,.1); transform:translate(-50%,-50%); }
+.map .pin::after { content:""; position:absolute; top:4px; left:4px; width:16px; height:16px; border-radius:50%; background:var(--paper); }
+.map .pin-label { position:absolute; left:56%; top:44%; transform:translate(20px,-10px); background:var(--ink); color:var(--paper); padding:8px 14px; border-radius:2px; font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; white-space:nowrap; }
+.form-side .form-card { background:var(--ink); color:var(--paper); border-radius:4px; padding:48px; position:sticky; top:100px; }
+.form-side h2 { color:var(--paper); font-size:40px; margin-bottom:8px; }
+.form-side h2 em { color:var(--green-bright); font-style:italic; }
+.form-side .sub { color:rgba(246,244,239,.6); font-size:14px; margin-bottom:32px; }
+.field-d { display:grid; gap:8px; margin-bottom:24px; }
+.field-d label { font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:rgba(246,244,239,.6); }
+.field-d input,.field-d select,.field-d textarea { font-family:var(--font-text); font-size:16px; border:0; border-bottom:1px solid rgba(246,244,239,.2); background:transparent; padding:10px 0; color:var(--paper); outline:none; }
+.field-d input:focus,.field-d textarea:focus,.field-d select:focus { border-bottom-color:var(--green-bright); }
+.field-d textarea { resize:vertical; min-height:100px; }
+.field-d select option { background:var(--ink); }
+.form-side button { width:100%; background:var(--green-bright); color:var(--ink); padding:18px; border-radius:999px; font-size:14px; font-weight:500; letter-spacing:.02em; margin-top:12px; transition:background .2s; }
+.form-side button:hover { background:var(--paper); }
+.form-success { display:none; text-align:center; padding:40px; color:var(--green-bright); }
+.form-success.show { display:block; }
+.hours { padding:80px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.hours h2 em { color:var(--green); font-style:italic; }
+.hours-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0; margin-top:40px; border-top:1px solid var(--line); }
+.hours-card { padding:32px 24px; border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
+.hours-card:last-child { border-right:0; }
+.hours-card .ttl { font-family:var(--font-display); font-size:22px; margin-bottom:16px; font-weight:500; letter-spacing:-.01em; }
+.hours-card .row { display:flex; justify-content:space-between; padding:6px 0; font-family:var(--font-mono); font-size:12px; letter-spacing:.06em; color:var(--muted); }
+.hours-card .row .day { color:var(--ink); text-transform:uppercase; letter-spacing:.14em; font-size:11px; }
+.hours-card .row.closed .h { color:rgba(11,11,11,.3); }
+@media(max-width:1023px){.contact-grid{grid-template-columns:1fr;gap:48px;padding:60px 0 100px}.form-side .form-card{position:static;padding:40px}.channel{grid-template-columns:80px 1fr auto}}
+@media(max-width:767px){.contact-grid{padding:40px 0 80px}.form-side .form-card{padding:24px 20px}.form-side h2{font-size:30px}.channel{grid-template-columns:1fr;gap:8px}.hours-grid{grid-template-columns:1fr}.hours-card{border-right:0}.hours-card:last-child{border-bottom:0}}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="page">
+  <div class="page-title-spread">
+    <h1>Contact</h1>
+    <div class="meta">
+      <span>Assouba</span>
+      <span>Aboisso · Côte d'Ivoire</span>
+      <span>Réponse sous 24h</span>
+    </div>
+  </div>
+
+  <section class="contact-grid">
+    <div>
+      <span class="eyebrow">Nous joindre</span>
+      <h2 style="margin-top:16px;">Quatre canaux,<br>une seule équipe.</h2>
+      <div class="channels" style="margin-top:48px;">
+        <div class="channel">
+          <span class="label">Adresse</span>
+          <div class="value">Centre de Aboisso<br><small>Aboisso · Assouba · Côte d'Ivoire</small></div>
+          <a href="https://maps.app.goo.gl/bKfBYnHjNEdU8XqcA" target="_blank" class="action">Itinéraire →</a>
+        </div>
+        <div class="channel">
+          <span class="label">WhatsApp</span>
+          <div class="value">+225 07 00 00 00 00<br><small>Réponse sous 2h en semaine</small></div>
+          <a href="https://wa.me/2250700000000" class="action wa">Ouvrir →</a>
+        </div>
+        <div class="channel">
+          <span class="label">Email</span>
+          <div class="value">contact@cfld.ci<br><small>Pour toute demande générale</small></div>
+          <a href="mailto:contact@cfld.ci" class="action">Écrire →</a>
+        </div>
+        <div class="channel">
+          <span class="label">Recrutement</span>
+          <div class="value">recrutement@cfld.ci<br><small>Détection · candidatures · partenariats sportifs</small></div>
+          <a href="{% url 'inscription' %}" class="action">Postuler →</a>
+        </div>
+      </div>
+      <div class="map">
+        <div class="pin"></div>
+        <div class="pin-label">Centre CFLD · Cocody</div>
+      </div>
+    </div>
+
+    <div class="form-side">
+      <div class="form-card" id="contact-card">
+        <h2>Écrivez-nous.<br><em>Nous lisons tout.</em></h2>
+        <p class="sub">Pour les candidatures sportives, utilisez plutôt le <a href="{% url 'inscription' %}" style="color:var(--green-bright)">formulaire d'inscription</a>.</p>
+        <form id="contact-form">
+          {% csrf_token %}
+          <div class="field-d">
+            <label>Nom complet</label>
+            <input type="text" name="nom" required placeholder="Votre nom">
+          </div>
+          <div class="field-d">
+            <label>Email</label>
+            <input type="email" name="email" required placeholder="vous@exemple.com">
+          </div>
+          <div class="field-d">
+            <label>Sujet</label>
+            <select name="sujet" required>
+              {% for val, label in form.fields.sujet.choices %}
+              <option value="{{ val }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field-d">
+            <label>Message</label>
+            <textarea name="message" required placeholder="Votre message…"></textarea>
+          </div>
+          <button type="submit" id="contact-btn">Envoyer le message →</button>
+        </form>
+        <div class="form-success" id="form-success">
+          <div style="font-size:40px;">✓</div>
+          <p style="color:var(--green-bright);font-family:var(--font-display);font-size:24px;margin:16px 0 8px;">Message envoyé !</p>
+          <p style="color:rgba(246,244,239,.7);font-size:14px;">Nous vous répondrons sous 24h.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section class="hours">
+  <div class="page">
+    <span class="eyebrow">Horaires</span>
+    <h2 style="margin-top:16px;">Quand nous <em>trouver</em>.</h2>
+    <div class="hours-grid">
+      <div class="hours-card">
+        <div class="ttl">Bureau administratif</div>
+        <div class="row"><span class="day">Lun—Ven</span><span class="h">08:00 — 18:00</span></div>
+        <div class="row"><span class="day">Sam</span><span class="h">09:00 — 13:00</span></div>
+        <div class="row closed"><span class="day">Dim</span><span class="h">Fermé</span></div>
+      </div>
+      <div class="hours-card">
+        <div class="ttl">Boutique officielle</div>
+        <div class="row"><span class="day">Lun—Ven</span><span class="h">10:00 — 19:00</span></div>
+        <div class="row"><span class="day">Sam</span><span class="h">09:00 — 17:00</span></div>
+        <div class="row closed"><span class="day">Dim</span><span class="h">Fermé</span></div>
+      </div>
+      <div class="hours-card">
+        <div class="ttl">Détections</div>
+        <div class="row closed"><span class="day">Lun—Ven</span><span class="h">Sur RDV</span></div>
+        <div class="row"><span class="day">Sam</span><span class="h">09:00 — 13:00</span></div>
+        <div class="row closed"><span class="day">Dim</span><span class="h">Fermé</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('contact-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('contact-btn');
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours…';
+
+  const formData = new FormData(this);
+  try {
+    const resp = await fetch('{% url "contact" %}', {
+      method: 'POST',
+      body: formData,
+      headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
+    });
+    const data = await resp.json();
+    if (data.success) {
+      this.style.display = 'none';
+      document.getElementById('form-success').classList.add('show');
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Envoyer le message →';
+      alert('Veuillez remplir tous les champs requis.');
+    }
+  } catch(err) {
+    btn.disabled = false;
+    btn.textContent = 'Envoyer le message →';
+    alert('Une erreur est survenue. Veuillez réessayer.');
+  }
+});
+</script>
+{% endblock %}
