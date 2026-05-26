@@ -65,11 +65,47 @@
 
 @media(max-width:1023px){.roster-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:767px){
-  .roster-grid{grid-template-columns:1fr 1fr;gap:14px}
-  .player-num{font-size:72px}.player-back .head .num{font-size:44px}.filters{padding:24px 0 40px}
-  .modal-panel{width:100%;height:90vh;border-radius:12px 12px 0 0;}
-  .player-modal{align-items:flex-end;justify-content:center;}
-  .modal-photo-area{height:260px;}
+  /* Filtres */
+  .filters{padding:20px 0 28px;gap:6px}
+  .filter-btn{padding:7px 12px;font-size:10px}
+
+  /* Grille joueurs */
+  .roster-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .roster{padding:40px 0 80px}
+
+  /* Face avant */
+  .player-front{padding:12px}
+  .player-num{font-size:52px}
+  .player-info h3{font-size:14px}
+  .player-info .pos{font-size:9px;margin-bottom:5px}
+
+  /* Face arrière */
+  .player-back{padding:12px}
+  .player-back .head .num{font-size:34px}
+  .player-back .head .pos{font-size:9px}
+  .player-back h3{font-size:13px;margin-top:10px!important;line-height:1.1}
+  .player-back .stats{padding-top:10px;gap:4px}
+  .player-back .stats .s{font-size:8px;letter-spacing:.08em}
+  .player-back .stats .v{font-size:17px;margin-top:2px}
+  .player-back .profile-btn{padding:6px 10px;font-size:8px;letter-spacing:.1em;margin-top:8px;gap:4px}
+
+  /* Modal */
+  .modal-panel{width:100%;height:90vh;border-radius:12px 12px 0 0}
+  .player-modal{align-items:flex-end;justify-content:center}
+  .modal-photo-area{height:220px}
+  .modal-body{padding:20px;gap:16px}
+  .modal-name{font-size:clamp(22px,6vw,34px)!important}
+  .modal-stat{padding:14px 16px}
+  .modal-stat .s-val{font-size:22px}
+}
+@media(max-width:400px){
+  .roster-grid{grid-template-columns:1fr}
+  .player{aspect-ratio:4/3}
+  .player-num{font-size:80px}
+  .player-info h3{font-size:18px}
+  .player-back h3{font-size:17px}
+  .player-back .stats .v{font-size:22px}
+  .player-back .profile-btn{font-size:10px;padding:8px 14px}
 }
 </style>
 {% endblock %}
