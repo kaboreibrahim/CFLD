@@ -169,18 +169,18 @@ DATABASES = {
 #Base de données PostgreSQL
 """
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': config('DB_NAME'),
-#         'USER': config('DB_USER'),
-#         'PASSWORD': config('DB_PASSWORD'),
-#         'HOST': config('DB_HOST'),
-#         'PORT': config('DB_PORT'),
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
 
-#         'OPTIONS': {
-#             'connect_timeout': 10,
-#         },
-#         'CONN_MAX_AGE': 60,   # connexions persistantes (60 sec)
-#     }
-# }
+        'OPTIONS': {
+            'connect_timeout': 10,
+        },
+        'CONN_MAX_AGE': 60,   # connexions persistantes (60 sec)
+    }
+}
