@@ -23,9 +23,10 @@ class ArticleForm(forms.ModelForm):
 class PhotoForm(forms.ModelForm):
     class Meta:
         model = Photo
-        fields = ['image', 'legende', 'date', 'afficher']
+        fields = ['image', 'legende', 'auteur', 'date', 'afficher']
         widgets = {
-            'legende': forms.TextInput(attrs={'placeholder': 'Légende optionnelle'}),
+            'legende': forms.TextInput(attrs={'placeholder': 'Légende / description de la photo'}),
+            'auteur':  forms.TextInput(attrs={'placeholder': 'Photographe (optionnel)'}),
             'date':    forms.DateInput(attrs={'type': 'date'}),
         }
 

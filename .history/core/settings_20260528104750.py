@@ -169,28 +169,28 @@ DATABASES = {
 #Base de données PostgreSQL
 """
 
-# DATABASES = {
+DATABASES = {
 
-#     'default': {
+    'default': {
 
-#         'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql',
 
-#         'NAME': 'CFLD',
+        'NAME': 'CFLD',
 
-#         'USER': 'postgres',
+        'USER': 'postgres',
 
-#         'PASSWORD': '1234',
+        'PASSWORD': '1234',
 
-#         'HOST': 'localhost',  # Essayez 'localhost' au lieu de '127.0.0.1'
+        'HOST': 'localhost',  # Essayez 'localhost' au lieu de '127.0.0.1'
 
-#         'PORT': '5432',
+        'PORT': '5432',
 
-#         'OPTIONS': {
+        'OPTIONS': {
 
-#             'client_encoding': 'UTF8',
+            'client_encoding': 'UTF8',
 
-#         },
+        },
 
-#     }
+    }
 
-# }
+}

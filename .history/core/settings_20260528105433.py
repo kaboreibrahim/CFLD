@@ -151,46 +151,46 @@ EMAIL_HOST_PASSWORD = 'hrwc jlvv ksqy gfeq'
 # Remplacez les valeurs par celles de votre hébergeur
 
 """
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME":'c2804120c_CFLD',
-        "USER":'c2804120c_user',
-        "PASSWORD": ";x#TqQ#=##RE+Gud",  # mettre le vrai mot de passe
-        "HOST": os.environ.get("MYSQL_HOST", "127.0.0.1"),   # ou l’host fourni par ton hébergeur
-        "PORT": os.environ.get("MYSQL_PORT", "3306"),
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-        },
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME":'c2804120c_CFLD',
+#         "USER":'c2804120c_user',
+#         "PASSWORD": ";x#TqQ#=##RE+Gud",  # mettre le vrai mot de passe
+#         "HOST": os.environ.get("MYSQL_HOST", "127.0.0.1"),   # ou l’host fourni par ton hébergeur
+#         "PORT": os.environ.get("MYSQL_PORT", "3306"),
+#         'OPTIONS': {
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+#         },
+#     }
+# }
 
 """
 #Base de données PostgreSQL
 """
 
-# DATABASES = {
+DATABASES = {
 
-#     'default': {
+    'default': {
 
-#         'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql',
 
-#         'NAME': 'CFLD',
+        'NAME': 'CFLD',
 
-#         'USER': 'postgres',
+        'USER': 'postgres',
 
-#         'PASSWORD': '1234',
+        'PASSWORD': '1234',
 
-#         'HOST': 'localhost',  # Essayez 'localhost' au lieu de '127.0.0.1'
+        'HOST': 'localhost',  # Essayez 'localhost' au lieu de '127.0.0.1'
 
-#         'PORT': '5432',
+        'PORT': '5432',
 
-#         'OPTIONS': {
+        'OPTIONS': {
 
-#             'client_encoding': 'UTF8',
+            'client_encoding': 'UTF8',
 
-#         },
+        },
 
-#     }
+    }
 
-# }
+}

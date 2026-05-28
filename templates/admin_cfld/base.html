@@ -133,18 +133,201 @@ body { background:#f0ede6; overflow-x:hidden; }
 .pill { display:inline-block; padding:3px 9px; border-radius:999px; font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; background:var(--paper-2); color:var(--ink); }
 
 /* ── Toast ── */
-.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--paper); padding:12px 24px; border-radius:999px; font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; opacity:0; transition:all .3s; z-index:200; white-space:nowrap; }
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--paper); padding:12px 24px; border-radius:999px; font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; opacity:0; transition:all .3s; z-index:9999; white-space:nowrap; }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 .toast.ok   { background:var(--green); }
 .toast.err  { background:#b73f3f; }
+
+/* ══════════════════════════════════════
+   MOBILE TOPBAR
+══════════════════════════════════════ */
+.mob-topbar {
+  display:none;
+  align-items:center;
+  justify-content:space-between;
+  height:56px;
+  padding:0 14px;
+  background:var(--ink);
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:201;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.mob-hamburger {
+  width:40px; height:40px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:6px;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  padding:0;
+  flex-shrink:0;
+}
+.mob-hamburger span {
+  display:block;
+  width:18px; height:2px;
+  background:rgba(255,255,255,.82);
+  border-radius:1px;
+  transition:transform .22s ease, opacity .22s ease;
+}
+.mob-hamburger.is-open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+.mob-hamburger.is-open span:nth-child(2){ opacity:0; transform:scaleX(0); }
+.mob-hamburger.is-open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+.mob-brand-link {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  text-decoration:none;
+}
+.mob-brand-mark {
+  width:28px; height:28px;
+  background:var(--green-bright);
+  color:var(--ink);
+  display:grid; place-items:center;
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:13px;
+  border-radius:2px;
+}
+.mob-brand-name {
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.55);
+}
+/* Overlay sidebar */
+.mob-overlay {
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  z-index:200;
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+}
+.mob-overlay.is-visible { display:block; }
+
+/* ══════════════════════════════════════
+   RESPONSIVE — TABLETTE (< 1024px)
+══════════════════════════════════════ */
+@media(max-width:1023px){
+  .admin-shell { grid-template-columns:200px 1fr; }
+  .admin-main  { padding:24px; }
+  .kpi-row     { grid-template-columns:1fr 1fr; gap:12px; }
+  .kpi .k-val  { font-size:42px; }
+  .dash-grid   { grid-template-columns:1fr !important; }
+  .dash-span2  { grid-column:span 1 !important; }
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — MOBILE (< 768px)
+══════════════════════════════════════ */
+@media(max-width:767px){
+  body { padding-top:56px; overflow-x:hidden; }
+
+  /* Topbar mobile visible */
+  .mob-topbar { display:flex; }
+
+  /* Layout : 1 colonne, sidebar sort du flux */
+  .admin-shell { grid-template-columns:1fr; }
+
+  /* Sidebar → tiroir latéral */
+  .sidebar {
+    position:fixed;
+    top:0; left:0;
+    width:272px;
+    height:100%;
+    height:100dvh;
+    transform:translateX(-100%);
+    transition:transform .28s cubic-bezier(.4,0,.2,1);
+    z-index:202;
+    overflow-y:auto;
+  }
+  .sidebar.mob-open { transform:translateX(0); }
+
+  /* Contenu principal */
+  .admin-main { padding:18px 14px 32px; }
+
+  /* KPI : 2 colonnes compactes */
+  .kpi-row { grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+  .kpi     { padding:14px 14px; }
+  .kpi .k-val { font-size:34px; margin-top:4px; }
+  .kpi .k-sub { display:none; }
+
+  /* Dashboard grid */
+  .dash-grid  { display:block !important; }
+  .dash-span2 { grid-column:span 1 !important; }
+  .dash-grid > div { margin-bottom:20px; }
+  .dash-grid > div:last-child { margin-bottom:0; }
+
+  /* En-tête de page */
+  .page-header { margin-bottom:18px; gap:12px; }
+  .page-header h1 { font-size:22px; }
+  .page-header .eyebrow { font-size:9px; }
+  .page-header .hd-actions { width:100%; }
+  .page-header .hd-actions a,
+  .page-header .hd-actions button {
+    flex:1;
+    text-align:center;
+    justify-content:center;
+  }
+
+  /* Barre de filtres */
+  .filter-bar { flex-direction:column; gap:10px; padding:12px 14px; }
+  .filter-bar .search-wrap { min-width:0; width:100%; }
+  .f-pills {
+    overflow-x:auto;
+    flex-wrap:nowrap;
+    padding-bottom:4px;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .f-pills::-webkit-scrollbar { display:none; }
+  .f-pill { white-space:nowrap; flex-shrink:0; }
+
+  /* Tables : défilement horizontal */
+  .t-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:6px; }
+  .t-head { min-width:580px; }
+  .t-row  { min-width:580px; }
+
+  /* Formulaires */
+  .form-card { padding:18px 14px; max-width:100%; }
+  .form-grid { grid-template-columns:1fr !important; }
+  .field.span2 { grid-column:span 1 !important; }
+  .form-actions { flex-wrap:wrap; gap:8px; padding-top:16px; }
+  .form-actions > * { flex:1; text-align:center; justify-content:center; }
+
+  /* Toast décalé vers le haut pour éviter les barres nav mobiles */
+  .toast { bottom:80px; max-width:calc(100vw - 32px); }
+}
 </style>
 {% block extra_css %}{% endblock %}
 </head>
 <body>
+
+<!-- ── TOPBAR MOBILE ── -->
+<div class="mob-topbar" id="mobTopbar">
+  <button class="mob-hamburger" id="mobHamburger" onclick="toggleSidebar()" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="adminSidebar">
+    <span></span><span></span><span></span>
+  </button>
+  <a href="{% url 'admin_dashboard' %}" class="mob-brand-link">
+    <span class="mob-brand-mark">C</span>
+    <span class="mob-brand-name">CFLD Admin</span>
+  </a>
+  <div style="width:40px;"></div><!-- équilibre pour centrer le logo -->
+</div>
+<!-- Overlay fermeture sidebar -->
+<div class="mob-overlay" id="mobOverlay" onclick="closeSidebar()" aria-hidden="true"></div>
+
 <div class="admin-shell">
 
   <!-- ── SIDEBAR ── -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="adminSidebar">
     <div class="sidebar-top">
       <a href="{% url 'admin_dashboard' %}" class="sidebar-brand">
         <span class="bm">C</span>
@@ -230,6 +413,7 @@ body { background:#f0ede6; overflow-x:hidden; }
 <div class="toast" id="toast"></div>
 
 <script>
+/* ── Toast ── */
 function showToast(msg, type='') {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -237,6 +421,7 @@ function showToast(msg, type='') {
   setTimeout(() => t.classList.remove('show'), 2600);
 }
 
+/* ── Suppression avec confirmation ── */
 function confirmDelete(url, row) {
   if (!confirm('Supprimer cet élément ?')) return;
   fetch(url, {
@@ -251,6 +436,30 @@ function confirmDelete(url, row) {
     }
   }).catch(() => showToast('Erreur réseau', 'err'));
 }
+
+/* ── Sidebar mobile (tiroir) ── */
+function openSidebar() {
+  document.getElementById('adminSidebar').classList.add('mob-open');
+  document.getElementById('mobOverlay').classList.add('is-visible');
+  const btn = document.getElementById('mobHamburger');
+  if (btn) { btn.classList.add('is-open'); btn.setAttribute('aria-expanded', 'true'); }
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  document.getElementById('adminSidebar').classList.remove('mob-open');
+  document.getElementById('mobOverlay').classList.remove('is-visible');
+  const btn = document.getElementById('mobHamburger');
+  if (btn) { btn.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false'); }
+  document.body.style.overflow = '';
+}
+function toggleSidebar() {
+  document.getElementById('adminSidebar').classList.contains('mob-open') ? closeSidebar() : openSidebar();
+}
+
+/* Fermer avec Échap */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('adminSidebar').classList.contains('mob-open')) closeSidebar();
+});
 </script>
 {% block extra_js %}{% endblock %}
 </body>

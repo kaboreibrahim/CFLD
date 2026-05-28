@@ -33,7 +33,7 @@
   </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+<div class="dash-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
 
   <!-- Candidatures récentes -->
   <div>
@@ -83,7 +83,7 @@
   </div>
 
   <!-- Messages récents -->
-  <div style="grid-column:span 2;">
+  <div class="dash-span2" style="grid-column:span 2;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="font-size:14px;font-family:var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0;">Messages récents</h3>
       <a href="{% url 'admin_messages' %}" style="font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Tout voir →</a>

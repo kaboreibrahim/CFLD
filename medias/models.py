@@ -32,6 +32,7 @@ class Article(models.Model):
 class Photo(models.Model):
     legende = models.CharField(max_length=200, blank=True)
     image = models.ImageField(upload_to='galerie/')
+    auteur = models.CharField(max_length=100, blank=True, verbose_name='Auteur / Photographe')
     date = models.DateField(default=timezone.now)
     afficher = models.BooleanField(default=True)
 
