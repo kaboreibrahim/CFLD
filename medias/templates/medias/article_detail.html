@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ article.titre }} — CFLD{% endblock %}
+{% block screen_label %}Actualité{% endblock %}
+{% block current_page %}medias.html{% endblock %}
+{% block description %}{{ article.accroche|default:article.titre }}{% endblock %}
+{% block keywords %}{{ article.get_categorie_display }}, CFLD, actualités football, {{ article.titre }}{% endblock %}
+{% block og_title %}{{ article.titre }} — CFLD{% endblock %}
+{% block og_description %}{{ article.accroche|default:article.titre }}{% endblock %}
+{% if article.image %}{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{{ article.image.url }}{% endblock %}{% endif %}
+{% block tw_title %}{{ article.titre }} — CFLD{% endblock %}
+{% block tw_description %}{{ article.accroche|default:article.titre }}{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Fil d'Ariane ── */
+.art-breadcrumb {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:28px 0 0;
+  font-family:var(--font-mono);
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+  flex-wrap:wrap;
+}
+.art-breadcrumb a { color:var(--muted); text-decoration:none; }
+.art-breadcrumb a:hover { color:var(--ink); }
+.art-breadcrumb .sep { color:rgba(11,11,11,.25); }
+.art-breadcrumb .cur { color:var(--ink); }
+
+/* ── En-tête article ── */
+.art-header {
+  padding:48px 0 40px;
+  max-width:760px;
+}
+.art-meta {
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin-bottom:24px;
+  font-family:var(--font-mono);
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  color:var(--muted);
+}
+.art-meta .cat {
+  color:var(--green);
+  font-weight:600;
+}
+.art-meta .sep { color:rgba(11,11,11,.2); }
+.art-title {
+  font-family:var(--font-display);
+  font-size:clamp(32px,5vw,58px);
+  line-height:1.06;
+  letter-spacing:-.01em;
+  margin:0 0 24px;
+}
+.art-accroche {
+  font-size:18px;
+  line-height:1.55;
+  color:var(--muted);
+  margin:0;
+  max-width:640px;
+}
+
+/* ── Image hero ── */
+.art-hero {
+  width:100%;
+  margin-bottom:56px;
+  border-radius:4px;
+  overflow:hidden;
+  background:var(--paper-2);
+}
+.art-hero img {
+  width:100%;
+  max-height:520px;
+  object-fit:cover;
+  display:block;
+}
+
+/* ── Corps de l'article ── */
+.art-body {
+  max-width:720px;
+}
+.art-body p {
+  font-size:17px;
+  line-height:1.75;
+  color:rgba(11,11,11,.85);
+  margin:0 0 24px;
+}
+.art-body p:last-child { margin-bottom:0; }
+.art-body strong { color:var(--ink); }
+.art-body em { font-style:italic; }
+.art-body a { color:var(--green); text-underline-offset:3px; }
+.art-body a:hover { color:var(--green-deep); }
+.art-body h2 {
+  font-family:var(--font-display);
+  font-size:clamp(22px,3vw,30px);
+  line-height:1.15;
+  margin:40px 0 16px;
+  color:var(--ink);
+}
+.art-body h3 {
+  font-family:var(--font-display);
+  font-size:clamp(18px,2.5vw,24px);
+  line-height:1.2;
+  margin:32px 0 12px;
+  color:var(--ink);
+}
+.art-body ul, .art-body ol {
+  margin:0 0 24px 24px;
+  line-height:1.7;
+  font-size:17px;
+  color:rgba(11,11,11,.85);
+}
+.art-body blockquote {
+  border-left:3px solid var(--green);
+  margin:32px 0;
+  padding:12px 0 12px 24px;
+  font-style:italic;
+  font-size:18px;
+  line-height:1.65;
+  color:var(--muted);
+}
+
+/* ── Pied de l'article ── */
+.art-footer {
+  margin-top:64px;
+  padding-top:32px;
+  border-top:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:16px;
+}
+.art-back {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 20px;
+  border:1px solid var(--line-strong);
+  border-radius:4px;
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  text-decoration:none;
+  color:var(--ink);
+  transition:background .2s, color .2s;
+}
+.art-back:hover { background:var(--ink); color:var(--paper); }
+.art-share {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-family:var(--font-mono);
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.art-share-btn {
+  width:36px; height:36px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:transparent;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:15px;
+  text-decoration:none;
+  color:var(--ink);
+  transition:background .18s, border-color .18s;
+}
+.art-share-btn:hover { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+
+/* ── Autres articles ── */
+.art-autres { padding:80px 0 120px; border-top:1px solid var(--line); margin-top:0; }
+.art-autres-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:40px;
+}
+.art-autres-header h2 { font-size:clamp(24px,3.5vw,36px); margin:0; }
+.art-autres-header a {
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+  text-decoration:none;
+}
+.art-autres-header a:hover { color:var(--ink); }
+.art-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:32px;
+}
+.art-card {
+  display:grid;
+  gap:14px;
+  text-decoration:none;
+  color:inherit;
+}
+.art-card .ph {
+  aspect-ratio:4/3;
+  border-radius:4px;
+  overflow:hidden;
+  background:var(--paper-2);
+  display:block;
+}
+.art-card .ph img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  transition:transform .45s cubic-bezier(.25,.46,.45,.94);
+}
+.art-card:hover .ph img { transform:scale(1.05); }
+.art-card .ph-placeholder {
+  width:100%;
+  height:100%;
+  display:grid;
+  place-items:center;
+  font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--muted);
+}
+.art-card .card-meta {
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  color:var(--muted);
+  text-transform:uppercase;
+  display:flex;
+  gap:12px;
+}
+.art-card .card-meta .cat { color:var(--green); }
+.art-card h3 {
+  font-size:19px;
+  line-height:1.2;
+  transition:color .18s;
+}
+.art-card:hover h3 { color:var(--green); }
+
+/* Responsive */
+@media(max-width:767px){
+  .art-header { padding:32px 0 28px; }
+  .art-title { font-size:clamp(26px,7vw,40px); }
+  .art-accroche { font-size:16px; }
+  .art-body p { font-size:16px; }
+  .art-hero { margin-bottom:36px; }
+  .art-hero img { max-height:280px; }
+  .art-footer { flex-direction:column; align-items:flex-start; }
+  .art-grid { grid-template-columns:1fr; gap:24px; }
+  .art-autres { padding:48px 0 80px; }
+}
+@media(max-width:1023px) and (min-width:768px){
+  .art-grid { grid-template-columns:1fr 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="page">
+
+  <!-- Fil d'Ariane -->
+  <nav class="art-breadcrumb" aria-label="Fil d'Ariane">
+    <a href="/">Accueil</a>
+    <span class="sep">›</span>
+    <a href="{% url 'medias' %}">Médias</a>
+    <span class="sep">›</span>
+    <a href="{% url 'medias' %}">Actualités</a>
+    <span class="sep">›</span>
+    <span class="cur">{{ article.titre|truncatechars:50 }}</span>
+  </nav>
+
+  <!-- En-tête -->
+  <header class="art-header">
+    <div class="art-meta">
+      <span class="cat">{{ article.get_categorie_display }}</span>
+      <span class="sep">·</span>
+      <span>{{ article.date_publication|date:"d F Y" }}</span>
+    </div>
+    <h1 class="art-title">{{ article.titre }}</h1>
+    {% if article.accroche %}
+    <p class="art-accroche">{{ article.accroche }}</p>
+    {% endif %}
+  </header>
+
+  <!-- Image hero -->
+  {% if article.image %}
+  <div class="art-hero">
+    <img src="{{ article.image.url }}" alt="{{ article.titre }}">
+  </div>
+  {% endif %}
+
+  <!-- Corps -->
+  <div class="art-body">
+    {{ article.contenu|linebreaks }}
+  </div>
+
+  <!-- Pied : retour + partage -->
+  <div class="art-footer">
+    <a href="{% url 'medias' %}" class="art-back">
+      ← Retour aux actualités
+    </a>
+    <div class="art-share">
+      <span>Partager</span>
+      <a class="art-share-btn"
+         href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"
+         target="_blank" rel="noopener" title="Partager sur Facebook">f</a>
+      <a class="art-share-btn"
+         href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ article.titre|urlencode }}"
+         target="_blank" rel="noopener" title="Partager sur X / Twitter">𝕏</a>
+      <button class="art-share-btn" onclick="copyLink()" title="Copier le lien">⎘</button>
+    </div>
+  </div>
+
+</main>
+
+<!-- Autres actualités -->
+{% if autres %}
+<section class="page art-autres">
+  <div class="art-autres-header">
+    <h2>À lire aussi</h2>
+    <a href="{% url 'medias' %}">Toutes les actualités →</a>
+  </div>
+  <div class="art-grid">
+    {% for a in autres %}
+    <a href="{% url 'article_detail' a.pk %}" class="art-card reveal">
+      <div class="ph">
+        {% if a.image %}
+        <img src="{{ a.image.url }}" alt="{{ a.titre }}">
+        {% else %}
+        <div class="ph-placeholder">[ {{ a.get_categorie_display }} ]</div>
+        {% endif %}
+      </div>
+      <div class="card-meta">
+        <span class="cat">{{ a.get_categorie_display }}</span>
+        <span>{{ a.date_publication|date:"d M Y"|upper }}</span>
+      </div>
+      <h3>{{ a.titre }}</h3>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    const btn = event.currentTarget;
+    const orig = btn.textContent;
+    btn.textContent = '✓';
+    btn.style.background = 'var(--green)';
+    btn.style.color = '#fff';
+    btn.style.borderColor = 'var(--green)';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 1800);
+  }).catch(() => {
+    window.prompt('Copier ce lien :', window.location.href);
+  });
+}
+</script>
+{% endblock %}
