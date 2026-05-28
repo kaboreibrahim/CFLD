@@ -131,12 +131,6 @@ LOGIN_URL = '/admin-cfld/login/'
 LOGIN_REDIRECT_URL = '/admin-cfld/'
 
 
-# Infobip WhatsApp
-INFOBIP_BASE_URL = '9j1jjd.api.infobip.com'
-INFOBIP_API_KEY = 'abb3057f456cfc4132df4b223fd0fec6-6c2d70df-74b7-435f-9b48-26bea4ae792e'
-INFOBIP_WHATSAPP_SENDER = '+447860088970'
-INFOBIP_ADMIN_PHONE = '+2250584603011'
-
 # smtp
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
