@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Zones privées — aucune indexation
+Disallow: /django-admin/
+Disallow: /admin-cfld/
+Disallow: /media/
+Disallow: /erreurs/
+
+# Sitemap
+Sitemap: {{ request.scheme }}://{{ request.get_host }}/sitemap.xml
