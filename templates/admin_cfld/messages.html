@@ -2,10 +2,13 @@
 {% block title %}Messages{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <span class="eyebrow">Communication</span>
-    <h1>Messages <span style="font-size:18px;color:var(--muted);font-weight:400;">{{ total }}</span></h1>
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span> Communication
+    </div>
+    <h1 class="pg-title">Messages <span class="pg-count">{{ total }}</span></h1>
   </div>
 </div>
 
@@ -17,38 +20,54 @@
 </div>
 
 <div class="t-wrap">
-  <div class="t-row t-head" style="grid-template-columns:12px 1fr 200px 110px 60px 80px;">
-    <div></div>
-    <div>Message</div>
-    <div>Expéditeur</div>
-    <div>Date</div>
-    <div>Lu</div>
-    <div style="text-align:right;">Actions</div>
+  <div class="t-row t-head" style="grid-template-columns:14px 1fr 200px 110px 60px 80px;">
+    <div class="th"></div>
+    <div class="th">Message</div>
+    <div class="th">Expéditeur</div>
+    <div class="th">Date</div>
+    <div class="th">Lu</div>
+    <div class="th" style="text-align:right;">Actions</div>
   </div>
   {% for msg in messages_list %}
-  <div class="t-row" id="row-msg{{ msg.pk }}" style="grid-template-columns:12px 1fr 200px 110px 60px 80px;">
-    <div>
+  <div class="t-row" id="row-msg{{ msg.pk }}" style="grid-template-columns:14px 1fr 200px 110px 60px 80px;{% if not msg.lu %}background:#FDFCFB;{% endif %}">
+    <div style="display:flex;align-items:center;">
       {% if not msg.lu %}
-        <div style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
+      <div style="width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
       {% endif %}
     </div>
     <div>
-      <div style="font-weight:{% if not msg.lu %}600{% else %}400{% endif %};font-size:13px;">{{ msg.sujet|truncatechars:60 }}</div>
-      <div style="font-size:11px;color:var(--muted);">{{ msg.message|truncatechars:100 }}</div>
+      <div style="font-weight:{% if not msg.lu %}600{% else %}400{% endif %};font-size:13px;color:var(--ink);line-height:1.35;">{{ msg.get_sujet_display|truncatechars:60 }}</div>
+      <div style="font-size:11.5px;color:rgba(11,11,11,.45);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ msg.message|truncatechars:110 }}</div>
     </div>
     <div>
-      <div style="font-size:13px;">{{ msg.nom }}</div>
-      <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ msg.email }}</div>
+      <div style="font-size:13px;font-weight:{% if not msg.lu %}500{% else %}400{% endif %};color:var(--ink);">{{ msg.nom }}</div>
+      <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);">{{ msg.email }}</div>
     </div>
-    <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">{{ msg.date_envoi|date:"d/m/Y" }}<br>{{ msg.date_envoi|date:"H:i" }}</div>
-    <div style="font-family:var(--font-mono);font-size:11px;">{% if msg.lu %}✓{% else %}<span style="color:var(--green);">●</span>{% endif %}</div>
-    <div class="actions">
-      <a href="{% url 'admin_message_detail' msg.pk %}" class="t-btn" title="Lire">→</a>
-      <button class="t-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_message_delete' msg.pk %}', document.getElementById('row-msg{{ msg.pk }}'))">✕</button>
+    <div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:rgba(11,11,11,.55);">{{ msg.date_envoi|date:"d/m/Y" }}</div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:rgba(11,11,11,.35);">{{ msg.date_envoi|date:"H:i" }}</div>
+    </div>
+    <div style="text-align:center;">
+      {% if msg.lu %}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      {% else %}
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--green);margin:0 auto;"></div>
+      {% endif %}
+    </div>
+    <div class="row-actions">
+      <a href="{% url 'admin_message_detail' msg.pk %}" class="ic-btn" title="Lire le message">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <button class="ic-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_message_delete' msg.pk %}', document.getElementById('row-msg{{ msg.pk }}'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </button>
     </div>
   </div>
   {% empty %}
-  <div class="empty-state">Aucun message</div>
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+    <p>Aucun message</p>
+  </div>
   {% endfor %}
 </div>
 {% endblock %}

@@ -1,0 +1,598 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}{{ joueur.nom_complet }}{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Profile card ── */
+.profile-shell {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+/* Carte identité gauche */
+.profile-card {
+  background: #fff;
+  border: 1px solid rgba(11,11,11,.1);
+  border-radius: 12px;
+  overflow: hidden;
+  position: sticky;
+  top: 24px;
+}
+.profile-banner {
+  height: 90px;
+  background: linear-gradient(135deg, #130505 0%, #3A0A0A 60%, #C8161D 100%);
+  position: relative;
+}
+.profile-banner::after {
+  content: '#{{ joueur.numero }}';
+  position: absolute;
+  right: 16px;
+  bottom: -18px;
+  font-family: var(--font-display);
+  font-size: 72px;
+  font-weight: 600;
+  color: rgba(255,255,255,.07);
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+.profile-avatar-wrap {
+  padding: 0 20px;
+  margin-top: -36px;
+  position: relative;
+  z-index: 1;
+}
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  object-fit: cover;
+  display: block;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18);
+}
+.profile-avatar-fallback {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: linear-gradient(135deg, #C8161D, #8A0D12);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18);
+  letter-spacing: -.01em;
+}
+.profile-body { padding: 14px 20px 22px; }
+.profile-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -.02em;
+  margin-top: 10px;
+  line-height: 1.1;
+}
+.profile-section {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.42);
+  margin-top: 4px;
+}
+.profile-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.profile-num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .16em;
+  color: rgba(11,11,11,.38);
+  background: rgba(11,11,11,.05);
+  padding: 3px 9px;
+  border-radius: 4px;
+}
+.profile-divider {
+  height: 1px;
+  background: rgba(11,11,11,.07);
+  margin: 18px 0;
+}
+.profile-meta { display: flex; flex-direction: column; gap: 12px; }
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.meta-lbl {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.38);
+  flex-shrink: 0;
+}
+.meta-val {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: right;
+}
+.meta-val.mono { font-family: var(--font-mono); font-size: 11.5px; }
+
+/* Actions bas de carte */
+.profile-actions {
+  padding: 14px 20px;
+  border-top: 1px solid rgba(11,11,11,.07);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Colonne droite */
+.detail-right { display: flex; flex-direction: column; gap: 18px; }
+
+/* Stats */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.stat-card {
+  background: #fff;
+  border: 1px solid rgba(11,11,11,.1);
+  border-radius: 10px;
+  padding: 18px 18px 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+}
+.stat-card.red::before   { background: linear-gradient(90deg,#C8161D,#EE2630); }
+.stat-card.green::before { background: linear-gradient(90deg,#059669,#10B981); }
+.stat-card.blue::before  { background: linear-gradient(90deg,#2563EB,#60A5FA); }
+.stat-card.amber::before { background: linear-gradient(90deg,#D97706,#F59E0B); }
+.stat-val {
+  font-family: var(--font-display);
+  font-size: 46px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: var(--ink);
+}
+.stat-lbl {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.4);
+  margin-top: 6px;
+}
+.stat-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(11,11,11,.32);
+  margin-top: 4px;
+}
+
+/* Bloc infos */
+.info-block {
+  background: #fff;
+  border: 1px solid rgba(11,11,11,.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.info-block-title {
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(11,11,11,.07);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.38);
+  background: #FAFAF7;
+}
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.info-cell {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(11,11,11,.05);
+  border-right: 1px solid rgba(11,11,11,.05);
+}
+.info-cell:nth-child(even) { border-right: 0; }
+.info-cell:nth-last-child(-n+2) { border-bottom: 0; }
+.info-cell-lbl {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.35);
+  margin-bottom: 4px;
+}
+.info-cell-val {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
+}
+.info-cell-val.mono { font-family: var(--font-mono); font-size: 12px; }
+
+/* Candidature liée */
+.cand-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  text-decoration: none;
+  transition: background .12s;
+}
+.cand-link:hover { background: #FDFCF8; }
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .profile-shell { grid-template-columns: 1fr; }
+  .profile-card  { position: static; }
+  .stats-row     { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .stats-row   { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .info-grid   { grid-template-columns: 1fr; }
+  .info-cell   { border-right: 0 !important; }
+  .info-cell:last-child { border-bottom: 0; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span>
+      <a href="{% url 'admin_joueurs' %}">Joueurs</a>
+      <span class="sep">›</span>
+      {{ joueur.nom_complet }}
+    </div>
+    <h1 class="pg-title">{{ joueur.nom_complet }}</h1>
+  </div>
+  <div class="page-hd-right">
+    <a href="{% url 'admin_joueur_edit' joueur.pk %}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Modifier
+    </a>
+    <a href="{% url 'admin_joueurs' %}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Retour
+    </a>
+  </div>
+</div>
+
+<div class="profile-shell">
+
+  <!-- ══ COLONNE GAUCHE : carte identité ══ -->
+  <div>
+    <div class="profile-card">
+
+      <div class="profile-banner"></div>
+
+      <div class="profile-avatar-wrap">
+        {% if joueur.photo %}
+          <img src="{{ joueur.photo.url }}" alt="{{ joueur.nom_complet }}" class="profile-avatar">
+        {% else %}
+          <div class="profile-avatar-fallback">
+            {{ joueur.prenom|slice:":1"|upper }}{{ joueur.nom|slice:":1"|upper }}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="profile-body">
+        <div class="profile-name">{{ joueur.prenom }}<br>{{ joueur.nom }}</div>
+        <div class="profile-section">{{ joueur.section }}</div>
+
+        <div class="profile-badges" style="margin-top:14px;">
+          <span class="pill" style="font-size:10.5px;">{{ joueur.get_poste_display }}</span>
+          <span class="profile-num">N° {{ joueur.numero }}</span>
+          {% if joueur.actif %}
+            <span class="badge-status bs-accepted">Actif</span>
+          {% else %}
+            <span class="badge-status bs-refused">Inactif</span>
+          {% endif %}
+        </div>
+
+        <div class="profile-divider"></div>
+
+        <div class="profile-meta">
+          <div class="meta-row">
+            <span class="meta-lbl">Âge</span>
+            <span class="meta-val">{{ joueur.age }} ans</span>
+          </div>
+          {% if joueur.date_naissance %}
+          <div class="meta-row">
+            <span class="meta-lbl">Naissance</span>
+            <span class="meta-val mono">{{ joueur.date_naissance|date:"d/m/Y" }}</span>
+          </div>
+          {% endif %}
+          <div class="meta-row">
+            <span class="meta-lbl">Nationalité</span>
+            <span class="meta-val">{{ joueur.nationalite }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-lbl">Sexe</span>
+            <span class="meta-val">{{ joueur.get_sexe_display }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-lbl">Catégorie</span>
+            <span class="meta-val">{{ joueur.categorie }}</span>
+          </div>
+          {% if joueur.pied_fort %}
+          <div class="meta-row">
+            <span class="meta-lbl">Pied fort</span>
+            <span class="meta-val">{{ joueur.pied_fort }}</span>
+          </div>
+          {% endif %}
+          {% if joueur.telephone_whatsapp %}
+          <div class="meta-row">
+            <span class="meta-lbl">WhatsApp</span>
+            <span class="meta-val mono" style="font-size:10.5px;">{{ joueur.telephone_whatsapp }}</span>
+          </div>
+          {% endif %}
+          {% if joueur.numero_licence %}
+          <div class="meta-row">
+            <span class="meta-lbl">Licence</span>
+            <span class="meta-val mono">{{ joueur.numero_licence }}</span>
+          </div>
+          {% endif %}
+          {% if joueur.date_inscription %}
+          <div class="meta-row">
+            <span class="meta-lbl">Inscrit le</span>
+            <span class="meta-val mono">{{ joueur.date_inscription|date:"d/m/Y" }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <a href="{% url 'admin_joueur_edit' joueur.pk %}" class="btn btn-dark" style="justify-content:center;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Modifier le profil
+        </a>
+        <button class="btn btn-danger btn-sm" style="justify-content:center;" id="deleteBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          Supprimer ce joueur
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ COLONNE DROITE ══ -->
+  <div class="detail-right">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card red">
+        <div class="stat-val">{{ joueur.matchs_joues }}</div>
+        <div class="stat-lbl">Matchs joués</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-val">{{ joueur.buts }}</div>
+        <div class="stat-lbl">Buts marqués</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-val">{{ joueur.numero }}</div>
+        <div class="stat-lbl">Numéro de maillot</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-val">
+          {% if joueur.matchs_joues > 0 %}
+            {% widthratio joueur.buts joueur.matchs_joues 100 %}
+          {% else %}
+            —
+          {% endif %}
+        </div>
+        <div class="stat-lbl">Ratio buts / matchs</div>
+        {% if joueur.matchs_joues > 0 %}
+        <div class="stat-sub">pour 100 matchs</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Identité -->
+    <div class="info-block">
+      <div class="info-block-title">Identité</div>
+      <div class="info-grid">
+        <div class="info-cell">
+          <div class="info-cell-lbl">Prénom</div>
+          <div class="info-cell-val">{{ joueur.prenom }}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Nom</div>
+          <div class="info-cell-val">{{ joueur.nom }}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Date de naissance</div>
+          <div class="info-cell-val mono">{% if joueur.date_naissance %}{{ joueur.date_naissance|date:"d/m/Y" }}{% else %}<span style="color:rgba(11,11,11,.3);">—</span>{% endif %}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Âge</div>
+          <div class="info-cell-val">{{ joueur.age }} ans</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Sexe</div>
+          <div class="info-cell-val">{{ joueur.get_sexe_display }}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Nationalité</div>
+          <div class="info-cell-val">{{ joueur.nationalite }}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Catégorie</div>
+          <div class="info-cell-val">{{ joueur.categorie }}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Adresse</div>
+          <div class="info-cell-val">{% if joueur.adresse %}{{ joueur.adresse }}{% else %}<span style="color:rgba(11,11,11,.3);">—</span>{% endif %}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profil sportif -->
+    <div class="info-block">
+      <div class="info-block-title">Profil sportif</div>
+      <div class="info-grid">
+        <div class="info-cell">
+          <div class="info-cell-lbl">Poste</div>
+          <div class="info-cell-val">{{ joueur.get_poste_display }}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Pied fort</div>
+          <div class="info-cell-val">{% if joueur.pied_fort %}{{ joueur.pied_fort }}{% else %}<span style="color:rgba(11,11,11,.3);">—</span>{% endif %}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Ancien club</div>
+          <div class="info-cell-val">{% if joueur.ancien_club %}{{ joueur.ancien_club }}{% else %}<span style="color:rgba(11,11,11,.3);">—</span>{% endif %}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Numéro de licence</div>
+          <div class="info-cell-val mono">{% if joueur.numero_licence %}{{ joueur.numero_licence }}{% else %}<span style="color:rgba(11,11,11,.3);">—</span>{% endif %}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Date d'inscription</div>
+          <div class="info-cell-val mono">{% if joueur.date_inscription %}{{ joueur.date_inscription|date:"d/m/Y" }}{% else %}<span style="color:rgba(11,11,11,.3);">—</span>{% endif %}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Section</div>
+          <div class="info-cell-val">{{ joueur.section }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="info-block">
+      <div class="info-block-title">Contact</div>
+      <div class="info-grid">
+        <div class="info-cell">
+          <div class="info-cell-lbl">Téléphone WhatsApp</div>
+          <div class="info-cell-val mono">{% if joueur.telephone_whatsapp %}{{ joueur.telephone_whatsapp }}{% else %}<span style="color:rgba(11,11,11,.3);">—</span>{% endif %}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Email</div>
+          {% if joueur.email %}
+          <a href="mailto:{{ joueur.email }}" class="info-cell-val mono" style="color:var(--ink);text-decoration:underline;text-underline-offset:2px;display:block;">{{ joueur.email }}</a>
+          {% else %}
+          <div class="info-cell-val"><span style="color:rgba(11,11,11,.3);">—</span></div>
+          {% endif %}
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Parent / Tuteur</div>
+          <div class="info-cell-val">{% if joueur.nom_parent %}{{ joueur.nom_parent }}{% else %}<span style="color:rgba(11,11,11,.3);">—</span>{% endif %}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Tél. parent</div>
+          <div class="info-cell-val mono">{% if joueur.telephone_parent %}{{ joueur.telephone_parent }}{% else %}<span style="color:rgba(11,11,11,.3);">—</span>{% endif %}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Email parent</div>
+          <div class="info-cell-val mono">{% if joueur.email_parent %}{{ joueur.email_parent }}{% else %}<span style="color:rgba(11,11,11,.3);">—</span>{% endif %}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">Contact d'urgence</div>
+          <div class="info-cell-val">{% if joueur.contact_urgence %}{{ joueur.contact_urgence }}{% else %}<span style="color:rgba(11,11,11,.3);">—</span>{% endif %}</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-lbl">École / Établissement</div>
+          <div class="info-cell-val" style="grid-column:span 1;">{% if joueur.info_scolaire %}{{ joueur.info_scolaire }}{% else %}<span style="color:rgba(11,11,11,.3);">—</span>{% endif %}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Candidature liée -->
+    {% if joueur.candidature %}
+    <div class="info-block">
+      <div class="info-block-title">Candidature d'origine</div>
+      <a href="{% url 'admin_candidatures' %}?q={{ joueur.candidature.reference }}" class="cand-link">
+        <div style="display:flex;align-items:center;gap:12px;">
+          {% if joueur.candidature.photo %}
+            <img src="{{ joueur.candidature.photo.url }}" alt="" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(11,11,11,.08);">
+          {% else %}
+            <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#C8161D,#8A0D12);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700;flex-shrink:0;">{{ joueur.candidature.initiales }}</div>
+          {% endif %}
+          <div>
+            <div style="font-weight:500;font-size:13.5px;color:var(--ink);">{{ joueur.candidature.nom_complet }}</div>
+            <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);margin-top:2px;">
+              {{ joueur.candidature.reference }} · Soumise le {{ joueur.candidature.date_soumission|date:"d/m/Y" }}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+          <span class="badge-status bs-{{ joueur.candidature.statut }}">{{ joueur.candidature.get_statut_display }}</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(11,11,11,.3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+      </a>
+    </div>
+    {% else %}
+    <div class="info-block">
+      <div class="info-block-title">Candidature d'origine</div>
+      <div style="padding:28px 20px;text-align:center;">
+        <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(11,11,11,.3);">Joueur ajouté manuellement — aucune candidature liée</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Navigation joueurs -->
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">
+      <a href="{% url 'admin_joueurs' %}" class="btn btn-ghost btn-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Retour à la liste
+      </a>
+      <a href="{% url 'admin_joueur_edit' joueur.pk %}" class="btn btn-dark btn-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Modifier
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('deleteBtn').addEventListener('click', function() {
+  confirmDelete(
+    '{% url "admin_joueur_delete" joueur.pk %}',
+    null
+  );
+});
+
+// Override confirmDelete pour rediriger après suppression
+const _baseDelete = confirmDelete;
+function confirmDelete(url, row) {
+  if (!confirm('Supprimer {{ joueur.nom_complet }} définitivement ?')) return;
+  fetch(url, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      showToast('Joueur supprimé', 'ok');
+      setTimeout(() => window.location = '{% url "admin_joueurs" %}', 900);
+    } else { showToast('Erreur', 'err'); }
+  }).catch(() => showToast('Erreur réseau', 'err'));
+}
+</script>
+{% endblock %}

@@ -2,14 +2,21 @@
 {% block title %}{% if obj %}Modifier {{ obj.equipe }}{% else %}Ajouter une équipe{% endif %}{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <span class="eyebrow">Équipe / Classement</span>
-    <h1>{% if obj %}{{ obj.equipe }}{% else %}Nouvelle entrée{% endif %}</h1>
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span>
+      <a href="{% url 'admin_classement' %}">Classement</a>
+      <span class="sep">›</span>
+      {% if obj %}Modifier{% else %}Ajouter{% endif %}
+    </div>
+    <h1 class="pg-title">{% if obj %}{{ obj.equipe }}{% else %}Nouvelle entrée{% endif %}</h1>
   </div>
-  <div class="hd-actions">
-    <a href="{% url 'admin_classement' %}" style="padding:10px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
-      ← Retour
+  <div class="page-hd-right">
+    <a href="{% url 'admin_classement' %}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Retour
     </a>
   </div>
 </div>
@@ -17,66 +24,68 @@
 <form method="post">
   {% csrf_token %}
   <div class="form-card">
-    <div class="form-grid">
 
-      <div class="field span2">
-        <label>Nom de l'équipe</label>
-        {{ form.equipe }}
-        {% if form.equipe.errors %}<ul class="errorlist">{% for e in form.equipe.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-      </div>
-
-      <div class="field">
-        <label>Saison</label>
-        {{ form.saison }}
-      </div>
-      <div class="field">
-        <label>Points</label>
-        {{ form.points }}
-      </div>
-
-      <div class="field">
-        <label>Matchs joués</label>
-        {{ form.matchs_joues }}
-      </div>
-      <div class="field">
-        <label>Victoires</label>
-        {{ form.victoires }}
-      </div>
-
-      <div class="field">
-        <label>Nuls</label>
-        {{ form.nuls }}
-      </div>
-      <div class="field">
-        <label>Défaites</label>
-        {{ form.defaites }}
-      </div>
-
-      <div class="field">
-        <label>Buts pour</label>
-        {{ form.buts_pour }}
-      </div>
-      <div class="field">
-        <label>Buts contre</label>
-        {{ form.buts_contre }}
-      </div>
-
-      <div class="field span2">
-        <div class="field-check">
-          {{ form.est_cfld }}
-          <label for="{{ form.est_cfld.id_for_label }}">C'est l'équipe CFLD (mise en évidence dans le tableau)</label>
+    <div class="form-section">
+      <div class="form-section-title">Équipe</div>
+      <div class="form-grid">
+        <div class="field span2">
+          <label>Nom de l'équipe</label>
+          {{ form.equipe }}
+          {% if form.equipe.errors %}<ul class="errorlist">{% for e in form.equipe.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="field">
+          <label>Saison</label>
+          {{ form.saison }}
+        </div>
+        <div class="field">
+          <label>Points</label>
+          {{ form.points }}
+        </div>
+        <div class="field span2">
+          <div class="field-check">
+            {{ form.est_cfld }}
+            <label for="{{ form.est_cfld.id_for_label }}">C'est l'équipe CFLD (mise en évidence dans le tableau)</label>
+          </div>
         </div>
       </div>
+    </div>
 
+    <div class="form-section">
+      <div class="form-section-title">Résultats</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Matchs joués</label>
+          {{ form.matchs_joues }}
+        </div>
+        <div class="field">
+          <label>Victoires</label>
+          {{ form.victoires }}
+        </div>
+        <div class="field">
+          <label>Nuls</label>
+          {{ form.nuls }}
+        </div>
+        <div class="field">
+          <label>Défaites</label>
+          {{ form.defaites }}
+        </div>
+        <div class="field">
+          <label>Buts pour</label>
+          {{ form.buts_pour }}
+        </div>
+        <div class="field">
+          <label>Buts contre</label>
+          {{ form.buts_contre }}
+        </div>
+      </div>
     </div>
 
     <div class="form-actions">
-      <button type="submit" style="padding:11px 24px;background:var(--ink);color:var(--paper);border:0;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">
+      <button type="submit" class="btn btn-dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         {% if obj %}Enregistrer{% else %}Ajouter{% endif %}
       </button>
-      <a href="{% url 'admin_classement' %}" style="padding:11px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
-        Annuler
-      </a>
+      <a href="{% url 'admin_classement' %}" class="btn btn-ghost">Annuler</a>
     </div>
   </div>
 </form>

@@ -2,87 +2,94 @@
 {% block title %}Message de {{ msg.nom }}{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <span class="eyebrow">Communication / Messages</span>
-    <h1>{{ msg.nom }}</h1>
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span>
+      <a href="{% url 'admin_messages' %}">Messages</a>
+      <span class="sep">›</span>
+      {{ msg.nom }}
+    </div>
+    <h1 class="pg-title">{{ msg.nom }}</h1>
   </div>
-  <div class="hd-actions">
-    <button class="t-btn del" style="width:auto;padding:0 16px;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;" onclick="confirmDelete('{% url 'admin_message_delete' msg.pk %}', null, '{% url 'admin_messages' %}')">✕ Supprimer</button>
-    <a href="{% url 'admin_messages' %}" style="padding:10px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
-      ← Retour
+  <div class="page-hd-right">
+    <button class="btn btn-danger btn-sm" onclick="confirmDelete('{% url 'admin_message_delete' msg.pk %}', null, '{% url 'admin_messages' %}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      Supprimer
+    </button>
+    <a href="{% url 'admin_messages' %}" class="btn btn-ghost btn-sm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Retour
     </a>
   </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 300px;gap:24px;max-width:900px;">
+<div style="display:grid;grid-template-columns:1fr 300px;gap:22px;max-width:920px;">
 
-  <!-- Contenu message -->
-  <div class="form-card">
-    <div style="margin-bottom:24px;">
-      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Sujet</div>
-      <div style="font-size:18px;font-weight:600;">{{ msg.get_sujet_display }}</div>
+  <!-- Contenu du message -->
+  <div class="form-card" style="max-width:none;">
+    <div style="margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid rgba(11,11,11,.07);">
+      <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(11,11,11,.38);margin-bottom:8px;">Sujet</div>
+      <div style="font-family:var(--font-display);font-size:22px;font-weight:500;color:var(--ink);letter-spacing:-.01em;">{{ msg.get_sujet_display }}</div>
     </div>
     <div>
-      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Message</div>
-      <div style="font-size:15px;line-height:1.7;white-space:pre-wrap;">{{ msg.message }}</div>
+      <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(11,11,11,.38);margin-bottom:14px;">Contenu</div>
+      <div style="font-size:15px;line-height:1.75;color:var(--ink);white-space:pre-wrap;">{{ msg.message }}</div>
     </div>
   </div>
 
-  <!-- Infos expéditeur -->
-  <div>
-    <div class="form-card" style="max-width:none;">
-      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Expéditeur</div>
+  <!-- Informations expéditeur -->
+  <div style="display:flex;flex-direction:column;gap:14px;">
 
-      <div style="display:grid;gap:16px;">
+    <div class="form-card" style="max-width:none;">
+      <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(11,11,11,.38);margin-bottom:18px;">Expéditeur</div>
+
+      <div style="display:flex;flex-direction:column;gap:16px;">
         <div>
-          <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);">Nom</div>
-          <div style="font-size:14px;font-weight:500;margin-top:3px;">{{ msg.nom }}</div>
+          <div style="font-family:var(--font-mono);font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(11,11,11,.32);">Nom</div>
+          <div style="font-size:14.5px;font-weight:500;margin-top:3px;color:var(--ink);">{{ msg.nom }}</div>
         </div>
         <div>
-          <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);">Email</div>
-          <a href="mailto:{{ msg.email }}" style="font-size:14px;color:var(--ink);font-family:var(--font-mono);font-size:12px;margin-top:3px;display:block;">{{ msg.email }}</a>
+          <div style="font-family:var(--font-mono);font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(11,11,11,.32);">Email</div>
+          <a href="mailto:{{ msg.email }}" style="font-family:var(--font-mono);font-size:11.5px;color:var(--ink);margin-top:3px;display:block;text-decoration:underline;text-underline-offset:2px;word-break:break-all;">{{ msg.email }}</a>
         </div>
         <div>
-          <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);">Reçu le</div>
-          <div style="font-size:14px;margin-top:3px;">{{ msg.date_envoi|date:"d/m/Y à H:i" }}</div>
+          <div style="font-family:var(--font-mono);font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(11,11,11,.32);">Reçu le</div>
+          <div style="font-size:13.5px;margin-top:3px;color:var(--ink);">{{ msg.date_envoi|date:"d/m/Y à H:i" }}</div>
         </div>
         <div>
-          <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);">Statut</div>
-          <div style="margin-top:6px;">
-            {% if msg.lu %}
-              <span class="badge-status bs-accepted">Lu</span>
-            {% else %}
-              <span class="badge-status bs-pending">Non lu</span>
-            {% endif %}
-          </div>
+          <div style="font-family:var(--font-mono);font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(11,11,11,.32);margin-bottom:6px;">Statut</div>
+          {% if msg.lu %}
+            <span class="badge-status bs-accepted">Lu</span>
+          {% else %}
+            <span class="badge-status bs-pending">Non lu</span>
+          {% endif %}
         </div>
       </div>
 
-      <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--line);">
-        <a href="mailto:{{ msg.email }}?subject=Re: {{ msg.get_sujet_display }}" style="display:block;text-align:center;padding:11px 16px;background:var(--ink);color:var(--paper);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;">
-          ✉ Répondre par email
+      <div style="margin-top:22px;padding-top:18px;border-top:1px solid rgba(11,11,11,.07);">
+        <a href="mailto:{{ msg.email }}?subject=Re: {{ msg.get_sujet_display }}" class="btn btn-dark" style="width:100%;justify-content:center;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Répondre par email
         </a>
       </div>
     </div>
-  </div>
 
+  </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 function confirmDelete(url, row, redirect) {
-  if (!confirm('Supprimer ce message ?')) return;
+  if (!confirm('Supprimer ce message définitivement ?')) return;
   fetch(url, {
     method: 'POST',
-    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+    headers: { 'X-CSRFToken': '{{ csrf_token }}' },
   }).then(r => r.json()).then(d => {
-    if (d.ok) {
-      if (redirect) window.location = redirect;
-    } else {
-      showToast('Erreur', 'err');
-    }
+    if (d.ok) { if (redirect) window.location = redirect; }
+    else showToast('Erreur', 'err');
   }).catch(() => showToast('Erreur réseau', 'err'));
 }
 </script>

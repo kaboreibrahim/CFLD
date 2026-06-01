@@ -2,14 +2,18 @@
 {% block title %}Classement{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <span class="eyebrow">Équipe</span>
-    <h1>Classement</h1>
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span> Équipe
+    </div>
+    <h1 class="pg-title">Classement</h1>
   </div>
-  <div class="hd-actions">
-    <a href="{% url 'admin_classement_add' %}" style="display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;">
-      + Ajouter
+  <div class="page-hd-right">
+    <a href="{% url 'admin_classement_add' %}" class="btn btn-dark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Ajouter une équipe
     </a>
   </div>
 </div>
@@ -24,41 +28,48 @@
 </div>
 
 <div class="t-wrap">
-  <div class="t-row t-head" style="grid-template-columns:36px 1fr 50px 50px 50px 50px 50px 50px 50px 60px 80px;">
-    <div>Rg</div>
-    <div>Équipe</div>
-    <div>Pts</div>
-    <div>J</div>
-    <div>V</div>
-    <div>N</div>
-    <div>D</div>
-    <div>BP</div>
-    <div>BC</div>
-    <div>Diff</div>
-    <div style="text-align:right;">Actions</div>
+  <div class="t-row t-head" style="grid-template-columns:40px 1fr 55px 50px 50px 50px 50px 50px 50px 65px 80px;">
+    <div class="th">Rg</div>
+    <div class="th">Équipe</div>
+    <div class="th">Pts</div>
+    <div class="th">J</div>
+    <div class="th">V</div>
+    <div class="th">N</div>
+    <div class="th">D</div>
+    <div class="th">BP</div>
+    <div class="th">BC</div>
+    <div class="th">Diff.</div>
+    <div class="th" style="text-align:right;">Actions</div>
   </div>
   {% for row in classement %}
-  <div class="t-row" id="row-cl{{ row.pk }}" style="grid-template-columns:36px 1fr 50px 50px 50px 50px 50px 50px 50px 60px 80px;{% if row.est_cfld %}background:rgba(20,160,90,.04);{% endif %}">
-    <div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">{{ forloop.counter }}</div>
-    <div style="font-weight:{% if row.est_cfld %}700{% else %}400{% endif %};">
-      {{ row.equipe }}
-      {% if row.est_cfld %}<span style="font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-left:6px;">CFLD</span>{% endif %}
+  <div class="t-row" id="row-cl{{ row.pk }}" style="grid-template-columns:40px 1fr 55px 50px 50px 50px 50px 50px 50px 65px 80px;{% if row.est_cfld %}background:rgba(200,22,29,.03);{% endif %}">
+    <div style="font-family:var(--font-mono);font-size:12px;color:rgba(11,11,11,.35);font-weight:600;">{{ forloop.counter }}</div>
+    <div>
+      <span style="font-size:13.5px;font-weight:{% if row.est_cfld %}700{% else %}400{% endif %};">{{ row.equipe }}</span>
+      {% if row.est_cfld %}<span style="font-family:var(--font-mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-left:7px;border:1px solid var(--green);padding:1px 5px;border-radius:3px;">CFLD</span>{% endif %}
     </div>
-    <div style="font-family:var(--font-mono);font-size:13px;font-weight:700;">{{ row.points }}</div>
-    <div style="font-family:var(--font-mono);font-size:12px;">{{ row.matchs_joues }}</div>
-    <div style="font-family:var(--font-mono);font-size:12px;color:var(--green);">{{ row.victoires }}</div>
-    <div style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">{{ row.nuls }}</div>
-    <div style="font-family:var(--font-mono);font-size:12px;color:#b73f3f;">{{ row.defaites }}</div>
-    <div style="font-family:var(--font-mono);font-size:12px;">{{ row.buts_pour }}</div>
-    <div style="font-family:var(--font-mono);font-size:12px;">{{ row.buts_contre }}</div>
-    <div style="font-family:var(--font-mono);font-size:12px;font-weight:600;">{% if row.difference_buts > 0 %}+{% endif %}{{ row.difference_buts }}</div>
-    <div class="actions">
-      <a href="{% url 'admin_classement_edit' row.pk %}" class="t-btn" title="Modifier">✏</a>
-      <button class="t-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_classement_delete' row.pk %}', document.getElementById('row-cl{{ row.pk }}'))">✕</button>
+    <div style="font-family:var(--font-mono);font-size:14px;font-weight:800;color:var(--ink);">{{ row.points }}</div>
+    <div style="font-family:var(--font-mono);font-size:12px;color:rgba(11,11,11,.6);">{{ row.matchs_joues }}</div>
+    <div style="font-family:var(--font-mono);font-size:12px;color:#059669;font-weight:600;">{{ row.victoires }}</div>
+    <div style="font-family:var(--font-mono);font-size:12px;color:rgba(11,11,11,.5);">{{ row.nuls }}</div>
+    <div style="font-family:var(--font-mono);font-size:12px;color:#C8161D;font-weight:600;">{{ row.defaites }}</div>
+    <div style="font-family:var(--font-mono);font-size:12px;color:rgba(11,11,11,.6);">{{ row.buts_pour }}</div>
+    <div style="font-family:var(--font-mono);font-size:12px;color:rgba(11,11,11,.6);">{{ row.buts_contre }}</div>
+    <div style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:{% if row.difference_buts > 0 %}#059669{% elif row.difference_buts < 0 %}#C8161D{% else %}rgba(11,11,11,.4){% endif %};">{% if row.difference_buts > 0 %}+{% endif %}{{ row.difference_buts }}</div>
+    <div class="row-actions">
+      <a href="{% url 'admin_classement_edit' row.pk %}" class="ic-btn" title="Modifier">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </a>
+      <button class="ic-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_classement_delete' row.pk %}', document.getElementById('row-cl{{ row.pk }}'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </button>
     </div>
   </div>
   {% empty %}
-  <div class="empty-state">Aucune donnée de classement</div>
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
+    <p>Aucune donnée de classement</p>
+  </div>
   {% endfor %}
 </div>
 {% endblock %}

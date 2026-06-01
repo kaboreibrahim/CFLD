@@ -2,37 +2,52 @@
 {% block title %}Candidatures{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <span class="eyebrow">Recrutement</span>
-    <h1>Candidatures</h1>
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span> Recrutement
+    </div>
+    <h1 class="pg-title">Candidatures</h1>
   </div>
 </div>
 
 <!-- KPI -->
 <div class="kpi-row">
   <div class="kpi">
-    <div class="k-label">Total</div>
-    <div class="k-val">{{ stats.total }}</div>
+    <div class="kpi-ico slate">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <div class="kpi-lbl">Total</div>
+    <div class="kpi-val">{{ stats.total }}</div>
   </div>
-  <div class="kpi orange">
-    <div class="k-label">En attente</div>
-    <div class="k-val">{{ stats.pending }}</div>
+  <div class="kpi {% if stats.pending %}k-amber{% endif %}">
+    <div class="kpi-ico {% if stats.pending %}amber{% else %}slate{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <div class="kpi-lbl">En attente</div>
+    <div class="kpi-val">{{ stats.pending }}</div>
   </div>
-  <div class="kpi green">
-    <div class="k-label">Acceptées</div>
-    <div class="k-val">{{ stats.accepted }}</div>
+  <div class="kpi k-green">
+    <div class="kpi-ico green">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="kpi-lbl">Acceptées</div>
+    <div class="kpi-val">{{ stats.accepted }}</div>
   </div>
-  <div class="kpi muted">
-    <div class="k-label">Refusées</div>
-    <div class="k-val">{{ stats.refused }}</div>
+  <div class="kpi">
+    <div class="kpi-ico slate">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+    <div class="kpi-lbl">Refusées</div>
+    <div class="kpi-val">{{ stats.refused }}</div>
   </div>
 </div>
 
 <form method="get">
   <div class="filter-bar">
     <div class="search-wrap">
-      <span class="ico">🔍</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input type="text" name="q" value="{{ recherche }}" placeholder="Nom, prénom, email ou référence…">
     </div>
     <div class="f-pills">
@@ -42,145 +57,149 @@
       <a href="?statut=accepted{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'accepted' %}active{% endif %}">Acceptées</a>
       <a href="?statut=refused{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'refused' %}active{% endif %}">Refusées</a>
     </div>
-    {% if recherche %}<button type="submit" style="padding:6px 14px;background:var(--ink);color:var(--paper);border:0;border-radius:4px;font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;cursor:pointer;">Chercher</button>{% endif %}
+    {% if recherche %}<button type="submit" class="btn btn-dark btn-sm">Chercher</button>{% endif %}
   </div>
 </form>
 
 <div class="t-wrap">
-  <div class="t-row t-head" style="grid-template-columns:100px 1fr 80px 70px 80px 100px 80px 220px;">
-    <div>Réf.</div>
-    <div>Candidat</div>
-    <div>Section</div>
-    <div>Poste</div>
-    <div>Âge</div>
-    <div>Contact</div>
-    <div>Statut</div>
-    <div style="text-align:right;">Actions</div>
+  <div class="t-row t-head" style="grid-template-columns:100px 1fr 80px 65px 72px 100px 80px 1fr;">
+    <div class="th">Réf.</div>
+    <div class="th">Candidat</div>
+    <div class="th">Section</div>
+    <div class="th">Poste</div>
+    <div class="th">Âge</div>
+    <div class="th">Contact</div>
+    <div class="th">Statut</div>
+    <div class="th" style="text-align:right;">Actions</div>
   </div>
+
   {% for c in candidatures %}
-  <div class="t-row" id="row-c{{ c.pk }}" style="grid-template-columns:100px 1fr 80px 70px 80px 100px 80px 220px;">
-    <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ c.reference }}</div>
-    <div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        {% if c.photo %}
-          <img src="{{ c.photo.url }}" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;">
-        {% else %}
-          <div style="width:32px;height:32px;border-radius:50%;background:var(--green);color:var(--paper);display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ c.initiales }}</div>
-        {% endif %}
-        <div>
-          <div style="font-weight:500;">{{ c.prenom }} {{ c.nom }}</div>
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ c.nationalite }}</div>
-        </div>
+  <div class="t-row" id="row-c{{ c.pk }}" style="grid-template-columns:100px 1fr 80px 65px 72px 100px 80px 1fr;">
+
+    <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);letter-spacing:.04em;">{{ c.reference }}</div>
+
+    <div style="display:flex;align-items:center;gap:10px;">
+      {% if c.photo %}
+        <img src="{{ c.photo.url }}" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(11,11,11,.08);">
+      {% else %}
+        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#C8161D,#8A0D12);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ c.initiales }}</div>
+      {% endif %}
+      <div>
+        <div style="font-weight:500;font-size:13px;color:var(--ink);">{{ c.prenom }} {{ c.nom }}</div>
+        <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);">{{ c.nationalite }}</div>
       </div>
     </div>
+
     <div>
-      <span class="pill" style="{% if c.sexe == 'F' %}background:#C8102E;color:#fff;{% endif %}font-size:10px;padding:3px 8px;">
-        {{ c.section }}
-      </span>
+      <span class="pill" {% if c.sexe == 'F' %}style="background:rgba(200,22,29,.12);color:#8A0D12;"{% endif %}>{{ c.section }}</span>
     </div>
+
     <div><span class="pill">{{ c.poste }}</span></div>
-    <div style="font-family:var(--font-mono);font-size:12px;">{{ c.age }} ans</div>
+
+    <div style="font-family:var(--font-mono);font-size:12px;color:rgba(11,11,11,.6);">{{ c.age }} ans</div>
+
     <div>
-      <div style="font-size:11px;">{{ c.email|truncatechars:18 }}</div>
-      <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ c.telephone_whatsapp }}</div>
+      <div style="font-size:11px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:95px;">{{ c.email|truncatechars:18 }}</div>
+      <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);">{{ c.telephone_whatsapp }}</div>
     </div>
+
     <div>
       <span class="badge-status bs-{{ c.statut }}" id="badge-{{ c.pk }}">{{ c.get_statut_display }}</span>
     </div>
-    <div class="actions" style="justify-content:flex-end;flex-wrap:wrap;gap:4px;">
+
+    <div class="row-actions" style="flex-wrap:wrap;gap:4px;justify-content:flex-end;">
       {% if c.statut != 'accepted' %}
-      <button class="t-btn ok" title="Accepter — intègre l'effectif automatiquement" onclick="doAction({{ c.pk }}, 'accept')">✓</button>
+      <button class="ic-btn ok" title="Accepter — intègre l'effectif automatiquement" onclick="doAction({{ c.pk }}, 'accept')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
       {% endif %}
       {% if c.statut != 'refused' %}
-      <button class="t-btn del" title="Refuser" onclick="doAction({{ c.pk }}, 'refuse')">✕</button>
+      <button class="ic-btn del" title="Refuser" onclick="doAction({{ c.pk }}, 'refuse')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
       {% endif %}
       {% if c.statut == 'pending' %}
-      <button class="t-btn" title="Mettre en attente" onclick="doAction({{ c.pk }}, 'wait')">⏸</button>
+      <button class="ic-btn info" title="Mettre en attente" onclick="doAction({{ c.pk }}, 'wait')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="10" y1="15" x2="10" y2="3"/><line x1="14" y1="15" x2="14" y2="3"/><rect x="3" y="15" width="18" height="6" rx="2"/></svg>
+      </button>
       {% endif %}
-      <!-- PDF -->
       {% if c.pdf_inscription %}
-      <a href="{% url 'candidature_pdf_voir' c.pk %}" target="_blank" class="t-btn" title="Voir le PDF" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">👁</a>
-      <a href="{% url 'candidature_pdf_telecharger' c.pk %}" class="t-btn" title="Télécharger le PDF" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">⬇</a>
+      <a href="{% url 'candidature_pdf_voir' c.pk %}" target="_blank" class="ic-btn" title="Voir le PDF">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </a>
+      <a href="{% url 'candidature_pdf_telecharger' c.pk %}" class="ic-btn" title="Télécharger le PDF">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </a>
       {% endif %}
-      <button class="t-btn" title="Régénérer le PDF" onclick="regenererPDF({{ c.pk }})">↺</button>
+      <button class="ic-btn" title="Régénérer le PDF" onclick="regenererPDF({{ c.pk }})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </button>
     </div>
+
   </div>
   {% empty %}
-  <div class="empty-state">Aucune candidature</div>
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <p>Aucune candidature</p>
+  </div>
   {% endfor %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-const LABELS = {pending:'En attente', waiting:'Mise en attente', accepted:'Acceptée', refused:'Refusée'};
-const CLASSES = {pending:'bs-pending', waiting:'bs-waiting', accepted:'bs-accepted', refused:'bs-refused'};
+const LABELS = { pending:'En attente', waiting:'Mise en attente', accepted:'Acceptée', refused:'Refusée' };
+const CLASSES = { pending:'bs-pending', waiting:'bs-waiting', accepted:'bs-accepted', refused:'bs-refused' };
 
 function doAction(pk, action) {
   const fd = new FormData();
   fd.append('action', action);
   fetch(`/admin-cfld/candidature/${pk}/action/`, {
     method: 'POST',
-    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+    headers: { 'X-CSRFToken': '{{ csrf_token }}' },
     body: fd,
   }).then(r => r.json()).then(d => {
     if (d.success) {
-      // Mettre à jour le badge statut
       const badge = document.getElementById('badge-' + pk);
       badge.textContent = LABELS[d.statut] || d.statut;
       badge.className = 'badge-status ' + (CLASSES[d.statut] || '');
-
-      // Si acceptée + PDF généré → injecter les boutons PDF dans la ligne
       if (d.statut === 'accepted' && d.has_pdf) {
         _injecterBoutonsPDF(pk, d.pdf_voir_url, d.pdf_dl_url);
-        showToast('✓ Validé — PDF généré — Joueur intégré dans l\'effectif', 'ok');
+        showToast('Validé — PDF généré — Joueur intégré dans l\'effectif', 'ok');
       } else if (d.statut === 'accepted') {
         showToast('Candidature acceptée — joueur intégré dans l\'effectif', 'ok');
       } else {
         showToast('Statut mis à jour', 'ok');
       }
-    } else {
-      showToast('Erreur', 'err');
-    }
+    } else { showToast('Erreur', 'err'); }
   }).catch(() => showToast('Erreur réseau', 'err'));
 }
 
 function _injecterBoutonsPDF(pk, urlVoir, urlDl) {
-  const actionsDiv = document.querySelector('#row-c' + pk + ' .actions');
+  const actionsDiv = document.querySelector('#row-c' + pk + ' .row-actions');
   if (!actionsDiv) return;
-  // Supprimer les anciens boutons PDF s'ils existent
   actionsDiv.querySelectorAll('.pdf-btn').forEach(b => b.remove());
-  // Bouton Voir
-  const btnVoir = document.createElement('a');
-  btnVoir.href = urlVoir;
-  btnVoir.target = '_blank';
-  btnVoir.className = 't-btn pdf-btn';
-  btnVoir.title = 'Voir le PDF';
-  btnVoir.style = 'text-decoration:none;display:inline-flex;align-items:center;justify-content:center;';
-  btnVoir.textContent = '👁';
-  // Bouton Télécharger
-  const btnDl = document.createElement('a');
-  btnDl.href = urlDl;
-  btnDl.className = 't-btn pdf-btn';
-  btnDl.title = 'Télécharger le PDF';
-  btnDl.style = 'text-decoration:none;display:inline-flex;align-items:center;justify-content:center;';
-  btnDl.textContent = '⬇';
-  actionsDiv.appendChild(btnVoir);
-  actionsDiv.appendChild(btnDl);
+  const mkBtn = (tag, href, title, svgPath) => {
+    const el = document.createElement(tag);
+    if (href) { el.href = href; if (urlVoir === href) el.target = '_blank'; }
+    el.className = 'ic-btn pdf-btn';
+    el.title = title;
+    el.style.textDecoration = 'none';
+    el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${svgPath}</svg>`;
+    return el;
+  };
+  actionsDiv.appendChild(mkBtn('a', urlVoir, 'Voir le PDF', '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'));
+  actionsDiv.appendChild(mkBtn('a', urlDl, 'Télécharger', '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>'));
 }
 
 function regenererPDF(pk) {
-  const fd = new FormData();
   fetch(`/admin-cfld/candidature/${pk}/pdf/regenerer/`, {
     method: 'POST',
-    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-    body: fd,
+    headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+    body: new FormData(),
   }).then(r => r.json()).then(d => {
-    if (d.success) {
-      showToast('PDF régénéré — rechargez la page pour voir les boutons', 'ok');
-    } else {
-      showToast('Erreur : ' + (d.error || 'inconnue'), 'err');
-    }
+    if (d.success) showToast('PDF régénéré', 'ok');
+    else showToast('Erreur : ' + (d.error || 'inconnue'), 'err');
   }).catch(() => showToast('Erreur réseau', 'err'));
 }
 </script>

@@ -2,37 +2,54 @@
 {% block title %}Photos{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <span class="eyebrow">Contenu</span>
-    <h1>Photos <span style="font-size:18px;color:var(--muted);font-weight:400;">{{ photos|length }}</span></h1>
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span> Contenu
+    </div>
+    <h1 class="pg-title">Photos <span class="pg-count">{{ photos|length }}</span></h1>
   </div>
-  <div class="hd-actions">
-    <a href="{% url 'admin_photo_add' %}" style="display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;">
-      + Ajouter
+  <div class="page-hd-right">
+    <a href="{% url 'admin_photo_add' %}" class="btn btn-dark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Ajouter une photo
     </a>
   </div>
 </div>
 
 {% if photos %}
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;">
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;">
   {% for p in photos %}
-  <div id="row-p{{ p.pk }}" style="background:#fff;border:1px solid var(--line);border-radius:6px;overflow:hidden;">
-    <div style="aspect-ratio:4/3;overflow:hidden;">
-      <img src="{{ p.image.url }}" alt="{{ p.legende }}" style="width:100%;height:100%;object-fit:cover;display:block;">
+  <div id="row-p{{ p.pk }}" style="background:#fff;border:1px solid rgba(11,11,11,.1);border-radius:10px;overflow:hidden;transition:box-shadow .15s;" onmouseenter="this.style.boxShadow='0 4px 18px rgba(0,0,0,.1)'" onmouseleave="this.style.boxShadow='none'">
+    <div style="aspect-ratio:4/3;overflow:hidden;position:relative;">
+      <img src="{{ p.image.url }}" alt="{{ p.legende }}" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;" onmouseenter="this.style.transform='scale(1.04)'" onmouseleave="this.style.transform='scale(1)'">
+      {% if not p.afficher %}
+      <div style="position:absolute;top:8px;right:8px;background:rgba(11,11,11,.7);color:#fff;border-radius:4px;padding:2px 7px;font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;">Masquée</div>
+      {% endif %}
     </div>
-    <div style="padding:12px;">
-      <div style="font-size:12px;font-weight:500;margin-bottom:4px;">{{ p.legende|default:"Sans légende"|truncatechars:40 }}</div>
-      <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-bottom:10px;">{{ p.date|date:"d/m/Y" }} · {% if p.afficher %}Visible{% else %}Masquée{% endif %}</div>
+    <div style="padding:12px 14px;">
+      <div style="font-size:12.5px;font-weight:500;color:var(--ink);margin-bottom:3px;line-height:1.35;">{{ p.legende|default:"Sans légende"|truncatechars:42 }}</div>
+      <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);margin-bottom:10px;">{{ p.date|date:"d/m/Y" }}{% if p.auteur %} · {{ p.auteur|truncatechars:18 }}{% endif %}</div>
       <div style="display:flex;gap:6px;">
-        <a href="{% url 'admin_photo_edit' p.pk %}" class="t-btn" style="flex:1;width:auto;" title="Modifier">✏ Modifier</a>
-        <button class="t-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_photo_delete' p.pk %}', document.getElementById('row-p{{ p.pk }}'))">✕</button>
+        <a href="{% url 'admin_photo_edit' p.pk %}" class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Modifier
+        </a>
+        <button class="ic-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_photo_delete' p.pk %}', document.getElementById('row-p{{ p.pk }}'))">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
       </div>
     </div>
   </div>
   {% endfor %}
 </div>
 {% else %}
-<div class="t-wrap"><div class="empty-state">Aucune photo dans la galerie</div></div>
+<div class="t-wrap">
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+    <p>Aucune photo dans la galerie</p>
+  </div>
+</div>
 {% endif %}
 {% endblock %}

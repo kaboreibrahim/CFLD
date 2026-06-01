@@ -2,21 +2,28 @@
 {% block title %}{% if obj %}Modifier la photo{% else %}Ajouter une photo{% endif %}{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <span class="eyebrow">Contenu / Photos</span>
-    <h1>{% if obj %}{{ obj.legende|default:"Photo #"|add:obj.pk|stringformat:"s" }}{% else %}Nouvelle photo{% endif %}</h1>
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span>
+      <a href="{% url 'admin_photos' %}">Photos</a>
+      <span class="sep">›</span>
+      {% if obj %}Modifier{% else %}Ajouter{% endif %}
+    </div>
+    <h1 class="pg-title">{% if obj %}{% if obj.legende %}{{ obj.legende|truncatechars:36 }}{% else %}Photo #{{ obj.pk }}{% endif %}{% else %}Nouvelle photo{% endif %}</h1>
   </div>
-  <div class="hd-actions">
-    <a href="{% url 'admin_photos' %}" style="padding:10px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
-      ← Retour
+  <div class="page-hd-right">
+    <a href="{% url 'admin_photos' %}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Retour
     </a>
   </div>
 </div>
 
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
-  <div style="display:grid;grid-template-columns:1fr 360px;gap:24px;max-width:900px;">
+  <div style="display:grid;grid-template-columns:1fr {% if obj and obj.image %}360px{% endif %};gap:24px;max-width:900px;">
 
     <div class="form-card">
       <div class="form-grid full">
@@ -24,10 +31,10 @@
         <div class="field">
           <label>Fichier image</label>
           {% if obj and obj.image %}
-            <div style="margin-bottom:10px;">
-              <img src="{{ obj.image.url }}" alt="" style="height:120px;border-radius:4px;object-fit:cover;">
-              <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:4px;">Image actuelle</div>
-            </div>
+          <div style="margin-bottom:12px;">
+            <img src="{{ obj.image.url }}" alt="" style="height:120px;border-radius:8px;object-fit:cover;display:block;">
+            <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.4);margin-top:5px;">Image actuelle — remplacer ci-dessous</div>
+          </div>
           {% endif %}
           {{ form.image }}
           {% if form.image.errors %}<ul class="errorlist">{% for e in form.image.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
@@ -51,25 +58,24 @@
         <div class="field">
           <div class="field-check">
             {{ form.afficher }}
-            <label for="{{ form.afficher.id_for_label }}">Afficher dans la galerie</label>
+            <label for="{{ form.afficher.id_for_label }}">Afficher dans la galerie publique</label>
           </div>
         </div>
 
       </div>
 
       <div class="form-actions">
-        <button type="submit" style="padding:11px 24px;background:var(--ink);color:var(--paper);border:0;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">
+        <button type="submit" class="btn btn-dark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           {% if obj %}Enregistrer{% else %}Ajouter la photo{% endif %}
         </button>
-        <a href="{% url 'admin_photos' %}" style="padding:11px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
-          Annuler
-        </a>
+        <a href="{% url 'admin_photos' %}" class="btn btn-ghost">Annuler</a>
       </div>
     </div>
 
     {% if obj and obj.image %}
-    <div>
-      <img src="{{ obj.image.url }}" alt="" style="width:100%;border-radius:6px;display:block;">
+    <div style="align-self:start;">
+      <img src="{{ obj.image.url }}" alt="" style="width:100%;border-radius:10px;display:block;box-shadow:0 4px 20px rgba(0,0,0,.1);">
     </div>
     {% endif %}
 

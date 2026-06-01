@@ -85,6 +85,14 @@ def admin_joueur_form(request, pk=None):
 
 
 @staff_required
+def admin_joueur_detail(request, pk):
+    joueur = get_object_or_404(Joueur, pk=pk)
+    ctx = _base_ctx(request, 'joueurs')
+    ctx.update({'joueur': joueur})
+    return render(request, 'admin_cfld/joueur_detail.html', ctx)
+
+
+@staff_required
 def admin_joueur_delete(request, pk):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST requis'}, status=405)
@@ -329,21 +337,26 @@ def _integrer_dans_effectif(candidature):
     """Crée ou met à jour le Joueur correspondant à la candidature acceptée."""
     if hasattr(candidature, 'joueur') and candidature.joueur:
         return  # déjà intégré
-    # Mapping poste : candidature → joueur
-    POSTE_MAP = {
-        'GK': 'GK', 'DC': 'DEF', 'LAT': 'DEF',
-        'MD': 'MIL', 'MO': 'MIL', 'AIL': 'ATT',
-        'ATT': 'ATT', 'OTH': 'MIL',
-    }
     Joueur.objects.create(
         nom=candidature.nom,
         prenom=candidature.prenom,
-        numero=candidature.numero_prefere or 99,
-        poste=POSTE_MAP.get(candidature.poste, 'MIL'),
+        date_naissance=candidature.date_naissance,
         sexe=candidature.sexe,
         categorie=candidature.categorie,
-        age=candidature.age,
         nationalite=candidature.nationalite,
+        adresse=candidature.adresse,
+        numero=candidature.numero_prefere or 99,
+        poste=candidature.poste,
+        pied_fort=candidature.pied_fort,
+        ancien_club=candidature.ancien_club,
+        telephone_whatsapp=candidature.telephone_whatsapp,
+        email=candidature.email,
+        nom_parent=candidature.nom_parent,
+        telephone_parent=candidature.telephone_parent,
+        email_parent=candidature.email_parent,
+        info_scolaire=candidature.info_scolaire,
+        contact_urgence=candidature.contact_urgence,
+        age=candidature.age,
         photo=candidature.photo,
         date_inscription=timezone.now().date(),
         actif=True,

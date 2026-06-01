@@ -6,47 +6,252 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Connexion — CFLD Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'style.css' %}">
 <style>
-body { background:var(--ink); min-height:100vh; display:grid; place-items:center; }
-.login-box { background:var(--paper); border-radius:4px; padding:48px; width:100%; max-width:400px; }
-.login-box h1 { font-size:36px; margin-bottom:8px; }
-.login-box .sub { color:var(--muted); font-size:14px; margin-bottom:32px; }
-.field { display:grid; gap:8px; margin-bottom:24px; }
-.field label { font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; }
-.field input { border:0; border-bottom:1px solid var(--line-strong); padding:10px 0; font-size:16px; outline:none; background:transparent; }
-.field input:focus { border-bottom-color:var(--green); }
-.errlist { background:#fff0f0; border:1px solid #fca5a5; border-radius:4px; padding:10px 14px; margin-bottom:20px; color:#7f1d1d; font-size:13px; font-family:var(--font-mono); list-style:none; }
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  background: #0D0404;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Motif de fond */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 10% 80%, rgba(200,22,29,.18) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 90% 20%, rgba(200,22,29,.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Grille décorative */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.login-wrap {
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Card */
+.login-card {
+  background: rgba(255,255,255,.96);
+  border-radius: 14px;
+  padding: 40px 40px 36px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Logo */
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.login-logo-img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+.login-brand-text .login-name {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: #0B0B0B;
+  letter-spacing: .04em;
+}
+.login-brand-text .login-sub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.38);
+  margin-top: 1px;
+}
+
+/* Titres */
+.login-title {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -.025em;
+  color: #0B0B0B;
+  line-height: 1.05;
+  margin: 0 0 6px;
+}
+.login-sub-text {
+  font-size: 14px;
+  color: rgba(11,11,11,.5);
+  margin-bottom: 28px;
+}
+
+/* Erreur */
+.login-error {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #FEE2E2;
+  border: 1px solid #FCA5A5;
+  border-radius: 8px;
+  padding: 11px 14px;
+  margin-bottom: 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #7F1D1D;
+  letter-spacing: .04em;
+}
+.login-error svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* Champs */
+.login-field {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 18px;
+}
+.login-field:last-of-type { margin-bottom: 24px; }
+.login-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.52);
+  font-weight: 500;
+}
+.login-input {
+  width: 100%;
+  padding: 10px 13px;
+  border: 1.5px solid rgba(11,11,11,.15);
+  border-radius: 7px;
+  font-size: 14.5px;
+  font-family: var(--font-text);
+  background: #FAFAF8;
+  color: #0B0B0B;
+  transition: border-color .14s, box-shadow .14s;
+  outline: none;
+}
+.login-input:focus {
+  border-color: #C8161D;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(200,22,29,.1);
+}
+
+/* Bouton */
+.login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(145deg, #C8161D, #8A0D12);
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-family: var(--font-text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  box-shadow: 0 4px 14px rgba(200,22,29,.35);
+  letter-spacing: .01em;
+}
+.login-btn:hover {
+  background: linear-gradient(145deg, #A80E14, #6A070B);
+  box-shadow: 0 6px 20px rgba(200,22,29,.45);
+  transform: translateY(-1px);
+}
+.login-btn:active { transform: translateY(0); }
+.login-btn svg { width: 15px; height: 15px; }
+
+/* Footer card */
+.login-footer {
+  text-align: center;
+  margin-top: 20px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.3);
+}
+
+/* Baseline extérieure */
+.login-baseline {
+  text-align: center;
+  margin-top: 20px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.2);
+}
 </style>
 </head>
 <body>
-<div class="login-box">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:32px;">
-    <span style="background:var(--green-bright);color:var(--ink);width:32px;height:32px;display:grid;place-items:center;font-family:var(--font-display);font-weight:700;border-radius:2px;">C</span>
-    <span style="font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;">CFLD · Admin</span>
+
+<div class="login-wrap">
+  <div class="login-card">
+
+    <div class="login-logo">
+      <img src="{% static 'images/club/logo.png' %}" alt="CFLD" class="login-logo-img">
+      <div class="login-brand-text">
+        <div class="login-name">CFLD</div>
+        <div class="login-sub">Espace administrateur</div>
+      </div>
+    </div>
+
+    <h1 class="login-title">Connexion</h1>
+    <p class="login-sub-text">Accès réservé au staff du CFLD.</p>
+
+    {% if form.errors %}
+    <div class="login-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Identifiants incorrects. Veuillez réessayer.
+    </div>
+    {% endif %}
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="login-field">
+        <label class="login-label" for="id_username">Identifiant</label>
+        <input class="login-input" type="text" name="username" id="id_username" autofocus required autocomplete="username">
+      </div>
+      <div class="login-field">
+        <label class="login-label" for="id_password">Mot de passe</label>
+        <input class="login-input" type="password" name="password" id="id_password" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="login-btn">
+        Se connecter
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </form>
+
+    <div class="login-footer">CFLD Admin — Accès sécurisé</div>
   </div>
-  <h1>Connexion</h1>
-  <p class="sub">Accès réservé au staff du CFLD.</p>
-  {% if form.errors %}
-  <ul class="errlist">
-    <li>Identifiants incorrects. Veuillez réessayer.</li>
-  </ul>
-  {% endif %}
-  <form method="POST">
-    {% csrf_token %}
-    <div class="field">
-      <label>Identifiant</label>
-      <input type="text" name="username" autofocus required>
-    </div>
-    <div class="field">
-      <label>Mot de passe</label>
-      <input type="password" name="password" required>
-    </div>
-    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;">
-      Se connecter →
-    </button>
-  </form>
+
+  <div class="login-baseline">Club de Football de la Diaspora · Côte d'Ivoire</div>
 </div>
+
 </body>
 </html>

@@ -2,94 +2,196 @@
 {% block title %}{% if obj %}Modifier {{ obj.nom_complet }}{% else %}Ajouter un joueur{% endif %}{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <span class="eyebrow">Équipe / Joueurs</span>
-    <h1>{% if obj %}{{ obj.nom_complet }}{% else %}Nouveau joueur{% endif %}</h1>
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span>
+      <a href="{% url 'admin_joueurs' %}">Joueurs</a>
+      <span class="sep">›</span>
+      {% if obj %}Modifier{% else %}Ajouter{% endif %}
+    </div>
+    <h1 class="pg-title">{% if obj %}{{ obj.nom_complet }}{% else %}Nouveau joueur{% endif %}</h1>
   </div>
-  <div class="hd-actions">
-    <a href="{% url 'admin_joueurs' %}" style="padding:10px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
-      ← Retour
+  <div class="page-hd-right">
+    <a href="{% url 'admin_joueurs' %}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Retour
     </a>
   </div>
 </div>
 
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}
-  <div class="form-card">
-    <div class="form-grid">
+  <div class="form-card" style="max-width:820px;">
 
-      <div class="field">
-        <label>Prénom</label>
-        {{ form.prenom }}
-        {% if form.prenom.errors %}<ul class="errorlist">{% for e in form.prenom.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-      </div>
-      <div class="field">
-        <label>Nom</label>
-        {{ form.nom }}
-        {% if form.nom.errors %}<ul class="errorlist">{% for e in form.nom.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-      </div>
-
-      <div class="field">
-        <label>Numéro</label>
-        {{ form.numero }}
-        {% if form.numero.errors %}<ul class="errorlist">{% for e in form.numero.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-      </div>
-      <div class="field">
-        <label>Poste</label>
-        {{ form.poste }}
-        {% if form.poste.errors %}<ul class="errorlist">{% for e in form.poste.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-      </div>
-
-      <div class="field">
-        <label>Âge</label>
-        {{ form.age }}
-        {% if form.age.errors %}<ul class="errorlist">{% for e in form.age.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-      </div>
-      <div class="field">
-        <label>Nationalité</label>
-        {{ form.nationalite }}
-        {% if form.nationalite.errors %}<ul class="errorlist">{% for e in form.nationalite.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-      </div>
-
-      <div class="field">
-        <label>Matchs joués</label>
-        {{ form.matchs_joues }}
-      </div>
-      <div class="field">
-        <label>Buts</label>
-        {{ form.buts }}
-      </div>
-
-      <div class="field span2">
-        <label>Photo</label>
-        {% if obj and obj.photo %}
-          <div style="margin-bottom:10px;">
-            <img src="{{ obj.photo.url }}" alt="" style="height:80px;border-radius:4px;object-fit:cover;">
-            <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:4px;">Image actuelle — remplacer ci-dessous</div>
-          </div>
-        {% endif %}
-        {{ form.photo }}
-        {% if form.photo.errors %}<ul class="errorlist">{% for e in form.photo.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-      </div>
-
-      <div class="field span2">
-        <div class="field-check">
-          {{ form.actif }}
-          <label for="{{ form.actif.id_for_label }}">Joueur actif (affiché dans l'effectif)</label>
+    <!-- ── 1. Identité ── -->
+    <div class="form-section">
+      <div class="form-section-title">Identité</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Prénom *</label>
+          {{ form.prenom }}
+          {% if form.prenom.errors %}<ul class="errorlist">{% for e in form.prenom.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="field">
+          <label>Nom *</label>
+          {{ form.nom }}
+          {% if form.nom.errors %}<ul class="errorlist">{% for e in form.nom.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="field">
+          <label>Date de naissance</label>
+          {{ form.date_naissance }}
+          {% if form.date_naissance.errors %}<ul class="errorlist">{% for e in form.date_naissance.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="field">
+          <label>Sexe</label>
+          {{ form.sexe }}
+        </div>
+        <div class="field">
+          <label>Catégorie</label>
+          {{ form.categorie }}
+        </div>
+        <div class="field">
+          <label>Nationalité</label>
+          {{ form.nationalite }}
+        </div>
+        <div class="field span2">
+          <label>Adresse</label>
+          {{ form.adresse }}
         </div>
       </div>
+    </div>
 
+    <!-- ── 2. Profil sportif ── -->
+    <div class="form-section">
+      <div class="form-section-title">Profil sportif</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Numéro de maillot *</label>
+          {{ form.numero }}
+          {% if form.numero.errors %}<ul class="errorlist">{% for e in form.numero.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="field">
+          <label>Poste *</label>
+          {{ form.poste }}
+          {% if form.poste.errors %}<ul class="errorlist">{% for e in form.poste.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="field">
+          <label>Pied fort</label>
+          {{ form.pied_fort }}
+        </div>
+        <div class="field">
+          <label>Ancien club</label>
+          {{ form.ancien_club }}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 3. Contact joueur ── -->
+    <div class="form-section">
+      <div class="form-section-title">Contact du joueur</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Téléphone WhatsApp</label>
+          {{ form.telephone_whatsapp }}
+        </div>
+        <div class="field">
+          <label>Email</label>
+          {{ form.email }}
+          {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 4. Parent / tuteur ── -->
+    <div class="form-section">
+      <div class="form-section-title">Parent / Tuteur légal</div>
+      <div class="form-grid">
+        <div class="field span2">
+          <label>Nom et prénom du parent/tuteur</label>
+          {{ form.nom_parent }}
+        </div>
+        <div class="field">
+          <label>Téléphone parent</label>
+          {{ form.telephone_parent }}
+        </div>
+        <div class="field">
+          <label>Email parent</label>
+          {{ form.email_parent }}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 5. Infos complémentaires ── -->
+    <div class="form-section">
+      <div class="form-section-title">Informations complémentaires</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>École / Établissement</label>
+          {{ form.info_scolaire }}
+        </div>
+        <div class="field">
+          <label>Contact d'urgence</label>
+          {{ form.contact_urgence }}
+          <span class="help">Nom et numéro de téléphone</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 6. Photo ── -->
+    <div class="form-section">
+      <div class="form-section-title">Photo</div>
+      <div class="form-grid full">
+        <div class="field">
+          {% if obj and obj.photo %}
+          <div style="margin-bottom:12px;display:flex;align-items:center;gap:14px;">
+            <img src="{{ obj.photo.url }}" alt="" style="height:80px;width:80px;border-radius:50%;object-fit:cover;display:block;border:3px solid rgba(11,11,11,.08);">
+            <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.4);">Photo actuelle — remplacer ci-dessous</div>
+          </div>
+          {% endif %}
+          {{ form.photo }}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 7. Stats & admin ── -->
+    <div class="form-section">
+      <div class="form-section-title">Statistiques & administration</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Matchs joués</label>
+          {{ form.matchs_joues }}
+        </div>
+        <div class="field">
+          <label>Buts</label>
+          {{ form.buts }}
+        </div>
+        <div class="field">
+          <label>Numéro de licence</label>
+          {{ form.numero_licence }}
+        </div>
+        <div class="field">
+          <label>Date d'inscription</label>
+          {{ form.date_inscription }}
+        </div>
+        <div class="field span2">
+          <div class="field-check">
+            {{ form.actif }}
+            <label for="{{ form.actif.id_for_label }}">Joueur actif — visible dans l'effectif publié sur le site</label>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="form-actions">
-      <button type="submit" style="padding:11px 24px;background:var(--ink);color:var(--paper);border:0;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">
-        {% if obj %}Enregistrer{% else %}Créer le joueur{% endif %}
+      <button type="submit" class="btn btn-dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        {% if obj %}Enregistrer les modifications{% else %}Créer le joueur{% endif %}
       </button>
-      <a href="{% url 'admin_joueurs' %}" style="padding:11px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
-        Annuler
-      </a>
+      <a href="{% url 'admin_joueurs' %}" class="btn btn-ghost">Annuler</a>
     </div>
+
   </div>
 </form>
 {% endblock %}

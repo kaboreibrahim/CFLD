@@ -2,14 +2,18 @@
 {% block title %}Matchs{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <span class="eyebrow">Équipe</span>
-    <h1>Matchs <span style="font-size:18px;color:var(--muted);font-weight:400;">{{ total }}</span></h1>
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span> Équipe
+    </div>
+    <h1 class="pg-title">Matchs <span class="pg-count">{{ total }}</span></h1>
   </div>
-  <div class="hd-actions">
-    <a href="{% url 'admin_match_add' %}" style="display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;">
-      + Ajouter
+  <div class="page-hd-right">
+    <a href="{% url 'admin_match_add' %}" class="btn btn-dark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Ajouter un match
     </a>
   </div>
 </div>
@@ -23,26 +27,36 @@
 </div>
 
 <div class="t-wrap">
-  <div class="t-row t-head" style="grid-template-columns:120px 1fr 1fr 100px 80px 80px 80px;">
-    <div>Date</div>
-    <div>Domicile</div>
-    <div>Extérieur</div>
-    <div>Compétition</div>
-    <div>Score</div>
-    <div>Type</div>
-    <div style="text-align:right;">Actions</div>
+  <div class="t-row t-head" style="grid-template-columns:110px 1fr 1fr 110px 90px 90px 80px;">
+    <div class="th">Date</div>
+    <div class="th">Domicile</div>
+    <div class="th">Extérieur</div>
+    <div class="th">Compétition</div>
+    <div class="th">Score</div>
+    <div class="th">Type</div>
+    <div class="th" style="text-align:right;">Actions</div>
   </div>
   {% for m in matchs %}
-  <div class="t-row" id="row-m{{ m.pk }}" style="grid-template-columns:120px 1fr 1fr 100px 80px 80px 80px;">
-    <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">{{ m.date|date:"d/m/Y" }}<br>{{ m.date|date:"H:i" }}</div>
+  <div class="t-row" id="row-m{{ m.pk }}" style="grid-template-columns:110px 1fr 1fr 110px 90px 90px 80px;">
     <div>
-      <div style="font-weight:{% if m.est_domicile %}600{% else %}400{% endif %};">{{ m.equipe_domicile }}</div>
-      {% if m.lieu %}<div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ m.lieu }}</div>{% endif %}
+      <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--ink);">{{ m.date|date:"d/m/Y" }}</div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:rgba(11,11,11,.4);">{{ m.date|date:"H:i" }}</div>
     </div>
-    <div style="font-weight:{% if not m.est_domicile %}600{% else %}400{% endif %};">{{ m.equipe_exterieur }}</div>
-    <div style="font-size:12px;">{{ m.competition }}{% if m.journee %} J{{ m.journee }}{% endif %}</div>
-    <div style="font-family:var(--font-mono);font-size:13px;font-weight:600;">
-      {% if m.score_domicile is not None %}{{ m.score_domicile }} — {{ m.score_exterieur }}{% else %}<span style="color:var(--muted);">—</span>{% endif %}
+    <div>
+      <div style="font-weight:{% if m.est_domicile %}700{% else %}400{% endif %};font-size:13px;{% if m.est_domicile %}color:var(--ink);{% else %}color:rgba(11,11,11,.65);{% endif %}">{{ m.equipe_domicile }}</div>
+      {% if m.lieu %}<div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.38);">{{ m.lieu }}</div>{% endif %}
+    </div>
+    <div style="font-weight:{% if not m.est_domicile %}700{% else %}400{% endif %};font-size:13px;{% if not m.est_domicile %}color:var(--ink);{% else %}color:rgba(11,11,11,.65);{% endif %}">{{ m.equipe_exterieur }}</div>
+    <div>
+      <div style="font-size:12px;color:var(--ink);">{{ m.competition }}</div>
+      {% if m.journee %}<div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.4);">Journée {{ m.journee }}</div>{% endif %}
+    </div>
+    <div style="font-family:var(--font-mono);font-size:16px;font-weight:700;letter-spacing:.04em;">
+      {% if m.score_domicile is not None %}
+        <span style="{% if m.resultat == 'V' %}color:#059669{% elif m.resultat == 'D' %}color:var(--green){% else %}color:rgba(11,11,11,.55){% endif %}">{{ m.score_domicile }}&thinsp;—&thinsp;{{ m.score_exterieur }}</span>
+      {% else %}
+        <span style="color:rgba(11,11,11,.25);">—</span>
+      {% endif %}
     </div>
     <div>
       {% if m.type_match == 'a_venir' %}
@@ -51,13 +65,20 @@
         <span class="badge-status bs-resultat">Résultat</span>
       {% endif %}
     </div>
-    <div class="actions">
-      <a href="{% url 'admin_match_edit' m.pk %}" class="t-btn" title="Modifier">✏</a>
-      <button class="t-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_match_delete' m.pk %}', document.getElementById('row-m{{ m.pk }}'))">✕</button>
+    <div class="row-actions">
+      <a href="{% url 'admin_match_edit' m.pk %}" class="ic-btn" title="Modifier">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </a>
+      <button class="ic-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_match_delete' m.pk %}', document.getElementById('row-m{{ m.pk }}'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </button>
     </div>
   </div>
   {% empty %}
-  <div class="empty-state">Aucun match</div>
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+    <p>Aucun match</p>
+  </div>
   {% endfor %}
 </div>
 {% endblock %}

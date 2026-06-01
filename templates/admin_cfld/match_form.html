@@ -1,15 +1,22 @@
 {% extends "admin_cfld/base.html" %}
-{% block title %}{% if obj %}Modifier le match{% else %}Ajouter un match{% endif %}{% endblock %}
+{% block title %}{% if obj %}Modifier le match{% else %}Nouveau match{% endif %}{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <span class="eyebrow">Équipe / Matchs</span>
-    <h1>{% if obj %}{{ obj }}{% else %}Nouveau match{% endif %}</h1>
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span>
+      <a href="{% url 'admin_matchs' %}">Matchs</a>
+      <span class="sep">›</span>
+      {% if obj %}Modifier{% else %}Ajouter{% endif %}
+    </div>
+    <h1 class="pg-title">{% if obj %}{{ obj }}{% else %}Nouveau match{% endif %}</h1>
   </div>
-  <div class="hd-actions">
-    <a href="{% url 'admin_matchs' %}" style="padding:10px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
-      ← Retour
+  <div class="page-hd-right">
+    <a href="{% url 'admin_matchs' %}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Retour
     </a>
   </div>
 </div>
@@ -17,73 +24,81 @@
 <form method="post">
   {% csrf_token %}
   <div class="form-card">
-    <div class="form-grid">
 
-      <div class="field">
-        <label>Équipe domicile</label>
-        {{ form.equipe_domicile }}
-        {% if form.equipe_domicile.errors %}<ul class="errorlist">{% for e in form.equipe_domicile.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-      </div>
-      <div class="field">
-        <label>Équipe extérieur</label>
-        {{ form.equipe_exterieur }}
-        {% if form.equipe_exterieur.errors %}<ul class="errorlist">{% for e in form.equipe_exterieur.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-      </div>
-
-      <div class="field">
-        <label>Date et heure</label>
-        {{ form.date }}
-        {% if form.date.errors %}<ul class="errorlist">{% for e in form.date.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-      </div>
-      <div class="field">
-        <label>Lieu</label>
-        {{ form.lieu }}
-      </div>
-
-      <div class="field">
-        <label>Compétition</label>
-        {{ form.competition }}
-      </div>
-      <div class="field">
-        <label>Journée</label>
-        {{ form.journee }}
-      </div>
-
-      <div class="field">
-        <label>Type de match</label>
-        {{ form.type_match }}
-      </div>
-      <div class="field">
-        <label>URL billets</label>
-        {{ form.billet_url }}
-      </div>
-
-      <div class="field">
-        <label>Score domicile</label>
-        {{ form.score_domicile }}
-        <span class="help">Laisser vide si le match n'a pas eu lieu</span>
-      </div>
-      <div class="field">
-        <label>Score extérieur</label>
-        {{ form.score_exterieur }}
-      </div>
-
-      <div class="field span2">
-        <div class="field-check">
-          {{ form.est_domicile }}
-          <label for="{{ form.est_domicile.id_for_label }}">CFLD joue à domicile dans ce match</label>
+    <div class="form-section">
+      <div class="form-section-title">Équipes</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Équipe domicile</label>
+          {{ form.equipe_domicile }}
+          {% if form.equipe_domicile.errors %}<ul class="errorlist">{% for e in form.equipe_domicile.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="field">
+          <label>Équipe extérieur</label>
+          {{ form.equipe_exterieur }}
+          {% if form.equipe_exterieur.errors %}<ul class="errorlist">{% for e in form.equipe_exterieur.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="field span2">
+          <div class="field-check">
+            {{ form.est_domicile }}
+            <label for="{{ form.est_domicile.id_for_label }}">CFLD joue à domicile dans ce match</label>
+          </div>
         </div>
       </div>
+    </div>
 
+    <div class="form-section">
+      <div class="form-section-title">Informations du match</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Date et heure</label>
+          {{ form.date }}
+          {% if form.date.errors %}<ul class="errorlist">{% for e in form.date.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="field">
+          <label>Lieu</label>
+          {{ form.lieu }}
+        </div>
+        <div class="field">
+          <label>Compétition</label>
+          {{ form.competition }}
+        </div>
+        <div class="field">
+          <label>Journée</label>
+          {{ form.journee }}
+        </div>
+        <div class="field">
+          <label>Type de match</label>
+          {{ form.type_match }}
+        </div>
+        <div class="field">
+          <label>URL billets</label>
+          {{ form.billet_url }}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Score (résultat)</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Score domicile</label>
+          {{ form.score_domicile }}
+          <span class="help">Laisser vide si match non encore joué</span>
+        </div>
+        <div class="field">
+          <label>Score extérieur</label>
+          {{ form.score_exterieur }}
+        </div>
+      </div>
     </div>
 
     <div class="form-actions">
-      <button type="submit" style="padding:11px 24px;background:var(--ink);color:var(--paper);border:0;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">
+      <button type="submit" class="btn btn-dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         {% if obj %}Enregistrer{% else %}Créer le match{% endif %}
       </button>
-      <a href="{% url 'admin_matchs' %}" style="padding:11px 16px;border:1px solid var(--line);border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);">
-        Annuler
-      </a>
+      <a href="{% url 'admin_matchs' %}" class="btn btn-ghost">Annuler</a>
     </div>
   </div>
 </form>

@@ -2,14 +2,18 @@
 {% block title %}Articles{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <div>
-    <span class="eyebrow">Contenu</span>
-    <h1>Articles <span style="font-size:18px;color:var(--muted);font-weight:400;">{{ total }}</span></h1>
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span> Contenu
+    </div>
+    <h1 class="pg-title">Articles <span class="pg-count">{{ total }}</span></h1>
   </div>
-  <div class="hd-actions">
-    <a href="{% url 'admin_article_add' %}" style="display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;">
-      + Ajouter
+  <div class="page-hd-right">
+    <a href="{% url 'admin_article_add' %}" class="btn btn-dark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nouvel article
     </a>
   </div>
 </div>
@@ -17,7 +21,7 @@
 <form method="get">
   <div class="filter-bar">
     <div class="search-wrap">
-      <span class="ico">🔍</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input type="text" name="q" value="{{ q }}" placeholder="Rechercher un article…">
     </div>
     <div class="f-pills">
@@ -28,36 +32,47 @@
       <a href="?cat=match{% if q %}&q={{ q }}{% endif %}" class="f-pill {% if cat_actif == 'match' %}active{% endif %}">Match</a>
       <a href="?cat=evenement{% if q %}&q={{ q }}{% endif %}" class="f-pill {% if cat_actif == 'evenement' %}active{% endif %}">Événement</a>
     </div>
-    {% if q %}<button type="submit" style="padding:6px 14px;background:var(--ink);color:var(--paper);border:0;border-radius:4px;font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;cursor:pointer;">Chercher</button>{% endif %}
+    {% if q %}<button type="submit" class="btn btn-dark btn-sm">Chercher</button>{% endif %}
   </div>
 </form>
 
 <div class="t-wrap">
-  <div class="t-row t-head" style="grid-template-columns:64px 1fr 90px 130px 60px 70px 80px;">
-    <div>Image</div>
-    <div>Titre</div>
-    <div>Catégorie</div>
-    <div>Date</div>
-    <div>Une</div>
-    <div>Statut</div>
-    <div style="text-align:right;">Actions</div>
+  <div class="t-row t-head" style="grid-template-columns:68px 1fr 100px 130px 55px 75px 80px;">
+    <div class="th">Image</div>
+    <div class="th">Titre</div>
+    <div class="th">Catégorie</div>
+    <div class="th">Date</div>
+    <div class="th">Une</div>
+    <div class="th">Statut</div>
+    <div class="th" style="text-align:right;">Actions</div>
   </div>
   {% for a in articles %}
-  <div class="t-row" id="row-a{{ a.pk }}" style="grid-template-columns:64px 1fr 90px 130px 60px 70px 80px;">
+  <div class="t-row" id="row-a{{ a.pk }}" style="grid-template-columns:68px 1fr 100px 130px 55px 75px 80px;">
     <div>
       {% if a.image %}
-        <img src="{{ a.image.url }}" alt="" style="width:52px;height:36px;object-fit:cover;border-radius:3px;display:block;">
+        <img src="{{ a.image.url }}" alt="" style="width:54px;height:38px;object-fit:cover;border-radius:5px;display:block;">
       {% else %}
-        <div style="width:52px;height:36px;background:var(--paper-2);border-radius:3px;display:grid;place-items:center;font-size:18px;">📰</div>
+        <div style="width:54px;height:38px;background:rgba(11,11,11,.06);border-radius:5px;display:grid;place-items:center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(11,11,11,.3)" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
       {% endif %}
     </div>
     <div>
-      <div style="font-weight:500;font-size:13px;">{{ a.titre|truncatechars:60 }}</div>
-      {% if a.accroche %}<div style="font-size:11px;color:var(--muted);">{{ a.accroche|truncatechars:80 }}</div>{% endif %}
+      <div style="font-weight:500;font-size:13px;color:var(--ink);line-height:1.35;">{{ a.titre|truncatechars:65 }}</div>
+      {% if a.accroche %}<div style="font-size:11.5px;color:rgba(11,11,11,.45);margin-top:2px;line-height:1.4;">{{ a.accroche|truncatechars:90 }}</div>{% endif %}
     </div>
     <div><span class="pill">{{ a.get_categorie_display }}</span></div>
-    <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">{{ a.date_publication|date:"d/m/Y" }}<br>{{ a.date_publication|date:"H:i" }}</div>
-    <div style="font-family:var(--font-mono);font-size:11px;">{% if a.en_une %}⭐{% else %}-{% endif %}</div>
+    <div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--ink);">{{ a.date_publication|date:"d/m/Y" }}</div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:rgba(11,11,11,.38);">{{ a.date_publication|date:"H:i" }}</div>
+    </div>
+    <div style="text-align:center;">
+      {% if a.en_une %}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#C8161D" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      {% else %}
+        <span style="color:rgba(11,11,11,.2);">—</span>
+      {% endif %}
+    </div>
     <div>
       {% if a.publie %}
         <span class="badge-status bs-publie">Publié</span>
@@ -65,13 +80,20 @@
         <span class="badge-status bs-brouillon">Brouillon</span>
       {% endif %}
     </div>
-    <div class="actions">
-      <a href="{% url 'admin_article_edit' a.pk %}" class="t-btn" title="Modifier">✏</a>
-      <button class="t-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_article_delete' a.pk %}', document.getElementById('row-a{{ a.pk }}'))">✕</button>
+    <div class="row-actions">
+      <a href="{% url 'admin_article_edit' a.pk %}" class="ic-btn" title="Modifier">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </a>
+      <button class="ic-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_article_delete' a.pk %}', document.getElementById('row-a{{ a.pk }}'))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </button>
     </div>
   </div>
   {% empty %}
-  <div class="empty-state">Aucun article</div>
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <p>Aucun article trouvé</p>
+  </div>
   {% endfor %}
 </div>
 {% endblock %}
