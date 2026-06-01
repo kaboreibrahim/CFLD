@@ -1,5 +1,25 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.text import slugify
+import re
+
+
+def _slugify_fr(text):
+    """Génère un slug SEO-friendly depuis un texte français."""
+    text = text.lower()
+    replacements = {
+        'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
+        'à': 'a', 'â': 'a', 'ä': 'a',
+        'î': 'i', 'ï': 'i',
+        'ô': 'o', 'ö': 'o',
+        'ù': 'u', 'û': 'u', 'ü': 'u',
+        'ç': 'c', 'œ': 'oe', 'æ': 'ae',
+    }
+    for src, dst in replacements.items():
+        text = text.replace(src, dst)
+    text = re.sub(r'[^a-z0-9\s-]', '', text)
+    text = re.sub(r'[\s_-]+', '-', text).strip('-')
+    return text[:80]
 
 
 class Article(models.Model):
@@ -12,6 +32,8 @@ class Article(models.Model):
     ]
 
     titre = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=100, unique=True, blank=True,
+                            help_text='URL SEO-friendly, générée automatiquement depuis le titre')
     accroche = models.CharField(max_length=300, blank=True)
     contenu = models.TextField()
     image = models.ImageField(upload_to='articles/', blank=True, null=True)
@@ -27,6 +49,21 @@ class Article(models.Model):
 
     def __str__(self):
         return self.titre
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base = _slugify_fr(self.titre)
+            slug = base
+            n = 1
+            while Article.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f'{base}-{n}'
+                n += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('article_detail', args=[self.slug])
 
 
 class Photo(models.Model):

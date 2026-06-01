@@ -47,8 +47,11 @@ urlpatterns = [
     path('videos/<int:pk>/supprimer/', v.admin_video_delete, name='admin_video_delete'),
 
     # Candidatures
-    path('candidatures/',                       v.admin_candidatures,  name='admin_candidatures'),
-    path('candidature/<int:pk>/action/',        v.action_candidature,  name='action_candidature'),
+    path('candidatures/',                            v.admin_candidatures,           name='admin_candidatures'),
+    path('candidature/<int:pk>/action/',             v.action_candidature,           name='action_candidature'),
+    path('candidature/<int:pk>/pdf/telecharger/',    v.candidature_pdf_telecharger,  name='candidature_pdf_telecharger'),
+    path('candidature/<int:pk>/pdf/voir/',           v.candidature_pdf_voir,         name='candidature_pdf_voir'),
+    path('candidature/<int:pk>/pdf/regenerer/',      v.candidature_pdf_regenerer,    name='candidature_pdf_regenerer'),
 
     # Messages
     path('messages/',                   v.admin_messages,       name='admin_messages'),

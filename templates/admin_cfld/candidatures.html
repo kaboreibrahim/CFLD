@@ -47,9 +47,10 @@
 </form>
 
 <div class="t-wrap">
-  <div class="t-row t-head" style="grid-template-columns:100px 1fr 70px 80px 120px 80px 180px;">
+  <div class="t-row t-head" style="grid-template-columns:100px 1fr 80px 70px 80px 100px 80px 220px;">
     <div>Réf.</div>
     <div>Candidat</div>
+    <div>Section</div>
     <div>Poste</div>
     <div>Âge</div>
     <div>Contact</div>
@@ -57,7 +58,7 @@
     <div style="text-align:right;">Actions</div>
   </div>
   {% for c in candidatures %}
-  <div class="t-row" id="row-c{{ c.pk }}" style="grid-template-columns:100px 1fr 70px 80px 120px 80px 180px;">
+  <div class="t-row" id="row-c{{ c.pk }}" style="grid-template-columns:100px 1fr 80px 70px 80px 100px 80px 220px;">
     <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ c.reference }}</div>
     <div>
       <div style="display:flex;align-items:center;gap:10px;">
@@ -72,10 +73,15 @@
         </div>
       </div>
     </div>
+    <div>
+      <span class="pill" style="{% if c.sexe == 'F' %}background:#C8102E;color:#fff;{% endif %}font-size:10px;padding:3px 8px;">
+        {{ c.section }}
+      </span>
+    </div>
     <div><span class="pill">{{ c.poste }}</span></div>
     <div style="font-family:var(--font-mono);font-size:12px;">{{ c.age }} ans</div>
     <div>
-      <div style="font-size:11px;">{{ c.email|truncatechars:20 }}</div>
+      <div style="font-size:11px;">{{ c.email|truncatechars:18 }}</div>
       <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">{{ c.telephone_whatsapp }}</div>
     </div>
     <div>
@@ -83,7 +89,7 @@
     </div>
     <div class="actions" style="justify-content:flex-end;flex-wrap:wrap;gap:4px;">
       {% if c.statut != 'accepted' %}
-      <button class="t-btn ok" title="Accepter" onclick="doAction({{ c.pk }}, 'accept')">✓</button>
+      <button class="t-btn ok" title="Accepter — intègre l'effectif automatiquement" onclick="doAction({{ c.pk }}, 'accept')">✓</button>
       {% endif %}
       {% if c.statut != 'refused' %}
       <button class="t-btn del" title="Refuser" onclick="doAction({{ c.pk }}, 'refuse')">✕</button>
@@ -91,6 +97,12 @@
       {% if c.statut == 'pending' %}
       <button class="t-btn" title="Mettre en attente" onclick="doAction({{ c.pk }}, 'wait')">⏸</button>
       {% endif %}
+      <!-- PDF -->
+      {% if c.pdf_inscription %}
+      <a href="{% url 'candidature_pdf_voir' c.pk %}" target="_blank" class="t-btn" title="Voir le PDF" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">👁</a>
+      <a href="{% url 'candidature_pdf_telecharger' c.pk %}" class="t-btn" title="Télécharger le PDF" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">⬇</a>
+      {% endif %}
+      <button class="t-btn" title="Régénérer le PDF" onclick="regenererPDF({{ c.pk }})">↺</button>
     </div>
   </div>
   {% empty %}
@@ -113,12 +125,61 @@ function doAction(pk, action) {
     body: fd,
   }).then(r => r.json()).then(d => {
     if (d.success) {
+      // Mettre à jour le badge statut
       const badge = document.getElementById('badge-' + pk);
       badge.textContent = LABELS[d.statut] || d.statut;
       badge.className = 'badge-status ' + (CLASSES[d.statut] || '');
-      showToast('Statut mis à jour', 'ok');
+
+      // Si acceptée + PDF généré → injecter les boutons PDF dans la ligne
+      if (d.statut === 'accepted' && d.has_pdf) {
+        _injecterBoutonsPDF(pk, d.pdf_voir_url, d.pdf_dl_url);
+        showToast('✓ Validé — PDF généré — Joueur intégré dans l\'effectif', 'ok');
+      } else if (d.statut === 'accepted') {
+        showToast('Candidature acceptée — joueur intégré dans l\'effectif', 'ok');
+      } else {
+        showToast('Statut mis à jour', 'ok');
+      }
     } else {
       showToast('Erreur', 'err');
+    }
+  }).catch(() => showToast('Erreur réseau', 'err'));
+}
+
+function _injecterBoutonsPDF(pk, urlVoir, urlDl) {
+  const actionsDiv = document.querySelector('#row-c' + pk + ' .actions');
+  if (!actionsDiv) return;
+  // Supprimer les anciens boutons PDF s'ils existent
+  actionsDiv.querySelectorAll('.pdf-btn').forEach(b => b.remove());
+  // Bouton Voir
+  const btnVoir = document.createElement('a');
+  btnVoir.href = urlVoir;
+  btnVoir.target = '_blank';
+  btnVoir.className = 't-btn pdf-btn';
+  btnVoir.title = 'Voir le PDF';
+  btnVoir.style = 'text-decoration:none;display:inline-flex;align-items:center;justify-content:center;';
+  btnVoir.textContent = '👁';
+  // Bouton Télécharger
+  const btnDl = document.createElement('a');
+  btnDl.href = urlDl;
+  btnDl.className = 't-btn pdf-btn';
+  btnDl.title = 'Télécharger le PDF';
+  btnDl.style = 'text-decoration:none;display:inline-flex;align-items:center;justify-content:center;';
+  btnDl.textContent = '⬇';
+  actionsDiv.appendChild(btnVoir);
+  actionsDiv.appendChild(btnDl);
+}
+
+function regenererPDF(pk) {
+  const fd = new FormData();
+  fetch(`/admin-cfld/candidature/${pk}/pdf/regenerer/`, {
+    method: 'POST',
+    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+    body: fd,
+  }).then(r => r.json()).then(d => {
+    if (d.success) {
+      showToast('PDF régénéré — rechargez la page pour voir les boutons', 'ok');
+    } else {
+      showToast('Erreur : ' + (d.error || 'inconnue'), 'err');
     }
   }).catch(() => showToast('Erreur réseau', 'err'));
 }

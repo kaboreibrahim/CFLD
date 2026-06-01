@@ -1,0 +1,158 @@
+{% load static %}
+<footer class="footer" itemscope itemtype="https://schema.org/SportsOrganization">
+  <meta itemprop="name" content="Centre de Formation Lancine Diomandé">
+  <meta itemprop="sport" content="Football">
+  <link itemprop="url" href="{{ request.scheme }}://{{ request.get_host }}">
+
+  <div class="footer-inner">
+    <!-- Colonne identité club -->
+    <div>
+      <a href="/" aria-label="Accueil CFLD">
+        <img src="{% static 'images/club/logo.png' %}" alt="Logo CFLD" width="56" height="56" loading="lazy" style="margin-bottom:12px;border-radius:4px;">
+      </a>
+      <p class="footer-mark">Centre de Formation<br><em>Lancine Diomande</em></p>
+      <p style="max-width:32ch;color:rgba(246,244,239,0.65);font-size:14px;line-height:1.55;">
+        Forger le talent africain de demain — sur le terrain et au-delà.
+      </p>
+      <!-- Réseaux sociaux -->
+      <div style="display:flex;gap:10px;margin-top:16px;" aria-label="Réseaux sociaux">
+        <a href="https://www.facebook.com/CFLDAcademie" target="_blank" rel="noopener noreferrer"
+           aria-label="Facebook CFLD" title="Facebook"
+           style="width:36px;height:36px;border-radius:50%;border:1px solid rgba(246,244,239,.2);display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(246,244,239,.7);text-decoration:none;transition:border-color .2s,color .2s;"
+           onmouseover="this.style.borderColor='rgba(246,244,239,.7)';this.style.color='#fff'"
+           onmouseout="this.style.borderColor='rgba(246,244,239,.2)';this.style.color='rgba(246,244,239,.7)'">f</a>
+        <a href="https://www.instagram.com/cfld_academie" target="_blank" rel="noopener noreferrer"
+           aria-label="Instagram CFLD" title="Instagram"
+           style="width:36px;height:36px;border-radius:50%;border:1px solid rgba(246,244,239,.2);display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(246,244,239,.7);text-decoration:none;transition:border-color .2s,color .2s;"
+           onmouseover="this.style.borderColor='rgba(246,244,239,.7)';this.style.color='#fff'"
+           onmouseout="this.style.borderColor='rgba(246,244,239,.2)';this.style.color='rgba(246,244,239,.7)'">IG</a>
+        <a href="https://wa.me/22507584666446" target="_blank" rel="noopener noreferrer"
+           aria-label="WhatsApp CFLD" title="WhatsApp"
+           style="width:36px;height:36px;border-radius:50%;border:1px solid rgba(246,244,239,.2);display:flex;align-items:center;justify-content:center;font-size:14px;color:rgba(246,244,239,.7);text-decoration:none;transition:border-color .2s,color .2s;"
+           onmouseover="this.style.borderColor='rgba(246,244,239,.7)';this.style.color='#fff'"
+           onmouseout="this.style.borderColor='rgba(246,244,239,.2)';this.style.color='rgba(246,244,239,.7)'">W</a>
+      </div>
+    </div>
+
+    <!-- Colonne Le Club -->
+    <div>
+      <h4>Le Club</h4>
+      <ul>
+        <li><a href="{% url 'club' %}">Histoire du club</a></li>
+        <li><a href="{% url 'club' %}#staff">Staff technique</a></li>
+        <li><a href="{% url 'effectif' %}">Effectif</a></li>
+        <li><a href="{% url 'academie' %}">Centre de formation</a></li>
+      </ul>
+    </div>
+
+    <!-- Colonne Équipes -->
+    <div>
+      <h4>Équipes</h4>
+      <ul>
+        <li><a href="{% url 'matchs' %}">Matchs</a></li>
+        <li><a href="{% url 'matchs' %}">Matchs</a></li>
+        <li><a href="{% url 'actualites' %}">Actualités</a></li>
+        <li><a href="{% url 'inscriptions' %}">Inscription</a></li>
+        <li><a href="{% url 'admin_login' %}">Admin</a></li>
+      </ul>
+    </div>
+
+    <!-- Colonne Contact + Adresse -->
+    <div>
+      <h4>Contact</h4>
+      <address style="font-style:normal;" itemscope itemtype="https://schema.org/PostalAddress">
+        <ul>
+          <li itemprop="addressLocality" style="color:rgba(246,244,239,.65);">
+            📍 Aboisso, <span itemprop="addressCountry">Côte d'Ivoire</span>
+          </li>
+          <li>
+            <a href="tel:+2250758466646" itemprop="telephone">+225 07 58 46 66 46</a>
+          </li>
+          <li>
+            <a href="https://wa.me/2250758466646" target="_blank" rel="noopener">WhatsApp →</a>
+          </li>
+          <li>
+            <a href="mailto:info@cfld-academie.com" itemprop="email">info@cfld-academie.com</a>
+          </li>
+          <li><a href="{% url 'contact' %}">Formulaire de contact</a></li>
+        </ul>
+      </address>
+      <div style="margin-top:16px;">
+        <a href="{% url 'inscription' %}" class="btn btn-primary" style="font-size:12px;padding:10px 18px;">
+          S'inscrire →
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Bottom -->
+  <div class="footer-bottom">
+    <span>© {% now "Y" %} CFLD — Tous droits réservés</span>
+    <nav aria-label="Liens légaux" style="display:flex;gap:16px;flex-wrap:wrap;">
+      <a href="{% url 'medias' %}" style="color:rgba(246,244,239,.5);font-size:12px;text-decoration:none;">Actualités</a>
+      <a href="{% url 'matchs' %}" style="color:rgba(246,244,239,.5);font-size:12px;text-decoration:none;">Matchs</a>
+      <a href="/sitemap.xml" style="color:rgba(246,244,239,.5);font-size:12px;text-decoration:none;">Sitemap</a>
+    </nav>
+    <span style="font-size:12px;color:rgba(246,244,239,.4);">Fondé en 2018 · Affilié FIF · Site par
+      <a href="https://porto-folio.oils-of-africa.com/" target="_blank" rel="noopener"
+         style="color:var(--green);text-decoration:none;">Kaboré Ibrahim</a>
+    </span>
+  </div>
+</footer>
+
+<!-- Schema.org LocalBusiness -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["LocalBusiness", "SportsOrganization"],
+  "name": "Centre de Formation Lancine Diomandé (CFLD)",
+  "alternateName": "CFLD Académie Football",
+  "description": "Académie de football à Aboisso, Côte d'Ivoire. Formation jeunes U10 à U17+, section féminine. Inscription ouverte.",
+  "url": "{{ request.scheme }}://{{ request.get_host }}",
+  "telephone": "+225-07-58-46-66-46",
+  "email": "info@cfld-academie.com",
+  "sport": "Football",
+  "foundingDate": "2018",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Aboisso",
+    "addressRegion": "Sud-Comoé",
+    "addressCountry": "CI"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 5.4717,
+    "longitude": -3.2014
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+      "opens": "08:00",
+      "closes": "18:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Saturday",
+      "opens": "08:00",
+      "closes": "16:00"
+    }
+  ],
+  "sameAs": [
+    "https://www.facebook.com/CFLDAcademie",
+    "https://www.instagram.com/cfld_academie"
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Formations football CFLD",
+    "itemListElement": [
+      {"@type": "Offer", "name": "Formation U10 Masculin", "description": "Initiation football, 8-10 ans"},
+      {"@type": "Offer", "name": "Formation U13 Masculin", "description": "Pré-formation, 11-13 ans"},
+      {"@type": "Offer", "name": "Formation U15 Masculin", "description": "Élite, 13-15 ans"},
+      {"@type": "Offer", "name": "Formation U17+ Masculin", "description": "Pré-professionnel"},
+      {"@type": "Offer", "name": "Formation U12 Féminin", "description": "Initiation féminine, 9-12 ans"},
+      {"@type": "Offer", "name": "Formation U15 Féminin", "description": "Formation féminine, 12-15 ans"}
+    ]
+  }
+}
+</script>

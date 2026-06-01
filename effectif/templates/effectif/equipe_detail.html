@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ config.titre_seo }}{% endblock %}
+{% block screen_label %}Équipe {{ config.label }}{% endblock %}
+{% block current_page %}equipe_detail.html{% endblock %}
+{% block description %}{{ config.description }}{% endblock %}
+{% block keywords %}{{ config.label }} CFLD, football {{ config.label|lower }} Aboisso, académie football {{ config.categorie }} Côte d'Ivoire, formation football jeunes CI, CFLD Aboisso{% endblock %}
+{% block og_title %}{{ config.label }} — CFLD Aboisso{% endblock %}
+{% block og_description %}{{ config.description }}{% endblock %}
+{% block tw_title %}{{ config.label }} — CFLD{% endblock %}
+{% block tw_description %}{{ config.description }}{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Hero équipe ──────────────────────────────────── */
+.equipe-hero { padding:80px 0 60px; display:grid; grid-template-columns:1fr auto; gap:48px; align-items:end; border-bottom:1px solid var(--line); }
+.equipe-badge { font-family:var(--font-mono); font-size:10px; letter-spacing:.18em; text-transform:uppercase; padding:6px 14px; border-radius:999px; display:inline-block; margin-bottom:16px; }
+.equipe-hero h1 { font-size:clamp(48px,8vw,96px); line-height:.9; letter-spacing:-.03em; margin-bottom:16px; }
+.equipe-hero h1 em { font-style:italic; color:var(--accent); }
+.equipe-hero .lede { font-size:18px; line-height:1.55; color:var(--muted); max-width:55ch; }
+.equipe-meta-grid { display:grid; gap:12px; min-width:220px; }
+.equipe-meta-item { padding:16px 20px; border:1px solid var(--line); border-radius:4px; }
+.equipe-meta-item .m-label { font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.equipe-meta-item .m-val { font-family:var(--font-display); font-size:20px; font-weight:500; }
+/* ── Présentation ─────────────────────────────────── */
+.equipe-presentation { padding:60px 0; display:grid; grid-template-columns:1fr 1fr; gap:80px; border-bottom:1px solid var(--line); }
+.eq-block-title { font-family:var(--font-mono); font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); margin-bottom:16px; }
+.eq-text { font-size:17px; line-height:1.65; color:var(--muted); }
+.objectif-card { background:var(--paper); border:1px solid var(--line); border-radius:4px; padding:32px; display:grid; gap:12px; }
+.objectif-card .o-label { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); }
+.objectif-card .o-text { font-family:var(--font-display); font-size:28px; line-height:1.1; letter-spacing:-.02em; }
+/* ── Effectif ─────────────────────────────────────── */
+.equipe-effectif { padding:60px 0; border-bottom:1px solid var(--line); }
+.effectif-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:40px; }
+.effectif-header h2 { font-size:32px; }
+.effectif-count { font-family:var(--font-mono); font-size:12px; color:var(--muted); }
+.roster-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
+.empty-effectif { font-family:var(--font-mono); font-size:13px; color:var(--muted); padding:40px; text-align:center; border:1px dashed var(--line); border-radius:4px; }
+/* ── Articles ─────────────────────────────────────── */
+.equipe-articles { padding:60px 0; border-bottom:1px solid var(--line); }
+.articles-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+.article-card { border:1px solid var(--line); border-radius:4px; overflow:hidden; transition:transform .2s; }
+.article-card:hover { transform:translateY(-4px); }
+.article-card-img { aspect-ratio:16/9; overflow:hidden; background:var(--paper-2); }
+.article-card-img img { width:100%; height:100%; object-fit:cover; }
+.article-card-body { padding:20px; }
+.article-card-body .cat { font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+.article-card-body h3 { font-size:16px; line-height:1.35; margin-bottom:8px; }
+.article-card-body .date { font-family:var(--font-mono); font-size:10px; color:var(--muted); }
+/* ── Autres équipes ───────────────────────────────── */
+.autres-equipes { padding:60px 0; }
+.equipes-nav { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.equipe-nav-card { padding:20px 24px; border:1px solid var(--line); border-radius:4px; text-decoration:none; color:inherit; transition:all .2s; display:grid; gap:4px; }
+.equipe-nav-card:hover { border-color:var(--ink); background:var(--paper); }
+.equipe-nav-card .en-label { font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+.equipe-nav-card .en-name { font-family:var(--font-display); font-size:20px; letter-spacing:-.01em; }
+.equipe-nav-card .en-arrow { font-size:18px; opacity:.4; }
+
+@media(max-width:1023px){.equipe-hero{grid-template-columns:1fr}.equipe-meta-grid{grid-template-columns:repeat(3,1fr)}.equipe-presentation{grid-template-columns:1fr;gap:40px}.roster-grid{grid-template-columns:repeat(3,1fr)}.articles-grid{grid-template-columns:repeat(2,1fr)}.equipes-nav{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:767px){.equipe-hero{padding:48px 0 40px}.roster-grid{grid-template-columns:1fr 1fr;gap:10px}.articles-grid{grid-template-columns:1fr}.equipes-nav{grid-template-columns:1fr 1fr}.equipe-meta-grid{grid-template-columns:1fr 1fr}}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="page">
+
+  <!-- ── HERO ────────────────────────────────────────────── -->
+  <div class="equipe-hero">
+    <div>
+      <span class="equipe-badge" style="background:{{ config.couleur }}20;color:{{ config.couleur }};border:1px solid {{ config.couleur }}40;">
+        {{ config.niveau }}
+      </span>
+      <h1>
+        <em style="color:{{ config.couleur }}">{{ config.categorie }}</em>
+        {% if config.sexe == 'F' %}Féminin{% else %}Masculin{% endif %}
+      </h1>
+      <p class="lede">{{ config.presentation }}</p>
+    </div>
+    <div class="equipe-meta-grid">
+      <div class="equipe-meta-item">
+        <div class="m-label">Catégorie</div>
+        <div class="m-val">{{ config.categorie }}</div>
+      </div>
+      <div class="equipe-meta-item">
+        <div class="m-label">Âge</div>
+        <div class="m-val">{{ config.tranche_age }}</div>
+      </div>
+      <div class="equipe-meta-item">
+        <div class="m-label">Entraînements</div>
+        <div class="m-val" style="font-size:15px;">{{ config.seances }}</div>
+      </div>
+      <div class="equipe-meta-item">
+        <div class="m-label">Joueurs</div>
+        <div class="m-val">{{ joueurs.count }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PRÉSENTATION ─────────────────────────────────────── -->
+  <section class="equipe-presentation">
+    <div>
+      <div class="eq-block-title">À propos de la section</div>
+      <p class="eq-text">{{ config.presentation }}</p>
+    </div>
+    <div>
+      <div class="objectif-card">
+        <div class="o-label">Objectif de la section</div>
+        <div class="o-text">{{ config.objectif }}</div>
+      </div>
+      <div style="margin-top:16px;padding:20px 24px;background:var(--paper);border:1px solid var(--line);border-radius:4px;">
+        <div class="o-label" style="color:var(--muted);font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;">Rejoindre cette section</div>
+        <p style="font-size:14px;color:var(--muted);margin-bottom:16px;">Inscriptions ouvertes pour la saison 2026—2027.</p>
+        <a href="{% url 'inscription' %}" class="btn btn-primary" style="display:inline-block;">S'inscrire →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EFFECTIF ─────────────────────────────────────────── -->
+  <section class="equipe-effectif">
+    <div class="effectif-header">
+      <h2>Effectif <em style="font-style:italic;color:{{ config.couleur }}">{{ config.label }}</em></h2>
+      <span class="effectif-count">{{ joueurs.count }} joueur{{ joueurs.count|pluralize }}</span>
+    </div>
+    {% if joueurs %}
+    <div class="roster-grid">
+      {% for joueur in joueurs %}
+      {% include "effectif/_player_card.html" %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-effectif">
+      Aucun joueur enregistré dans cette section pour le moment.<br>
+      <a href="{% url 'inscription' %}" style="color:{{ config.couleur }};">Rejoindre le CFLD →</a>
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- ── ACTUALITÉS LIÉES ──────────────────────────────────── -->
+  {% if articles %}
+  <section class="equipe-articles">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;">
+      <h2 style="font-size:28px;">Actualités</h2>
+      <a href="{% url 'medias' %}" style="font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:var(--muted);text-decoration:none;">Toutes les actualités →</a>
+    </div>
+    <div class="articles-grid">
+      {% for article in articles %}
+      <a class="article-card" href="{% url 'article_detail' article.slug %}" style="text-decoration:none;color:inherit;">
+        <div class="article-card-img">
+          {% if article.image %}
+          <img src="{{ article.image.url }}" alt="{{ article.titre }}" loading="lazy">
+          {% endif %}
+        </div>
+        <div class="article-card-body">
+          <div class="cat">{{ article.get_categorie_display }}</div>
+          <h3>{{ article.titre }}</h3>
+          <div class="date">{{ article.date_publication|date:"d F Y" }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ── AUTRES ÉQUIPES ────────────────────────────────────── -->
+  <section class="autres-equipes">
+    <h2 style="font-size:24px;margin-bottom:24px;">Autres équipes</h2>
+    <div class="equipes-nav">
+      {% for slug, eq in autres_equipes.items %}
+      <a href="{% url 'equipe_detail' slug %}" class="equipe-nav-card">
+        <span class="en-label">{{ eq.niveau }}</span>
+        <span class="en-name">{{ eq.label }}</span>
+        <span class="en-arrow">→</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+</main>
+
+<!-- Modal profil joueur -->
+<div class="player-modal" id="player-modal" aria-hidden="true" role="dialog" aria-label="Profil joueur">
+  <div class="modal-backdrop" onclick="closePlayerModal()"></div>
+  <div class="modal-panel">
+    <button class="modal-close" onclick="closePlayerModal()" aria-label="Fermer">✕</button>
+    <div class="modal-photo-area" id="modal-photo-area">
+      <img id="modal-photo-img" src="" alt="" style="display:none;">
+      <div class="modal-photo-num" id="modal-photo-num"></div>
+      <div class="modal-photo-pos" id="modal-photo-pos"></div>
+    </div>
+    <div class="modal-body">
+      <h2 class="modal-name" id="modal-name"></h2>
+      <div class="modal-stats-grid">
+        <div class="modal-stat"><div class="s-label">Section</div><div class="s-val small" id="modal-section"></div></div>
+        <div class="modal-stat"><div class="s-label">Nationalité</div><div class="s-val small" id="modal-nat"></div></div>
+        <div class="modal-stat"><div class="s-label">Âge</div><div class="s-val" id="modal-age"></div></div>
+        <div class="modal-stat"><div class="s-label">Matchs</div><div class="s-val" id="modal-matchs"></div></div>
+        <div class="modal-stat"><div class="s-label">Buts</div><div class="s-val" id="modal-buts"></div></div>
+        <div class="modal-stat"><div class="s-label">Licence</div><div class="s-val small" id="modal-licence"></div></div>
+      </div>
+      <div class="modal-footer">Saison 2025—2026 · CFLD</div>
+    </div>
+  </div>
+</div>
+
+<!-- Schema.org SportsTeam -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SportsTeam",
+  "name": "CFLD {{ config.label }}",
+  "sport": "Football",
+  "description": "{{ config.description }}",
+  "memberOf": {
+    "@type": "SportsOrganization",
+    "name": "Centre de Formation Lancine Diomandé",
+    "url": "{{ request.scheme }}://{{ request.get_host }}",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Aboisso",
+      "addressRegion": "Sud-Comoé",
+      "addressCountry": "CI"
+    }
+  },
+  "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'equipe_detail' equipe_slug %}"{% if joueurs %},
+  "athlete": [
+    {% for joueur in joueurs %}
+    {
+      "@type": "Person",
+      "name": "{{ joueur.nom_complet }}",
+      "jobTitle": "{{ joueur.get_poste_display }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]{% endif %}
+}
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const modal = document.getElementById('player-modal');
+function openPlayerModal(card) {
+  const d = card.dataset;
+  document.getElementById('modal-name').textContent    = d.nom;
+  document.getElementById('modal-photo-num').textContent = d.num;
+  document.getElementById('modal-photo-pos').textContent = d.poste;
+  document.getElementById('modal-age').textContent     = d.age + ' ans';
+  document.getElementById('modal-nat').textContent     = d.nat;
+  document.getElementById('modal-matchs').textContent  = d.matchs;
+  document.getElementById('modal-buts').textContent    = d.buts;
+  document.getElementById('modal-section').textContent = d.section || '—';
+  document.getElementById('modal-licence').textContent = d.licence || '—';
+  const img = document.getElementById('modal-photo-img');
+  if (d.photo) { img.src = d.photo; img.alt = d.nom; img.style.display = 'block'; }
+  else { img.style.display = 'none'; }
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+function closePlayerModal() {
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePlayerModal(); });
+</script>
+{% endblock %}

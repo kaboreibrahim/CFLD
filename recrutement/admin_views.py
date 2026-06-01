@@ -1,8 +1,10 @@
 from functools import wraps
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse, Http404
 from django.utils import timezone
+import os
 
+from django.conf import settings
 from effectif.models import Joueur
 from matchs.models import Match, Classement
 from medias.models import Article, Photo, Video
@@ -14,6 +16,8 @@ from effectif.forms import JoueurForm
 from matchs.forms import MatchForm, ClassementForm
 from medias.forms import ArticleForm, PhotoForm, VideoForm
 from pages.forms import InfoTickerForm
+from recrutement.pdf_utils import generer_pdf_inscription
+from recrutement.email_utils import envoyer_validation_inscription, envoyer_refus_inscription
 
 
 # ── Décorateur staff ─────────────────────────────────────────
@@ -280,8 +284,28 @@ def action_candidature(request, pk):
     action = request.POST.get('action')
     MAP = {'accept': 'accepted', 'refuse': 'refused', 'wait': 'waiting'}
     if action in MAP:
+        ancien_statut = c.statut
         c.statut = MAP[action]
         c.save()
+        # Acceptation : génération PDF → intégration effectif → email
+        if action == 'accept':
+            # 1. Générer (ou régénérer) le PDF avec les données à jour
+            try:
+                generer_pdf_inscription(c)
+            except Exception:
+                pass
+            # 2. Intégrer dans l'effectif selon catégorie + sexe
+            _integrer_dans_effectif(c)
+            # 3. Envoyer l'email de validation avec le PDF en pièce jointe
+            try:
+                envoyer_validation_inscription(c)
+            except Exception:
+                pass
+        elif action == 'refuse' and ancien_statut != 'refused':
+            try:
+                envoyer_refus_inscription(c)
+            except Exception:
+                pass
     elif action == 'notify':
         c.notifie = True
         c.save()
@@ -289,8 +313,87 @@ def action_candidature(request, pk):
         return JsonResponse({'error': 'Action inconnue'}, status=400)
     LABELS = {'pending': 'En attente', 'waiting': 'Mise en attente',
               'accepted': 'Acceptée', 'refused': 'Refusée'}
-    return JsonResponse({'success': True, 'statut': c.statut,
-                         'label': LABELS.get(c.statut, c.statut)})
+    # Rafraîchir depuis la BDD pour avoir le chemin PDF à jour
+    c.refresh_from_db()
+    return JsonResponse({
+        'success': True,
+        'statut': c.statut,
+        'label': LABELS.get(c.statut, c.statut),
+        'has_pdf': bool(c.pdf_inscription),
+        'pdf_voir_url': f'/admin-cfld/candidature/{c.pk}/pdf/voir/' if c.pdf_inscription else None,
+        'pdf_dl_url': f'/admin-cfld/candidature/{c.pk}/pdf/telecharger/' if c.pdf_inscription else None,
+    })
+
+
+def _integrer_dans_effectif(candidature):
+    """Crée ou met à jour le Joueur correspondant à la candidature acceptée."""
+    if hasattr(candidature, 'joueur') and candidature.joueur:
+        return  # déjà intégré
+    # Mapping poste : candidature → joueur
+    POSTE_MAP = {
+        'GK': 'GK', 'DC': 'DEF', 'LAT': 'DEF',
+        'MD': 'MIL', 'MO': 'MIL', 'AIL': 'ATT',
+        'ATT': 'ATT', 'OTH': 'MIL',
+    }
+    Joueur.objects.create(
+        nom=candidature.nom,
+        prenom=candidature.prenom,
+        numero=candidature.numero_prefere or 99,
+        poste=POSTE_MAP.get(candidature.poste, 'MIL'),
+        sexe=candidature.sexe,
+        categorie=candidature.categorie,
+        age=candidature.age,
+        nationalite=candidature.nationalite,
+        photo=candidature.photo,
+        date_inscription=timezone.now().date(),
+        actif=True,
+        candidature=candidature,
+    )
+
+
+# ── PDF ──────────────────────────────────────────────────────
+@staff_required
+def candidature_pdf_telecharger(request, pk):
+    c = get_object_or_404(Candidature, pk=pk)
+    if not c.pdf_inscription:
+        raise Http404('PDF non disponible')
+    pdf_path = os.path.join(settings.MEDIA_ROOT, str(c.pdf_inscription))
+    if not os.path.exists(pdf_path):
+        raise Http404('Fichier PDF introuvable')
+    return FileResponse(
+        open(pdf_path, 'rb'),
+        as_attachment=True,
+        filename=f'inscription_{c.reference}.pdf',
+        content_type='application/pdf',
+    )
+
+
+@staff_required
+def candidature_pdf_voir(request, pk):
+    c = get_object_or_404(Candidature, pk=pk)
+    if not c.pdf_inscription:
+        raise Http404('PDF non disponible')
+    pdf_path = os.path.join(settings.MEDIA_ROOT, str(c.pdf_inscription))
+    if not os.path.exists(pdf_path):
+        raise Http404('Fichier PDF introuvable')
+    return FileResponse(
+        open(pdf_path, 'rb'),
+        as_attachment=False,
+        filename=f'inscription_{c.reference}.pdf',
+        content_type='application/pdf',
+    )
+
+
+@staff_required
+def candidature_pdf_regenerer(request, pk):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST requis'}, status=405)
+    c = get_object_or_404(Candidature, pk=pk)
+    try:
+        generer_pdf_inscription(c)
+        return JsonResponse({'success': True, 'message': 'PDF régénéré avec succès'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 # ── MESSAGES ─────────────────────────────────────────────────

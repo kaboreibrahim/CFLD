@@ -1,0 +1,389 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Inscription — Rejoindre l'Académie CFLD | Aboisso{% endblock %}
+{% block screen_label %}07 Inscription{% endblock %}
+{% block current_page %}inscription.html{% endblock %}
+{% block description %}Inscrivez-vous au Centre de Formation Lancine Diomande (CFLD) à Aboisso. Formulaire d'inscription en ligne pour les catégories U10, U13, U15, U17+ et section féminine. Réponse sous 72h.{% endblock %}
+{% block keywords %}inscription CFLD, rejoindre académie football Aboisso, candidature CFLD, recrutement football jeunes CI, formulaire inscription football Côte d'Ivoire, intégrer académie CFLD, détection football Aboisso{% endblock %}
+{% block og_title %}Inscription CFLD — Rejoindre l'Académie à Aboisso{% endblock %}
+{% block og_description %}Postulez en ligne pour rejoindre le CFLD à Aboisso. Catégories U10 à U17+, section féminine. Dossier gratuit, réponse sous 72h.{% endblock %}
+{% block tw_title %}Inscription CFLD — Académie Football Aboisso{% endblock %}
+{% block tw_description %}Rejoignez le CFLD à Aboisso. Inscription en ligne, gratuit. Catégories U10 à U17+ et section féminine.{% endblock %}
+
+{% block extra_css %}
+<style>
+.form-section { padding:60px 0 140px; display:grid; grid-template-columns:1fr 2fr; gap:80px; }
+.form-aside { position:sticky; top:100px; align-self:start; display:grid; gap:32px; }
+.form-aside .lede { font-size:17px; }
+.aside-steps { display:grid; gap:0; }
+.aside-step { padding:16px 0; border-top:1px solid var(--line); display:grid; grid-template-columns:32px 1fr; gap:16px; font-size:14px; color:var(--muted); }
+.aside-step:last-child { border-bottom:1px solid var(--line); }
+.aside-step .n { font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; color:var(--green); }
+.aside-step.done .n { color:var(--ink); }
+.aside-step strong { color:var(--ink); display:block; font-weight:500; margin-bottom:4px; font-family:var(--font-display); font-size:17px; letter-spacing:-.01em; }
+.form-card { background:var(--paper); border:1px solid var(--line); border-radius:4px; padding:56px; }
+.form-card h2 { font-size:40px; margin-bottom:8px; }
+.form-card .sub { color:var(--muted); margin-bottom:40px; font-size:15px; }
+.fieldset { display:grid; gap:24px; padding-bottom:32px; border-bottom:1px solid var(--line); margin-bottom:32px; }
+.fieldset:last-of-type { border-bottom:0; }
+.fieldset legend { font-family:var(--font-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--green); margin-bottom:8px; }
+.row-2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px; }
+.field { display:grid; gap:8px; }
+.field label { font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink); }
+.field label .req { color:var(--green); margin-left:2px; }
+.field input,.field select,.field textarea { font-family:var(--font-text); font-size:16px; border:0; border-bottom:1px solid var(--line-strong); background:transparent; padding:10px 0; color:var(--ink); outline:none; transition:border-color .2s; }
+.field input:focus,.field select:focus,.field textarea:focus { border-bottom-color:var(--green); }
+.field .hint { font-size:12px; color:var(--muted); }
+.field .errorlist { list-style:none; padding:0; margin:4px 0 0; color:#c00; font-size:12px; font-family:var(--font-mono); }
+/* Sexe pills */
+.sexe-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.sexe-pill { padding:16px 12px; text-align:center; border:1px solid var(--line); border-radius:4px; font-family:var(--font-mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; transition:all .2s; background:var(--paper); display:grid; gap:4px; justify-items:center; }
+.sexe-pill:hover { border-color:var(--ink); }
+.sexe-pill.active-m { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.sexe-pill.active-f { background:#C8102E; color:#fff; border-color:#C8102E; }
+.sexe-pill .icon { font-size:20px; }
+/* Catégorie pills */
+.cat-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+.cat-pill { padding:14px 4px; text-align:center; border:1px solid var(--line); border-radius:999px; font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; transition:all .2s; background:var(--paper); }
+.cat-pill:hover { border-color:var(--ink); }
+.cat-pill.active { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.cat-desc { font-size:12px; color:var(--muted); text-align:center; margin-top:8px; font-family:var(--font-mono); min-height:16px; }
+/* Poste */
+.pos-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.pos-pill { padding:14px 8px; text-align:center; border:1px solid var(--line); border-radius:999px; font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; transition:all .2s; background:var(--paper); }
+.pos-pill:hover { border-color:var(--ink); }
+.pos-pill.active { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.photo-upload { border:2px dashed var(--line-strong); border-radius:4px; padding:40px; text-align:center; display:grid; gap:12px; justify-items:center; cursor:pointer; transition:background .2s; }
+.photo-upload:hover { background:var(--paper-2); }
+.photo-upload .icon { width:48px; height:48px; border-radius:50%; background:var(--green); color:var(--paper); display:grid; place-items:center; font-size:22px; }
+.photo-upload .ttl { font-family:var(--font-display); font-size:18px; }
+.photo-upload .sub { font-size:13px; color:var(--muted); font-family:var(--font-mono); letter-spacing:.08em; }
+.checkbox-row { display:flex; gap:12px; align-items:start; font-size:13px; color:var(--muted); line-height:1.5; }
+.checkbox-row input { width:18px; height:18px; margin-top:2px; accent-color:var(--green); }
+.form-cta { display:flex; justify-content:space-between; align-items:center; margin-top:40px; gap:24px; }
+.form-cta .small { font-size:12px; color:var(--muted); font-family:var(--font-mono); letter-spacing:.08em; max-width:30ch; }
+.confirmation { display:none; padding:80px 56px; text-align:center; background:var(--green-deep); color:var(--paper); border-radius:4px; }
+.confirmation.show { display:block; }
+.confirmation h2 { color:var(--paper); font-size:56px; margin-bottom:24px; }
+.confirmation h2 em { color:var(--green-bright); font-style:italic; }
+.confirmation p { color:rgba(246,244,239,.85); max-width:50ch; margin:0 auto 24px; font-size:16px; line-height:1.55; }
+.confirmation .ref { display:inline-block; margin:16px 0; font-family:var(--font-mono); font-size:14px; letter-spacing:.12em; background:rgba(246,244,239,.1); padding:12px 20px; border-radius:2px; }
+.non-field-errors { background:#fff0f0; border:1px solid #fca5a5; border-radius:4px; padding:12px 16px; margin-bottom:24px; color:#7f1d1d; font-size:13px; font-family:var(--font-mono); }
+@media(max-width:1023px){.form-section{grid-template-columns:1fr;gap:48px;padding:48px 0 100px}.form-aside{position:static}.form-card{padding:40px}.row-3{grid-template-columns:1fr 1fr}.cat-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:767px){.form-section{padding:40px 0 80px}.form-card{padding:24px 20px}.form-card h2{font-size:32px}.row-2,.row-3{grid-template-columns:1fr;gap:20px}.pos-grid{grid-template-columns:repeat(3,1fr)}.cat-grid{grid-template-columns:repeat(3,1fr)}.form-cta{flex-direction:column;align-items:flex-start}}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="page">
+  <div class="page-title-spread">
+    <h1>S'<em style="color:var(--green);font-style:italic">inscrire</em></h1>
+    <div class="meta">
+      <span>Section 07 / 08</span>
+      <span>Saison 2026—2027</span>
+      <span>Réponse sous 72h</span>
+    </div>
+  </div>
+
+  <section class="form-section">
+    <aside class="form-aside">
+      <span class="eyebrow">À propos du dépôt</span>
+      <p class="lede">Ce formulaire est gratuit et confidentiel. Aucun frais ne vous sera jamais demandé pour postuler au CFLD.</p>
+      <div class="aside-steps">
+        <div class="aside-step done">
+          <span class="n">01</span>
+          <div><strong>Dépôt en ligne</strong>5 minutes pour remplir le dossier.</div>
+        </div>
+        <div class="aside-step">
+          <span class="n">02</span>
+          <div><strong>Accusé de réception</strong>Email + PDF automatique sous 5 minutes.</div>
+        </div>
+        <div class="aside-step">
+          <span class="n">03</span>
+          <div><strong>Étude du dossier</strong>Analyse par la cellule technique sous 72h.</div>
+        </div>
+        <div class="aside-step">
+          <span class="n">04</span>
+          <div><strong>Intégration effectif</strong>Si validé, intégration automatique dans votre section.</div>
+        </div>
+      </div>
+    </aside>
+
+    <div>
+      <form class="form-card" id="form" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h2>Formulaire de candidature</h2>
+        <p class="sub">Tous les champs marqués <span style="color:var(--green)">·</span> sont obligatoires.</p>
+
+        <!-- Identité -->
+        <fieldset class="fieldset">
+          <legend>Identité</legend>
+          <div class="row-2">
+            <div class="field">
+              <label>Nom de famille <span class="req">·</span></label>
+              <input type="text" name="nom" value="{{ form.nom.value|default:'' }}" required placeholder="Ex. Kouassi">
+              {% if form.nom.errors %}<ul class="errorlist">{% for e in form.nom.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+            <div class="field">
+              <label>Prénom <span class="req">·</span></label>
+              <input type="text" name="prenom" value="{{ form.prenom.value|default:'' }}" required placeholder="Ex. Yannick">
+              {% if form.prenom.errors %}<ul class="errorlist">{% for e in form.prenom.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Date de naissance <span class="req">·</span></label>
+              <input type="date" name="date_naissance" value="{{ form.date_naissance.value|default:'' }}" required>
+              {% if form.date_naissance.errors %}<ul class="errorlist">{% for e in form.date_naissance.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+            <div class="field">
+              <label>Nationalité <span class="req">·</span></label>
+              <select name="nationalite" required>
+                <option value="">Sélectionner…</option>
+                {% for val, label in form.fields.nationalite.choices %}
+                <option value="{{ val }}" {% if form.nationalite.value == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- Sexe -->
+          <div class="field">
+            <label>Sexe <span class="req">·</span></label>
+            <input type="hidden" name="sexe" id="sexe-input" value="{{ form.sexe.value|default:'M' }}" required>
+            <div class="sexe-grid" id="sexegrid">
+              <div class="sexe-pill {% if form.sexe.value != 'F' %}active-m{% endif %}" data-sexe="M">
+                <span class="icon">♂</span> Masculin
+              </div>
+              <div class="sexe-pill {% if form.sexe.value == 'F' %}active-f{% endif %}" data-sexe="F">
+                <span class="icon">♀</span> Féminin
+              </div>
+            </div>
+          </div>
+
+          <!-- Catégorie -->
+          <div class="field">
+            <label>Catégorie d'âge <span class="req">·</span></label>
+            <input type="hidden" name="categorie" id="cat-input" value="{{ form.categorie.value|default:'U13' }}" required>
+            <div class="cat-grid" id="catgrid">
+              <div class="cat-pill {% if form.categorie.value == 'U10' or not form.categorie.value %}{% if form.categorie.value == 'U10' %}active{% endif %}{% endif %}" data-cat="U10">U10</div>
+              <div class="cat-pill {% if form.categorie.value == 'U12' %}active{% endif %}" data-cat="U12">U12</div>
+              <div class="cat-pill {% if form.categorie.value == 'U13' or not form.categorie.value %}{% if form.categorie.value == 'U13' or not form.categorie.value %}active{% endif %}{% endif %}" data-cat="U13">U13</div>
+              <div class="cat-pill {% if form.categorie.value == 'U15' %}active{% endif %}" data-cat="U15">U15</div>
+              <div class="cat-pill {% if form.categorie.value == 'U17+' %}active{% endif %}" data-cat="U17+">U17+</div>
+            </div>
+            <div class="cat-desc" id="cat-desc"></div>
+          </div>
+        </fieldset>
+
+        <!-- Profil sportif -->
+        <fieldset class="fieldset">
+          <legend>Profil sportif</legend>
+          <div class="field">
+            <label>Poste de jeu préféré <span class="req">·</span></label>
+            <input type="hidden" name="poste" id="poste-input" value="{{ form.poste.value|default:'' }}" required>
+            <div class="pos-grid" id="posgrid">
+              {% for val, label in form.fields.poste.choices %}
+              <div class="pos-pill {% if form.poste.value == val %}active{% endif %}" data-pos="{{ val }}">{{ label }}</div>
+              {% endfor %}
+            </div>
+            {% if form.poste.errors %}<ul class="errorlist">{% for e in form.poste.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+          <div class="row-3">
+            <div class="field">
+              <label>Numéro préféré</label>
+              <input type="number" name="numero_prefere" min="1" max="99" value="{{ form.numero_prefere.value|default:'' }}" placeholder="Ex. 10">
+              <span class="hint">Selon disponibilité</span>
+            </div>
+            <div class="field">
+              <label>Pied fort <span class="req">·</span></label>
+              <select name="pied_fort" required>
+                <option value="">—</option>
+                {% for val, label in form.fields.pied_fort.choices %}
+                <option value="{{ val }}" {% if form.pied_fort.value == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field">
+              <label>Club précédent</label>
+              <input type="text" name="ancien_club" value="{{ form.ancien_club.value|default:'' }}" placeholder="Optionnel">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Coordonnées joueur -->
+        <fieldset class="fieldset">
+          <legend>Coordonnées du joueur</legend>
+          <div class="row-2">
+            <div class="field">
+              <label>Téléphone WhatsApp <span class="req">·</span></label>
+              <input type="tel" name="telephone_whatsapp" value="{{ form.telephone_whatsapp.value|default:'' }}" required placeholder="+225 07 00 00 00 00">
+            </div>
+            <div class="field">
+              <label>Adresse email <span class="req">·</span></label>
+              <input type="email" name="email" value="{{ form.email.value|default:'' }}" required placeholder="vous@exemple.com">
+            </div>
+          </div>
+          <div class="field">
+            <label>Ville / Quartier</label>
+            <input type="text" name="adresse" value="{{ form.adresse.value|default:'' }}" placeholder="Ville, quartier">
+          </div>
+          <div class="field">
+            <label>École / Établissement scolaire</label>
+            <input type="text" name="info_scolaire" value="{{ form.info_scolaire.value|default:'' }}" placeholder="Ex. Lycée Moderne d'Aboisso">
+          </div>
+        </fieldset>
+
+        <!-- Parent / Tuteur légal -->
+        <fieldset class="fieldset">
+          <legend>Parent / Tuteur légal</legend>
+          <div class="field">
+            <label>Nom complet du parent ou tuteur <span class="req">·</span></label>
+            <input type="text" name="nom_parent" value="{{ form.nom_parent.value|default:'' }}" required placeholder="Ex. Kouassi Jean-Pierre">
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Téléphone du parent/tuteur <span class="req">·</span></label>
+              <input type="tel" name="telephone_parent" value="{{ form.telephone_parent.value|default:'' }}" required placeholder="+225 07 00 00 00 00">
+            </div>
+            <div class="field">
+              <label>Email du parent/tuteur</label>
+              <input type="email" name="email_parent" value="{{ form.email_parent.value|default:'' }}" placeholder="parent@exemple.com">
+              <span class="hint">Recevra également le dossier PDF</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Contact d'urgence (nom &amp; téléphone)</label>
+            <input type="text" name="contact_urgence" value="{{ form.contact_urgence.value|default:'' }}" placeholder="Ex. Tante Marie — +225 05 00 00 00 00">
+          </div>
+        </fieldset>
+
+        <!-- Photo -->
+        <fieldset class="fieldset">
+          <legend>Photo du joueur</legend>
+          <div class="field">
+            <label>Photo récente <span class="req">·</span></label>
+            <label class="photo-upload" for="photo-input">
+              <div class="icon">+</div>
+              <div class="ttl" id="photo-label">Téléverser une photo</div>
+              <div class="sub">JPG ou PNG · 5 Mo MAX · Visage clairement visible</div>
+              <input type="file" id="photo-input" name="photo" accept="image/*" hidden>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="consent" name="consentement" required>
+          <label for="consent">
+            J'autorise le CFLD à conserver mes données dans le cadre du processus de candidature et j'accepte la <a href="#">charte du joueur</a> et la <a href="#">politique de confidentialité</a>.
+          </label>
+        </div>
+
+        <div class="form-cta">
+          <span class="small">En soumettant, vous recevrez un email de confirmation avec votre dossier PDF.</span>
+          <button type="submit" class="btn btn-primary" id="submit-btn">
+            Envoyer ma candidature <span class="arrow">→</span>
+          </button>
+        </div>
+      </form>
+
+      <div class="confirmation" id="confirmation">
+        <span class="eyebrow" style="color:rgba(246,244,239,.6)">Candidature reçue</span>
+        <h2 style="margin-top:24px;">Merci, votre dossier est <em>entre nos mains</em>.</h2>
+        <p>Votre demande a bien été reçue. Vous allez recevoir par email votre dossier d'inscription complet au format PDF. Nous analyserons votre candidature sous 72h.</p>
+        <div class="ref">Référence dossier · <span id="ref-display">—</span></div>
+        <p style="font-size:14px;">Pensez à vérifier votre dossier de courriers indésirables.</p>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Sexe ─────────────────────────────────────
+const CAT_DESCRIPTIONS = {
+  'U10': 'Masculin : initiation fondamentaux',
+  'U12': 'Féminin : éveil & technique',
+  'U13': 'Masculin : technique & règles',
+  'U15': 'Masculin & Féminin : formation intensive',
+  'U17+': 'Masculin : transition pro',
+};
+
+document.querySelectorAll('.sexe-pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('.sexe-pill').forEach(x => {
+      x.classList.remove('active-m', 'active-f');
+    });
+    const sexe = p.dataset.sexe;
+    document.getElementById('sexe-input').value = sexe;
+    p.classList.add(sexe === 'M' ? 'active-m' : 'active-f');
+  });
+});
+
+// ── Catégorie ─────────────────────────────────────
+document.querySelectorAll('.cat-pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('.cat-pill').forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    const cat = p.dataset.cat;
+    document.getElementById('cat-input').value = cat;
+    document.getElementById('cat-desc').textContent = CAT_DESCRIPTIONS[cat] || '';
+  });
+});
+
+// Init description
+(function() {
+  const cur = document.getElementById('cat-input').value;
+  if (cur && CAT_DESCRIPTIONS[cur]) {
+    document.getElementById('cat-desc').textContent = CAT_DESCRIPTIONS[cur];
+  }
+})();
+
+// ── Poste ─────────────────────────────────────
+document.querySelectorAll('.pos-pill').forEach(p => p.addEventListener('click', () => {
+  document.querySelectorAll('.pos-pill').forEach(x => x.classList.toggle('active', x===p));
+  document.getElementById('poste-input').value = p.dataset.pos;
+}));
+
+// ── Photo ─────────────────────────────────────
+document.getElementById('photo-input').addEventListener('change', function() {
+  const label = document.getElementById('photo-label');
+  label.textContent = this.files[0] ? this.files[0].name : 'Téléverser une photo';
+});
+
+// ── Soumission ────────────────────────────────
+document.getElementById('form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours…';
+
+  const formData = new FormData(this);
+  try {
+    const resp = await fetch('{% url "inscription" %}', {
+      method: 'POST',
+      body: formData,
+      headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
+    });
+    const data = await resp.json();
+    if (data.success) {
+      this.style.display = 'none';
+      document.getElementById('ref-display').textContent = data.reference;
+      document.getElementById('confirmation').classList.add('show');
+      window.scrollTo({ top: 200, behavior: 'smooth' });
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = 'Envoyer ma candidature <span class="arrow">→</span>';
+      alert('Veuillez corriger les erreurs dans le formulaire.');
+    }
+  } catch(err) {
+    btn.disabled = false;
+    btn.innerHTML = 'Envoyer ma candidature <span class="arrow">→</span>';
+    alert('Une erreur est survenue. Veuillez réessayer.');
+  }
+});
+</script>
+{% endblock %}

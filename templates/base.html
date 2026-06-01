@@ -1,33 +1,102 @@
 {% load static %}
 <!doctype html>
-<html lang="fr">
+<html lang="fr" prefix="og: https://ogp.me/ns#">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{% block title %}CFLD — Centre Formation Lancine Diomande{% endblock %}</title>
-<meta name="description" content="{% block description %}Site officiel du Centre de Formation Lancine Diomande (CFLD). Académie de football à Aboisso, Côte d'Ivoire. Formation jeunes U10, U13, U15, U17, section féminine, recrutement et inscriptions.{% endblock %}">
-<meta name="keywords" content="{% block keywords %}CFLD, Centre Formation Lancine Diomande, académie football Côte d'Ivoire, formation football Aboisso, football jeunes Abidjan, académie football africaine, recrutement football CI, U10 U13 U15 U17 football, football féminin Côte d'Ivoire, club football Aboisso, FIF, Ligue 1 Côte d'Ivoire{% endblock %}">
-<meta name="author" content="Kaboré Ibrahim">
-<meta name="robots" content="index, follow">
+
+<!-- ── Titre & description ────────────────────────────────── -->
+<title>{% if seo_page and seo_page.titre_seo %}{{ seo_page.titre_seo }}{% else %}{% block title %}CFLD — Centre Formation Lancine Diomande | Aboisso{% endblock %}{% endif %}</title>
+<meta name="description" content="{% if seo_page and seo_page.meta_description %}{{ seo_page.meta_description }}{% else %}{% block description %}Site officiel du Centre de Formation Lancine Diomande (CFLD). Académie de football à Aboisso, Côte d'Ivoire. Formation jeunes U10, U13, U15, U17+, section féminine, recrutement et inscriptions.{% endblock %}{% endif %}">
+<meta name="keywords" content="{% if seo_page and seo_page.mots_cles %}{{ seo_page.mots_cles }}{% else %}{% block keywords %}CFLD, Centre Formation Lancine Diomande, académie football Côte d'Ivoire, formation football Aboisso, football jeunes Abidjan, académie football africaine, recrutement football CI, U10 U13 U15 U17 football, football féminin Côte d'Ivoire, club football Aboisso, FIF, Ligue 1 Côte d'Ivoire{% endblock %}{% endif %}">
+<meta name="author" content="Centre de Formation Lancine Diomandé">
+<meta name="robots" content="{% if seo_page and seo_page.indexation %}{{ seo_page.indexation }}{% else %}{% block robots %}index, follow{% endblock %}{% endif %}">
 <meta name="theme-color" content="#14a05a">
-<!-- Vérification Bing Webmaster Tools -->
 <meta name="msvalidate.01" content="0300A3ABC9AC31D1ED93916582E13059">
-<!-- Open Graph -->
-<meta property="og:type" content="website">
+
+<!-- ── Géolocalisation ────────────────────────────────────── -->
+<meta name="geo.region" content="CI-GD">
+<meta name="geo.placename" content="Aboisso, Côte d'Ivoire">
+<meta name="geo.position" content="5.4717;-3.2014">
+<meta name="ICBM" content="5.4717, -3.2014">
+
+<!-- ── Canonical ──────────────────────────────────────────── -->
+<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+
+<!-- ── Open Graph ─────────────────────────────────────────── -->
+<meta property="og:type" content="{% block og_type %}website{% endblock %}">
 <meta property="og:site_name" content="CFLD — Centre Formation Lancine Diomande">
-<meta property="og:title" content="{% block og_title %}CFLD — Centre Formation Lancine Diomande{% endblock %}">
-<meta property="og:description" content="{% block og_description %}Académie de football à Aboisso, Côte d'Ivoire. Formations U10 à U17+, section féminine. Rejoignez le CFLD et révélez votre talent.{% endblock %}">
-<meta property="og:image" content="{% block og_image %}{% load static %}{% static 'images/club/logo.png' %}{% endblock %}">
-<!-- Twitter Card -->
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+<meta property="og:title" content="{% if seo_page and seo_page.titre_seo %}{{ seo_page.titre_seo }}{% else %}{% block og_title %}CFLD — Centre Formation Lancine Diomande{% endblock %}{% endif %}">
+<meta property="og:description" content="{% if seo_page and seo_page.meta_description %}{{ seo_page.meta_description }}{% else %}{% block og_description %}Académie de football à Aboisso, Côte d'Ivoire. Formations U10 à U17+, section féminine. Rejoignez le CFLD et révélez votre talent.{% endblock %}{% endif %}">
+<meta property="og:image" content="{% if seo_page and seo_page.image_sociale %}{{ request.scheme }}://{{ request.get_host }}{{ seo_page.image_sociale.url }}{% else %}{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/club/logo.png' %}{% endblock %}{% endif %}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- ── Twitter Card ───────────────────────────────────────── -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{% block tw_title %}CFLD — Centre Formation Lancine Diomande{% endblock %}">
-<meta name="twitter:description" content="{% block tw_description %}Académie de football à Aboisso, Côte d'Ivoire. Formations U10 à U17+, section féminine.{% endblock %}">
+<meta name="twitter:site" content="@CFLDAcademie">
+<meta name="twitter:title" content="{% if seo_page and seo_page.titre_seo %}{{ seo_page.titre_seo }}{% else %}{% block tw_title %}CFLD — Centre Formation Lancine Diomande{% endblock %}{% endif %}">
+<meta name="twitter:description" content="{% if seo_page and seo_page.meta_description %}{{ seo_page.meta_description }}{% else %}{% block tw_description %}Académie de football à Aboisso, Côte d'Ivoire. Formations U10 à U17+, section féminine.{% endblock %}{% endif %}">
+<meta name="twitter:image" content="{% if seo_page and seo_page.image_sociale %}{{ request.scheme }}://{{ request.get_host }}{{ seo_page.image_sociale.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/club/logo.png' %}{% endif %}">
+
+<!-- ── Performances — Preconnect & Preload ────────────────── -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="{% static 'style.css' %}" as="style">
+<link rel="preload" href="{% static 'shell.js' %}" as="script">
+
+<!-- ── Polices ────────────────────────────────────────────── -->
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter+Tight:wght@400..700&family=Space+Grotesk:wght@400..700&family=Bebas+Neue&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+
+<!-- ── Favicon & styles ───────────────────────────────────── -->
 <link rel="icon" type="image/png" href="{% static 'images/club/logo.png' %}">
+<link rel="apple-touch-icon" href="{% static 'images/club/logo.png' %}">
 <link rel="stylesheet" href="{% static 'style.css' %}">
 {% block extra_css %}{% endblock %}
+
+<!-- ── Schema.org — SportsOrganization (global) ───────────── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SportsOrganization",
+  "name": "Centre de Formation Lancine Diomandé",
+  "alternateName": "CFLD",
+  "url": "{{ request.scheme }}://{{ request.get_host }}",
+  "logo": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/club/logo.png' %}",
+  "image": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/club/logo.png' %}",
+  "description": "Académie de football à Aboisso, Côte d'Ivoire. Formation des jeunes talents U10 à U17+, section féminine, transition professionnelle.",
+  "sport": "Football",
+  "foundingDate": "2018",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Aboisso",
+    "addressLocality": "Aboisso",
+    "addressRegion": "Sud-Comoé",
+    "postalCode": "",
+    "addressCountry": "CI"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 5.4717,
+    "longitude": -3.2014
+  },
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "telephone": "+225-07-58-46-66-46",
+      "contactType": "customer service",
+      "availableLanguage": ["fr"]
+    }
+  ],
+  "sameAs": [
+    "https://www.facebook.com/CFLDAcademie",
+    "https://www.instagram.com/cfld_academie"
+  ]
+}
+</script>
+{% block schema_org %}{% endblock %}
 </head>
 <body data-screen-label="{% block screen_label %}{% endblock %}">
 
@@ -38,8 +107,8 @@
 {% include "partials/_footer.html" %}
 {% include "partials/_fab.html" %}
 
-<script src="{% static 'shell.js' %}"></script>
-<script>CFLD.mountShell();</script>
+<script src="{% static 'shell.js' %}" defer></script>
+<script>document.addEventListener('DOMContentLoaded', () => { if(typeof CFLD !== 'undefined') CFLD.mountShell(); });</script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

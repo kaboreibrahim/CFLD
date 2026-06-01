@@ -37,6 +37,20 @@
 .field input:focus,.field select:focus,.field textarea:focus { border-bottom-color:var(--green); }
 .field .hint { font-size:12px; color:var(--muted); }
 .field .errorlist { list-style:none; padding:0; margin:4px 0 0; color:#c00; font-size:12px; font-family:var(--font-mono); }
+/* Sexe pills */
+.sexe-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.sexe-pill { padding:16px 12px; text-align:center; border:1px solid var(--line); border-radius:4px; font-family:var(--font-mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; transition:all .2s; background:var(--paper); display:grid; gap:4px; justify-items:center; }
+.sexe-pill:hover { border-color:var(--ink); }
+.sexe-pill.active-m { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.sexe-pill.active-f { background:#C8102E; color:#fff; border-color:#C8102E; }
+.sexe-pill .icon { font-size:20px; }
+/* Catégorie pills */
+.cat-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+.cat-pill { padding:14px 4px; text-align:center; border:1px solid var(--line); border-radius:999px; font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; transition:all .2s; background:var(--paper); }
+.cat-pill:hover { border-color:var(--ink); }
+.cat-pill.active { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.cat-desc { font-size:12px; color:var(--muted); text-align:center; margin-top:8px; font-family:var(--font-mono); min-height:16px; }
+/* Poste */
 .pos-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
 .pos-pill { padding:14px 8px; text-align:center; border:1px solid var(--line); border-radius:999px; font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; transition:all .2s; background:var(--paper); }
 .pos-pill:hover { border-color:var(--ink); }
@@ -57,8 +71,8 @@
 .confirmation p { color:rgba(246,244,239,.85); max-width:50ch; margin:0 auto 24px; font-size:16px; line-height:1.55; }
 .confirmation .ref { display:inline-block; margin:16px 0; font-family:var(--font-mono); font-size:14px; letter-spacing:.12em; background:rgba(246,244,239,.1); padding:12px 20px; border-radius:2px; }
 .non-field-errors { background:#fff0f0; border:1px solid #fca5a5; border-radius:4px; padding:12px 16px; margin-bottom:24px; color:#7f1d1d; font-size:13px; font-family:var(--font-mono); }
-@media(max-width:1023px){.form-section{grid-template-columns:1fr;gap:48px;padding:48px 0 100px}.form-aside{position:static}.form-card{padding:40px}.row-3{grid-template-columns:1fr 1fr}}
-@media(max-width:767px){.form-section{padding:40px 0 80px}.form-card{padding:24px 20px}.form-card h2{font-size:32px}.row-2,.row-3{grid-template-columns:1fr;gap:20px}.pos-grid{grid-template-columns:repeat(3,1fr)}.form-cta{flex-direction:column;align-items:flex-start}}
+@media(max-width:1023px){.form-section{grid-template-columns:1fr;gap:48px;padding:48px 0 100px}.form-aside{position:static}.form-card{padding:40px}.row-3{grid-template-columns:1fr 1fr}.cat-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:767px){.form-section{padding:40px 0 80px}.form-card{padding:24px 20px}.form-card h2{font-size:32px}.row-2,.row-3{grid-template-columns:1fr;gap:20px}.pos-grid{grid-template-columns:repeat(3,1fr)}.cat-grid{grid-template-columns:repeat(3,1fr)}.form-cta{flex-direction:column;align-items:flex-start}}
 </style>
 {% endblock %}
 
@@ -84,7 +98,7 @@
         </div>
         <div class="aside-step">
           <span class="n">02</span>
-          <div><strong>Accusé de réception</strong>Email automatique sous 5 minutes.</div>
+          <div><strong>Accusé de réception</strong>Email + PDF automatique sous 5 minutes.</div>
         </div>
         <div class="aside-step">
           <span class="n">03</span>
@@ -92,7 +106,7 @@
         </div>
         <div class="aside-step">
           <span class="n">04</span>
-          <div><strong>Convocation détection</strong>Si retenu, samedi suivant au centre de Cocody.</div>
+          <div><strong>Intégration effectif</strong>Si validé, intégration automatique dans votre section.</div>
         </div>
       </div>
     </aside>
@@ -134,6 +148,34 @@
               </select>
             </div>
           </div>
+
+          <!-- Sexe -->
+          <div class="field">
+            <label>Sexe <span class="req">·</span></label>
+            <input type="hidden" name="sexe" id="sexe-input" value="{{ form.sexe.value|default:'M' }}" required>
+            <div class="sexe-grid" id="sexegrid">
+              <div class="sexe-pill {% if form.sexe.value != 'F' %}active-m{% endif %}" data-sexe="M">
+                <span class="icon">♂</span> Masculin
+              </div>
+              <div class="sexe-pill {% if form.sexe.value == 'F' %}active-f{% endif %}" data-sexe="F">
+                <span class="icon">♀</span> Féminin
+              </div>
+            </div>
+          </div>
+
+          <!-- Catégorie -->
+          <div class="field">
+            <label>Catégorie d'âge <span class="req">·</span></label>
+            <input type="hidden" name="categorie" id="cat-input" value="{{ form.categorie.value|default:'U13' }}" required>
+            <div class="cat-grid" id="catgrid">
+              <div class="cat-pill {% if form.categorie.value == 'U10' or not form.categorie.value %}{% if form.categorie.value == 'U10' %}active{% endif %}{% endif %}" data-cat="U10">U10</div>
+              <div class="cat-pill {% if form.categorie.value == 'U12' %}active{% endif %}" data-cat="U12">U12</div>
+              <div class="cat-pill {% if form.categorie.value == 'U13' or not form.categorie.value %}{% if form.categorie.value == 'U13' or not form.categorie.value %}active{% endif %}{% endif %}" data-cat="U13">U13</div>
+              <div class="cat-pill {% if form.categorie.value == 'U15' %}active{% endif %}" data-cat="U15">U15</div>
+              <div class="cat-pill {% if form.categorie.value == 'U17+' %}active{% endif %}" data-cat="U17+">U17+</div>
+            </div>
+            <div class="cat-desc" id="cat-desc"></div>
+          </div>
         </fieldset>
 
         <!-- Profil sportif -->
@@ -171,9 +213,9 @@
           </div>
         </fieldset>
 
-        <!-- Coordonnées -->
+        <!-- Coordonnées joueur -->
         <fieldset class="fieldset">
-          <legend>Coordonnées</legend>
+          <legend>Coordonnées du joueur</legend>
           <div class="row-2">
             <div class="field">
               <label>Téléphone WhatsApp <span class="req">·</span></label>
@@ -185,8 +227,36 @@
             </div>
           </div>
           <div class="field">
-            <label>Adresse postale</label>
-            <input type="text" name="adresse" value="{{ form.adresse.value|default:'' }}" placeholder="Ville, quartier — pour la convocation détection">
+            <label>Ville / Quartier</label>
+            <input type="text" name="adresse" value="{{ form.adresse.value|default:'' }}" placeholder="Ville, quartier">
+          </div>
+          <div class="field">
+            <label>École / Établissement scolaire</label>
+            <input type="text" name="info_scolaire" value="{{ form.info_scolaire.value|default:'' }}" placeholder="Ex. Lycée Moderne d'Aboisso">
+          </div>
+        </fieldset>
+
+        <!-- Parent / Tuteur légal -->
+        <fieldset class="fieldset">
+          <legend>Parent / Tuteur légal</legend>
+          <div class="field">
+            <label>Nom complet du parent ou tuteur <span class="req">·</span></label>
+            <input type="text" name="nom_parent" value="{{ form.nom_parent.value|default:'' }}" required placeholder="Ex. Kouassi Jean-Pierre">
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Téléphone du parent/tuteur <span class="req">·</span></label>
+              <input type="tel" name="telephone_parent" value="{{ form.telephone_parent.value|default:'' }}" required placeholder="+225 07 00 00 00 00">
+            </div>
+            <div class="field">
+              <label>Email du parent/tuteur</label>
+              <input type="email" name="email_parent" value="{{ form.email_parent.value|default:'' }}" placeholder="parent@exemple.com">
+              <span class="hint">Recevra également le dossier PDF</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Contact d'urgence (nom &amp; téléphone)</label>
+            <input type="text" name="contact_urgence" value="{{ form.contact_urgence.value|default:'' }}" placeholder="Ex. Tante Marie — +225 05 00 00 00 00">
           </div>
         </fieldset>
 
@@ -212,7 +282,7 @@
         </div>
 
         <div class="form-cta">
-          <span class="small">En soumettant, vous recevrez un email de confirmation immédiat.</span>
+          <span class="small">En soumettant, votre dossier PDF sera généré et téléchargé automatiquement.</span>
           <button type="submit" class="btn btn-primary" id="submit-btn">
             Envoyer ma candidature <span class="arrow">→</span>
           </button>
@@ -222,9 +292,20 @@
       <div class="confirmation" id="confirmation">
         <span class="eyebrow" style="color:rgba(246,244,239,.6)">Candidature reçue</span>
         <h2 style="margin-top:24px;">Merci, votre dossier est <em>entre nos mains</em>.</h2>
-        <p>Votre demande a bien été reçue. Nous allons l'analyser et vous contacter dans les meilleurs délais — généralement sous 72h.</p>
+        <p>Votre demande a bien été reçue. Votre fiche d'inscription PDF a été générée et le téléchargement a démarré automatiquement.</p>
         <div class="ref">Référence dossier · <span id="ref-display">—</span></div>
-        <p style="font-size:14px;">Pensez à vérifier votre dossier de courriers indésirables.</p>
+        <p style="font-size:14px;margin-bottom:24px;">Si le téléchargement n'a pas démarré, cliquez sur le bouton ci-dessous.</p>
+        <!-- Bouton de (re)téléchargement -->
+        <a id="btn-pdf-download" href="#" download
+           style="display:inline-flex;align-items:center;gap:10px;padding:14px 28px;background:rgba(246,244,239,.15);border:1px solid rgba(246,244,239,.35);border-radius:4px;color:var(--paper);font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;transition:background .2s;margin-bottom:24px;"
+           onmouseover="this.style.background='rgba(246,244,239,.25)'"
+           onmouseout="this.style.background='rgba(246,244,239,.15)'">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 1v9M5 7l3 3 3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Télécharger ma fiche PDF
+        </a>
+        <p style="font-size:13px;color:rgba(246,244,239,.6);">Notre staff analysera votre dossier et vous contactera sous 72h.</p>
       </div>
     </div>
   </section>
@@ -233,16 +314,58 @@
 
 {% block extra_js %}
 <script>
+// ── Sexe ─────────────────────────────────────
+const CAT_DESCRIPTIONS = {
+  'U10': 'Masculin : initiation fondamentaux',
+  'U12': 'Féminin : éveil & technique',
+  'U13': 'Masculin : technique & règles',
+  'U15': 'Masculin & Féminin : formation intensive',
+  'U17+': 'Masculin : transition pro',
+};
+
+document.querySelectorAll('.sexe-pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('.sexe-pill').forEach(x => {
+      x.classList.remove('active-m', 'active-f');
+    });
+    const sexe = p.dataset.sexe;
+    document.getElementById('sexe-input').value = sexe;
+    p.classList.add(sexe === 'M' ? 'active-m' : 'active-f');
+  });
+});
+
+// ── Catégorie ─────────────────────────────────────
+document.querySelectorAll('.cat-pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('.cat-pill').forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    const cat = p.dataset.cat;
+    document.getElementById('cat-input').value = cat;
+    document.getElementById('cat-desc').textContent = CAT_DESCRIPTIONS[cat] || '';
+  });
+});
+
+// Init description
+(function() {
+  const cur = document.getElementById('cat-input').value;
+  if (cur && CAT_DESCRIPTIONS[cur]) {
+    document.getElementById('cat-desc').textContent = CAT_DESCRIPTIONS[cur];
+  }
+})();
+
+// ── Poste ─────────────────────────────────────
 document.querySelectorAll('.pos-pill').forEach(p => p.addEventListener('click', () => {
   document.querySelectorAll('.pos-pill').forEach(x => x.classList.toggle('active', x===p));
   document.getElementById('poste-input').value = p.dataset.pos;
 }));
 
+// ── Photo ─────────────────────────────────────
 document.getElementById('photo-input').addEventListener('change', function() {
   const label = document.getElementById('photo-label');
   label.textContent = this.files[0] ? this.files[0].name : 'Téléverser une photo';
 });
 
+// ── Soumission ────────────────────────────────
 document.getElementById('form').addEventListener('submit', async function(e) {
   e.preventDefault();
   const btn = document.getElementById('submit-btn');
@@ -260,6 +383,24 @@ document.getElementById('form').addEventListener('submit', async function(e) {
     if (data.success) {
       this.style.display = 'none';
       document.getElementById('ref-display').textContent = data.reference;
+
+      // Configurer le bouton PDF
+      const btnPdf = document.getElementById('btn-pdf-download');
+      if (data.pdf_url) {
+        btnPdf.href = data.pdf_url;
+        btnPdf.style.display = 'inline-flex';
+        // Déclencher le téléchargement automatiquement
+        const link = document.createElement('a');
+        link.href = data.pdf_url;
+        link.download = 'inscription_' + data.reference + '.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        // PDF non disponible — masquer le bouton
+        btnPdf.style.display = 'none';
+      }
+
       document.getElementById('confirmation').classList.add('show');
       window.scrollTo({ top: 200, behavior: 'smooth' });
     } else {

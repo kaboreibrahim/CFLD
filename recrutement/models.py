@@ -42,10 +42,25 @@ class Candidature(models.Model):
         ('Autre', 'Autre'),
     ]
 
+    SEXE_CHOICES = [
+        ('M', 'Masculin'),
+        ('F', 'Féminin'),
+    ]
+
+    CATEGORIE_CHOICES = [
+        ('U10', 'U10'),
+        ('U12', 'U12'),
+        ('U13', 'U13'),
+        ('U15', 'U15'),
+        ('U17+', 'U17+'),
+    ]
+
     reference = models.CharField(max_length=20, unique=True, default=generer_reference, editable=False)
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     date_naissance = models.DateField()
+    sexe = models.CharField(max_length=1, choices=SEXE_CHOICES, default='M')
+    categorie = models.CharField(max_length=4, choices=CATEGORIE_CHOICES, default='U13')
     nationalite = models.CharField(max_length=50, choices=NATIONALITE_CHOICES)
     poste = models.CharField(max_length=3, choices=POSTE_CHOICES)
     numero_prefere = models.PositiveSmallIntegerField(null=True, blank=True)
@@ -54,7 +69,15 @@ class Candidature(models.Model):
     telephone_whatsapp = models.CharField(max_length=30)
     email = models.EmailField()
     adresse = models.CharField(max_length=200, blank=True)
+    # Parent / tuteur légal
+    nom_parent = models.CharField(max_length=150, blank=True, verbose_name='Nom du parent/tuteur')
+    telephone_parent = models.CharField(max_length=30, blank=True, verbose_name='Téléphone du parent/tuteur')
+    email_parent = models.EmailField(blank=True, verbose_name='Email du parent/tuteur')
+    # Infos complémentaires
+    info_scolaire = models.CharField(max_length=200, blank=True, verbose_name='École / Établissement')
+    contact_urgence = models.CharField(max_length=150, blank=True, verbose_name='Contact d\'urgence (nom & téléphone)')
     photo = models.ImageField(upload_to='candidatures/', blank=True, null=True)
+    pdf_inscription = models.FileField(upload_to='inscriptions_pdf/', blank=True, null=True)
     statut = models.CharField(max_length=10, choices=STATUT_CHOICES, default='pending')
     date_soumission = models.DateTimeField(default=timezone.now)
     note_interne = models.TextField(blank=True)
@@ -83,3 +106,8 @@ class Candidature(models.Model):
     @property
     def initiales(self):
         return (self.prenom[0] + self.nom[0]).upper()
+
+    @property
+    def section(self):
+        sexe_label = 'Masculin' if self.sexe == 'M' else 'Féminin'
+        return f"{self.categorie} {sexe_label}"

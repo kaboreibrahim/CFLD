@@ -1,0 +1,45 @@
+<div class="player"
+     data-nom="{{ joueur.nom_complet }}"
+     data-num="{{ joueur.numero|stringformat:'02d' }}"
+     data-poste="{{ joueur.get_poste_display }}"
+     data-age="{{ joueur.age }}"
+     data-matchs="{{ joueur.matchs_joues }}"
+     data-buts="{{ joueur.buts }}"
+     data-nat="{{ joueur.nationalite }}"
+     data-section="{{ joueur.section }}"
+     data-licence="{{ joueur.numero_licence }}"
+     data-photo="{% if joueur.photo %}{{ joueur.photo.url }}{% endif %}"
+     onclick="this.classList.toggle('flipped')">
+  <div class="player-inner">
+    <div class="player-face player-front {% if joueur.sexe == 'F' %}player-front-f{% endif %}">
+      {% if joueur.photo %}
+      <img class="player-front-img" src="{{ joueur.photo.url }}" alt="{{ joueur.nom_complet }}" loading="lazy">
+      {% endif %}
+      <span class="player-section-chip {% if joueur.sexe == 'M' %}chip-m{% else %}chip-f{% endif %}">
+        {{ joueur.categorie }}
+      </span>
+      <div class="player-num">{{ joueur.numero|stringformat:"02d" }}</div>
+      <div class="player-info">
+        <div class="pos">{{ joueur.get_poste_display }}</div>
+        <h3>{{ joueur.prenom }} {{ joueur.nom }}</h3>
+      </div>
+    </div>
+    <div class="player-face player-back {% if joueur.sexe == 'F' %}player-back-f{% endif %}">
+      <div>
+        <div class="head">
+          <div class="num">{{ joueur.numero|stringformat:"02d" }}</div>
+          <div class="pos">{{ joueur.get_poste_display }}</div>
+        </div>
+        <h3 style="margin-top:24px;">{{ joueur.prenom }} {{ joueur.nom }}</h3>
+      </div>
+      <div class="stats">
+        <div><div class="s">Âge</div><div class="v">{{ joueur.age }}</div></div>
+        <div><div class="s">Matchs</div><div class="v">{{ joueur.matchs_joues }}</div></div>
+        <div><div class="s">Buts</div><div class="v">{{ joueur.buts }}</div></div>
+      </div>
+      <button class="profile-btn" onclick="event.stopPropagation(); openPlayerModal(this.closest('.player'))">
+        Voir le profil →
+      </button>
+    </div>
+  </div>
+</div>

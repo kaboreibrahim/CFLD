@@ -1,34 +1,59 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Effectif — Joueurs & Équipe | CFLD Aboisso{% endblock %}
+{% block title %}Effectif — Joueurs & Équipes | CFLD Aboisso{% endblock %}
 {% block screen_label %}03 Effectif{% endblock %}
-{% block description %}Découvrez l'effectif complet du CFLD : joueurs, gardiens, défenseurs, milieux et attaquants. Suivez les talents formés par le Centre de Formation Lancine Diomande à Aboisso.{% endblock %}
-{% block keywords %}effectif CFLD, joueurs CFLD, équipe football Aboisso, footballeurs Côte d'Ivoire, talents football CI, joueurs académie CFLD, roster CFLD, équipe première CFLD{% endblock %}
-{% block og_title %}Effectif CFLD — Joueurs & Équipe | Aboisso{% endblock %}
-{% block og_description %}L'effectif complet du CFLD : découvrez les joueurs formés par le Centre de Formation Lancine Diomande à Aboisso, Côte d'Ivoire.{% endblock %}
-{% block tw_title %}Effectif CFLD — Joueurs & Équipe{% endblock %}
-{% block tw_description %}Découvrez les joueurs formés par le CFLD à Aboisso, Côte d'Ivoire.{% endblock %}
+{% block description %}Découvrez l'effectif complet du CFLD : toutes les équipes U10 à U17+, section masculine et féminine. Joueurs formés par le Centre de Formation Lancine Diomande à Aboisso.{% endblock %}
+{% block keywords %}effectif CFLD, joueurs CFLD, équipe football Aboisso, U10 U13 U15 U17 football Côte d'Ivoire, section féminine football CI{% endblock %}
+{% block og_title %}Effectif CFLD — Toutes les équipes | Aboisso{% endblock %}
+{% block og_description %}L'effectif complet du CFLD : U10 à U17+, section masculine et féminine. Centre de Formation Lancine Diomandé, Aboisso.{% endblock %}
+{% block tw_title %}Effectif CFLD — Toutes les équipes{% endblock %}
+{% block tw_description %}Découvrez les équipes et joueurs du CFLD à Aboisso, Côte d'Ivoire.{% endblock %}
 
 {% block extra_css %}
 <style>
-.filters { display:flex; gap:8px; flex-wrap:wrap; padding:32px 0 60px; border-bottom:1px solid var(--line); }
-.filter-btn { padding:10px 18px; border-radius:999px; border:1px solid var(--line); font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; background:var(--paper); transition:all .2s; }
+/* ── Filtres ─────────────────────────────────────────── */
+.view-tabs { display:flex; gap:0; margin-bottom:32px; border:1px solid var(--line); border-radius:4px; overflow:hidden; width:fit-content; }
+.view-tab { padding:10px 20px; font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; background:var(--paper); color:var(--muted); border:0; cursor:pointer; transition:all .2s; text-decoration:none; }
+.view-tab.active { background:var(--ink); color:var(--paper); }
+.filters { display:flex; gap:8px; flex-wrap:wrap; padding:24px 0 48px; border-bottom:1px solid var(--line); }
+.filter-btn { padding:10px 18px; border-radius:999px; border:1px solid var(--line); font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; background:var(--paper); transition:all .2s; text-decoration:none; color:inherit; }
 .filter-btn:hover { border-color:var(--ink); }
 .filter-btn.active { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.filter-btn.active-f { background:#C8102E; color:#fff; border-color:#C8102E; }
 .filter-btn .count { margin-left:8px; opacity:.5; font-weight:600; }
+
+/* ── Vue sections ────────────────────────────────────── */
+.sections-wrap { padding:60px 0 140px; display:grid; gap:80px; }
+.section-block {}
+.section-header { display:flex; align-items:center; gap:16px; margin-bottom:40px; }
+.section-badge { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; padding:5px 12px; border-radius:999px; }
+.section-badge-m { background:var(--ink); color:var(--paper); }
+.section-badge-f { background:#C8102E; color:#fff; }
+.section-title { font-family:var(--font-display); font-size:32px; letter-spacing:-.02em; }
+.section-count { font-family:var(--font-mono); font-size:12px; color:var(--muted); margin-left:auto; }
+
+.equipes-grid { display:grid; gap:40px; }
+.equipe-block {}
+.equipe-header { display:flex; align-items:center; gap:12px; padding-bottom:16px; border-bottom:1px solid var(--line); margin-bottom:24px; }
+.equipe-label { font-family:var(--font-display); font-size:22px; letter-spacing:-.01em; }
+.equipe-count { font-family:var(--font-mono); font-size:11px; color:var(--muted); }
+
+/* ── Grille joueurs ──────────────────────────────────── */
 .roster { padding:60px 0 140px; }
 .roster-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
 .player { perspective:1200px; aspect-ratio:3/4; cursor:pointer; position:relative; transition:opacity .4s,transform .4s; }
-.player.hidden { display:none; }
 .player-inner { position:relative; width:100%; height:100%; transition:transform .7s cubic-bezier(.4,.2,.2,1); transform-style:preserve-3d; }
 .player:hover .player-inner,.player.flipped .player-inner { transform:rotateY(180deg); }
 .player-face { position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; overflow:hidden; border-radius:2px; }
 .player-front { background:linear-gradient(180deg,transparent 50%,rgba(11,11,11,.85) 100%),repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0 8px,rgba(255,255,255,.08) 8px 16px),var(--ink); color:var(--paper); display:flex; flex-direction:column; justify-content:space-between; padding:20px; }
+.player-front-f { background:linear-gradient(180deg,transparent 50%,rgba(11,11,11,.85) 100%),repeating-linear-gradient(135deg,rgba(200,16,46,.08) 0 8px,rgba(200,16,46,.12) 8px 16px),#1a0005; }
 .player-num { font-family:var(--font-display); font-size:96px; line-height:.85; font-weight:500; letter-spacing:-.04em; align-self:flex-end; color:rgba(246,244,239,.4); }
 .player-info .pos { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; color:var(--green-bright); text-transform:uppercase; margin-bottom:8px; }
+.player-front-f .player-info .pos { color:#ff6b8a; }
 .player-info h3 { font-size:24px; line-height:1.05; color:var(--paper); font-family:var(--font-display); letter-spacing:-.01em; }
 .player-back { background:var(--green-deep); color:var(--paper); transform:rotateY(180deg); padding:24px; display:flex; flex-direction:column; justify-content:space-between; }
+.player-back-f { background:#5a0015; }
 .player-back .head { display:flex; justify-content:space-between; align-items:start; }
 .player-back .head .num { font-family:var(--font-display); font-size:56px; line-height:.9; letter-spacing:-.03em; }
 .player-back .head .pos { font-family:var(--font-mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:rgba(246,244,239,.7); text-align:right; }
@@ -36,10 +61,18 @@
 .player-back .stats { border-top:1px solid rgba(246,244,239,.2); padding-top:16px; display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
 .player-back .stats .s { font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:rgba(246,244,239,.6); }
 .player-back .stats .v { font-family:var(--font-display); font-size:24px; font-weight:500; line-height:1; margin-top:4px; }
-{% if joueurs.count == 0 %}.player-front { background:var(--ink); }{% endif %}
 .player-front-img { position:absolute; inset:0; object-fit:cover; width:100%; height:100%; opacity:.6; }
 .player-back .profile-btn { margin-top:16px; display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; background:rgba(30,217,122,.15); color:var(--green-bright); border:1px solid rgba(30,217,122,.3); padding:8px 14px; border-radius:999px; cursor:pointer; transition:background .2s; }
+.player-back-f .profile-btn { background:rgba(200,16,46,.15); color:#ff6b8a; border-color:rgba(200,16,46,.3); }
 .player-back .profile-btn:hover { background:rgba(30,217,122,.25); }
+
+/* Section chip sur carte */
+.player-section-chip { position:absolute; top:12px; left:12px; font-family:var(--font-mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; padding:3px 8px; border-radius:999px; z-index:2; }
+.chip-m { background:rgba(30,217,122,.2); color:var(--green-bright); border:1px solid rgba(30,217,122,.3); }
+.chip-f { background:rgba(200,16,46,.2); color:#ff6b8a; border:1px solid rgba(200,16,46,.3); }
+
+/* Vide */
+.empty-equipe { font-family:var(--font-mono); font-size:12px; color:var(--muted); padding:20px 0; }
 
 /* Modal */
 .player-modal { position:fixed; inset:0; z-index:1000; display:flex; align-items:flex-end; justify-content:flex-end; pointer-events:none; }
@@ -65,47 +98,16 @@
 
 @media(max-width:1023px){.roster-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:767px){
-  /* Filtres */
-  .filters{padding:20px 0 28px;gap:6px}
-  .filter-btn{padding:7px 12px;font-size:10px}
-
-  /* Grille joueurs */
-  .roster-grid{grid-template-columns:1fr 1fr;gap:10px}
-  .roster{padding:40px 0 80px}
-
-  /* Face avant */
-  .player-front{padding:12px}
-  .player-num{font-size:52px}
-  .player-info h3{font-size:14px}
-  .player-info .pos{font-size:9px;margin-bottom:5px}
-
-  /* Face arrière */
-  .player-back{padding:12px}
-  .player-back .head .num{font-size:34px}
-  .player-back .head .pos{font-size:9px}
-  .player-back h3{font-size:13px;margin-top:10px!important;line-height:1.1}
-  .player-back .stats{padding-top:10px;gap:4px}
-  .player-back .stats .s{font-size:8px;letter-spacing:.08em}
-  .player-back .stats .v{font-size:17px;margin-top:2px}
+  .view-tabs{width:100%}.view-tab{flex:1;text-align:center}
+  .filters{padding:20px 0 28px;gap:6px}.filter-btn{padding:7px 12px;font-size:10px}
+  .roster-grid{grid-template-columns:1fr 1fr;gap:10px}.roster{padding:40px 0 80px}
+  .player-front{padding:12px}.player-num{font-size:52px}.player-info h3{font-size:14px}.player-info .pos{font-size:9px;margin-bottom:5px}
+  .player-back{padding:12px}.player-back .head .num{font-size:34px}.player-back .head .pos{font-size:9px}.player-back h3{font-size:13px;margin-top:10px!important;line-height:1.1}
+  .player-back .stats{padding-top:10px;gap:4px}.player-back .stats .s{font-size:8px;letter-spacing:.08em}.player-back .stats .v{font-size:17px;margin-top:2px}
   .player-back .profile-btn{padding:6px 10px;font-size:8px;letter-spacing:.1em;margin-top:8px;gap:4px}
-
-  /* Modal */
-  .modal-panel{width:100%;height:90vh;border-radius:12px 12px 0 0}
-  .player-modal{align-items:flex-end;justify-content:center}
-  .modal-photo-area{height:220px}
-  .modal-body{padding:20px;gap:16px}
-  .modal-name{font-size:clamp(22px,6vw,34px)!important}
-  .modal-stat{padding:14px 16px}
-  .modal-stat .s-val{font-size:22px}
-}
-@media(max-width:400px){
-  .roster-grid{grid-template-columns:1fr}
-  .player{aspect-ratio:4/3}
-  .player-num{font-size:80px}
-  .player-info h3{font-size:18px}
-  .player-back h3{font-size:17px}
-  .player-back .stats .v{font-size:22px}
-  .player-back .profile-btn{font-size:10px;padding:8px 14px}
+  .modal-panel{width:100%;height:90vh;border-radius:12px 12px 0 0}.player-modal{align-items:flex-end;justify-content:center}
+  .modal-photo-area{height:220px}.modal-body{padding:20px;gap:16px}.modal-name{font-size:clamp(22px,6vw,34px)!important}
+  .modal-stat{padding:14px 16px}.modal-stat .s-val{font-size:22px}
 }
 </style>
 {% endblock %}
@@ -115,26 +117,35 @@
   <div class="page-title-spread">
     <h1>Effectif</h1>
     <div class="meta">
-      {% comment %} <span>Section 03 / 08</span> {% endcomment %}
       <span>Saison 2025—2026</span>
       <span>{{ counts.all }} joueurs</span>
     </div>
   </div>
 
+  <!-- Vue switcher -->
+  <div style="padding:32px 0 0;">
+    <div class="view-tabs">
+      <a href="?vue=sections" class="view-tab {% if vue == 'sections' or not vue %}active{% endif %}">Par équipes</a>
+      <a href="?vue=liste" class="view-tab {% if vue == 'liste' %}active{% endif %}">Liste complète</a>
+    </div>
+  </div>
+
+  {% if vue == 'liste' %}
+  <!-- ── VUE LISTE ─────────────────────────────────────────── -->
   <div class="filters" id="filters">
-    <a href="?poste=all" class="filter-btn {% if poste_actif == 'all' %}active{% endif %}">
+    <a href="?vue=liste&poste=all" class="filter-btn {% if poste_actif == 'all' %}active{% endif %}">
       Tous <span class="count">{{ counts.all }}</span>
     </a>
-    <a href="?poste=GK" class="filter-btn {% if poste_actif == 'GK' %}active{% endif %}">
+    <a href="?vue=liste&poste=GK" class="filter-btn {% if poste_actif == 'GK' %}active{% endif %}">
       Gardiens <span class="count">{{ counts.GK }}</span>
     </a>
-    <a href="?poste=DEF" class="filter-btn {% if poste_actif == 'DEF' %}active{% endif %}">
+    <a href="?vue=liste&poste=DEF" class="filter-btn {% if poste_actif == 'DEF' %}active{% endif %}">
       Défenseurs <span class="count">{{ counts.DEF }}</span>
     </a>
-    <a href="?poste=MIL" class="filter-btn {% if poste_actif == 'MIL' %}active{% endif %}">
+    <a href="?vue=liste&poste=MIL" class="filter-btn {% if poste_actif == 'MIL' %}active{% endif %}">
       Milieux <span class="count">{{ counts.MIL }}</span>
     </a>
-    <a href="?poste=ATT" class="filter-btn {% if poste_actif == 'ATT' %}active{% endif %}">
+    <a href="?vue=liste&poste=ATT" class="filter-btn {% if poste_actif == 'ATT' %}active{% endif %}">
       Attaquants <span class="count">{{ counts.ATT }}</span>
     </a>
   </div>
@@ -142,53 +153,51 @@
   <section class="roster">
     <div class="roster-grid" id="roster">
       {% for joueur in joueurs %}
-      <div class="player"
-           data-nom="{{ joueur.nom_complet }}"
-           data-num="{{ joueur.numero|stringformat:'02d' }}"
-           data-poste="{{ joueur.get_poste_display }}"
-           data-age="{{ joueur.age }}"
-           data-matchs="{{ joueur.matchs_joues }}"
-           data-buts="{{ joueur.buts }}"
-           data-nat="{{ joueur.nationalite }}"
-           data-photo="{% if joueur.photo %}{{ joueur.photo.url }}{% endif %}"
-           onclick="this.classList.toggle('flipped')">
-        <div class="player-inner">
-          <div class="player-face player-front">
-            {% if joueur.photo %}
-            <img class="player-front-img" src="{{ joueur.photo.url }}" alt="{{ joueur.nom_complet }}">
-            {% endif %}
-            <div class="player-num">{{ joueur.numero|stringformat:"02d" }}</div>
-            <div class="player-info">
-              <div class="pos">{{ joueur.get_poste_display }}</div>
-              <h3>{{ joueur.prenom }} {{ joueur.nom }}</h3>
-            </div>
-          </div>
-          <div class="player-face player-back">
-            <div>
-              <div class="head">
-                <div class="num">{{ joueur.numero|stringformat:"02d" }}</div>
-                <div class="pos">{{ joueur.get_poste_display }}</div>
-              </div>
-              <h3 style="margin-top:24px;">{{ joueur.prenom }} {{ joueur.nom }}</h3>
-            </div>
-            <div class="stats">
-              <div><div class="s">Âge</div><div class="v">{{ joueur.age }}</div></div>
-              <div><div class="s">Matchs</div><div class="v">{{ joueur.matchs_joues }}</div></div>
-              <div><div class="s">Buts</div><div class="v">{{ joueur.buts }}</div></div>
-            </div>
-            <button class="profile-btn" onclick="event.stopPropagation(); openPlayerModal(this.closest('.player'))">
-              Voir le profil →
-            </button>
-          </div>
-        </div>
-      </div>
+      {% include "effectif/_player_card.html" %}
       {% empty %}
       <p style="color:var(--muted);font-family:var(--font-mono);font-size:13px;grid-column:1/-1;padding:40px 0;">
-        Aucun joueur enregistré pour le moment. Ajoutez des joueurs via l'interface d'administration.
+        Aucun joueur enregistré pour le moment.
       </p>
       {% endfor %}
     </div>
   </section>
+
+  {% else %}
+  <!-- ── VUE PAR SECTIONS ──────────────────────────────────── -->
+  <div class="sections-wrap">
+    {% for section in sections_data %}
+    <div class="section-block">
+      <div class="section-header">
+        <span class="section-badge {% if section.sexe == 'M' %}section-badge-m{% else %}section-badge-f{% endif %}">
+          {% if section.sexe == 'M' %}♂{% else %}♀{% endif %}
+        </span>
+        <h2 class="section-title">{{ section.label }}</h2>
+        <span class="section-count">{{ section.total }} joueur{{ section.total|pluralize }}</span>
+      </div>
+
+      <div class="equipes-grid">
+        {% for equipe in section.equipes %}
+        <div class="equipe-block">
+          <div class="equipe-header">
+            <h3 class="equipe-label">{{ equipe.label }}</h3>
+            <span class="equipe-count">{{ equipe.count }} joueur{{ equipe.count|pluralize }}</span>
+          </div>
+          {% if equipe.joueurs %}
+          <div class="roster-grid">
+            {% for joueur in equipe.joueurs %}
+            {% include "effectif/_player_card.html" %}
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="empty-equipe">Aucun joueur dans cette catégorie pour le moment.</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 </main>
 
 <!-- Modal profil joueur -->
@@ -205,6 +214,10 @@
       <h2 class="modal-name" id="modal-name"></h2>
       <div class="modal-stats-grid">
         <div class="modal-stat">
+          <div class="s-label">Section</div>
+          <div class="s-val small" id="modal-section"></div>
+        </div>
+        <div class="modal-stat">
           <div class="s-label">Nationalité</div>
           <div class="s-val small" id="modal-nat"></div>
         </div>
@@ -219,6 +232,10 @@
         <div class="modal-stat">
           <div class="s-label">Buts</div>
           <div class="s-val" id="modal-buts"></div>
+        </div>
+        <div class="modal-stat">
+          <div class="s-label">Licence</div>
+          <div class="s-val small" id="modal-licence"></div>
         </div>
       </div>
       <div class="modal-footer">Saison 2025—2026 · CFLD</div>
@@ -240,6 +257,8 @@ function openPlayerModal(card) {
   document.getElementById('modal-nat').textContent     = d.nat;
   document.getElementById('modal-matchs').textContent  = d.matchs;
   document.getElementById('modal-buts').textContent    = d.buts;
+  document.getElementById('modal-section').textContent = d.section || '—';
+  document.getElementById('modal-licence').textContent = d.licence || '—';
 
   const img = document.getElementById('modal-photo-img');
   if (d.photo) {
