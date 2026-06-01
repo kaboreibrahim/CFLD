@@ -265,23 +265,43 @@ def admin_video_delete(request, pk):
 def admin_candidatures(request):
     statut = request.GET.get('statut', 'all')
     q      = request.GET.get('q', '')
-    qs     = Candidature.objects.all()
-    if statut in ('pending', 'waiting', 'accepted', 'refused'):
+    # Les candidatures acceptées deviennent des joueurs → on les exclut par défaut
+    qs = Candidature.objects.exclude(statut='accepted')
+    if statut in ('pending', 'waiting', 'refused'):
         qs = qs.filter(statut=statut)
     if q:
         qs = (qs.filter(nom__icontains=q) | qs.filter(prenom__icontains=q)
               | qs.filter(email__icontains=q) | qs.filter(reference__icontains=q))
     stats = {
-        'total':    Candidature.objects.count(),
-        'pending':  Candidature.objects.filter(statut='pending').count(),
-        'accepted': Candidature.objects.filter(statut='accepted').count(),
-        'refused':  Candidature.objects.filter(statut='refused').count(),
-        'waiting':  Candidature.objects.filter(statut='waiting').count(),
+        'total':   Candidature.objects.exclude(statut='accepted').count(),
+        'pending': Candidature.objects.filter(statut='pending').count(),
+        'waiting': Candidature.objects.filter(statut='waiting').count(),
+        'refused': Candidature.objects.filter(statut='refused').count(),
     }
+    # Candidatures acceptées non encore migrées en joueur
+    non_migrees = Candidature.objects.filter(statut='accepted').filter(joueur__isnull=True)
     ctx = _base_ctx(request, 'candidatures')
     ctx.update({'candidatures': qs, 'stats': stats,
-                'statut_actif': statut, 'recherche': q})
+                'statut_actif': statut, 'recherche': q,
+                'non_migrees_count': non_migrees.count()})
     return render(request, 'admin_cfld/candidatures.html', ctx)
+
+
+@staff_required
+def admin_migrer_acceptees(request):
+    """Migre en masse les candidatures acceptées sans joueur lié."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST requis'}, status=405)
+    non_migrees = Candidature.objects.filter(statut='accepted').filter(joueur__isnull=True)
+    count = 0
+    errors = []
+    for c in non_migrees:
+        try:
+            _integrer_dans_effectif(c)
+            count += 1
+        except Exception as e:
+            errors.append(f"{c.reference}: {e}")
+    return JsonResponse({'ok': True, 'migres': count, 'errors': errors})
 
 
 @staff_required

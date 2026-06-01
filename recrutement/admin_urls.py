@@ -49,6 +49,7 @@ urlpatterns = [
 
     # Candidatures
     path('candidatures/',                            v.admin_candidatures,           name='admin_candidatures'),
+    path('candidatures/migrer-acceptees/',           v.admin_migrer_acceptees,       name='admin_migrer_acceptees'),
     path('candidature/<int:pk>/action/',             v.action_candidature,           name='action_candidature'),
     path('candidature/<int:pk>/pdf/telecharger/',    v.candidature_pdf_telecharger,  name='candidature_pdf_telecharger'),
     path('candidature/<int:pk>/pdf/voir/',           v.candidature_pdf_voir,         name='candidature_pdf_voir'),

@@ -10,7 +10,30 @@
     </div>
     <h1 class="pg-title">Candidatures</h1>
   </div>
+  <div class="page-hd-right">
+    <a href="{% url 'admin_joueurs' %}" class="btn btn-ghost btn-sm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Voir les joueurs
+    </a>
+  </div>
 </div>
+
+<!-- Bannière migration si des candidatures acceptées ne sont pas encore dans l'effectif -->
+{% if non_migrees_count %}
+<div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div>
+      <div style="font-weight:600;font-size:13.5px;color:#78350F;">{{ non_migrees_count }} candidature{{ non_migrees_count|pluralize }} acceptée{{ non_migrees_count|pluralize }} non encore dans l'effectif</div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:#92400E;margin-top:2px;letter-spacing:.04em;">Ces joueurs ont été acceptés mais ne figurent pas encore dans la liste des joueurs.</div>
+    </div>
+  </div>
+  <button class="btn btn-dark btn-sm" id="btnMigrer" onclick="migrerTous()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+    Migrer vers l'effectif
+  </button>
+</div>
+{% endif %}
 
 <!-- KPI -->
 <div class="kpi-row">
@@ -18,8 +41,9 @@
     <div class="kpi-ico slate">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     </div>
-    <div class="kpi-lbl">Total</div>
+    <div class="kpi-lbl">En cours</div>
     <div class="kpi-val">{{ stats.total }}</div>
+    <div class="kpi-sub">hors acceptées</div>
   </div>
   <div class="kpi {% if stats.pending %}k-amber{% endif %}">
     <div class="kpi-ico {% if stats.pending %}amber{% else %}slate{% endif %}">
@@ -27,13 +51,14 @@
     </div>
     <div class="kpi-lbl">En attente</div>
     <div class="kpi-val">{{ stats.pending }}</div>
+    <div class="kpi-sub">à traiter</div>
   </div>
-  <div class="kpi k-green">
-    <div class="kpi-ico green">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <div class="kpi k-blue">
+    <div class="kpi-ico blue">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     </div>
-    <div class="kpi-lbl">Acceptées</div>
-    <div class="kpi-val">{{ stats.accepted }}</div>
+    <div class="kpi-lbl">Mise en attente</div>
+    <div class="kpi-val">{{ stats.waiting }}</div>
   </div>
   <div class="kpi">
     <div class="kpi-ico slate">
@@ -54,7 +79,6 @@
       <a href="?" class="f-pill {% if statut_actif == 'all' %}active{% endif %}">Toutes</a>
       <a href="?statut=pending{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'pending' %}active{% endif %}">En attente</a>
       <a href="?statut=waiting{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'waiting' %}active{% endif %}">Mise en attente</a>
-      <a href="?statut=accepted{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'accepted' %}active{% endif %}">Acceptées</a>
       <a href="?statut=refused{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'refused' %}active{% endif %}">Refusées</a>
     </div>
     {% if recherche %}<button type="submit" class="btn btn-dark btn-sm">Chercher</button>{% endif %}
@@ -152,6 +176,7 @@ const LABELS = { pending:'En attente', waiting:'Mise en attente', accepted:'Acce
 const CLASSES = { pending:'bs-pending', waiting:'bs-waiting', accepted:'bs-accepted', refused:'bs-refused' };
 
 function doAction(pk, action) {
+  const row = document.getElementById('row-c' + pk);
   const fd = new FormData();
   fd.append('action', action);
   fetch(`/admin-cfld/candidature/${pk}/action/`, {
@@ -160,19 +185,37 @@ function doAction(pk, action) {
     body: fd,
   }).then(r => r.json()).then(d => {
     if (d.success) {
-      const badge = document.getElementById('badge-' + pk);
-      badge.textContent = LABELS[d.statut] || d.statut;
-      badge.className = 'badge-status ' + (CLASSES[d.statut] || '');
-      if (d.statut === 'accepted' && d.has_pdf) {
-        _injecterBoutonsPDF(pk, d.pdf_voir_url, d.pdf_dl_url);
-        showToast('Validé — PDF généré — Joueur intégré dans l\'effectif', 'ok');
-      } else if (d.statut === 'accepted') {
-        showToast('Candidature acceptée — joueur intégré dans l\'effectif', 'ok');
+      if (d.statut === 'accepted') {
+        // Candidature acceptée → retirer immédiatement de la liste
+        if (row) {
+          row.style.transition = 'opacity .35s, transform .35s, max-height .4s';
+          row.style.opacity = '0';
+          row.style.transform = 'translateX(12px)';
+          setTimeout(() => {
+            row.style.maxHeight = '0';
+            row.style.overflow = 'hidden';
+            row.style.padding = '0';
+            setTimeout(() => row.remove(), 300);
+          }, 350);
+        }
+        showToast('✓ Accepté — joueur intégré dans l\'effectif', 'ok');
+        // Mettre à jour le KPI "En attente"
+        _decKPI();
       } else {
+        // Juste mise à jour du badge
+        const badge = document.getElementById('badge-' + pk);
+        if (badge) {
+          badge.textContent = LABELS[d.statut] || d.statut;
+          badge.className = 'badge-status ' + (CLASSES[d.statut] || '');
+        }
         showToast('Statut mis à jour', 'ok');
       }
     } else { showToast('Erreur', 'err'); }
   }).catch(() => showToast('Erreur réseau', 'err'));
+}
+
+function _decKPI() {
+  // Pas de rechargement forcé — le compteur se met à jour au prochain chargement
 }
 
 function _injecterBoutonsPDF(pk, urlVoir, urlDl) {
@@ -201,6 +244,26 @@ function regenererPDF(pk) {
     if (d.success) showToast('PDF régénéré', 'ok');
     else showToast('Erreur : ' + (d.error || 'inconnue'), 'err');
   }).catch(() => showToast('Erreur réseau', 'err'));
+}
+
+function migrerTous() {
+  const btn = document.getElementById('btnMigrer');
+  btn.disabled = true;
+  btn.textContent = 'Migration en cours…';
+  fetch('{% url "admin_migrer_acceptees" %}', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      const msg = `${d.migres} joueur${d.migres > 1 ? 's' : ''} migré${d.migres > 1 ? 's' : ''} dans l'effectif`;
+      showToast(msg, 'ok');
+      // Masquer la bannière
+      btn.closest('div[style*="FEF3C7"]')?.remove();
+      if (d.errors && d.errors.length) {
+        console.warn('Erreurs migration:', d.errors);
+      }
+    } else { showToast('Erreur lors de la migration', 'err'); btn.disabled = false; }
+  }).catch(() => { showToast('Erreur réseau', 'err'); btn.disabled = false; });
 }
 </script>
 {% endblock %}
