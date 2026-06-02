@@ -11,11 +11,13 @@ urlpatterns = [
     path('', v.admin_dashboard, name='admin_dashboard'),
 
     # Joueurs
-    path('joueurs/',                  v.admin_joueurs,       name='admin_joueurs'),
-    path('joueurs/ajouter/',          v.admin_joueur_form,   name='admin_joueur_add'),
-    path('joueurs/<int:pk>/',         v.admin_joueur_form,   name='admin_joueur_edit'),
+    path('joueurs/',                    v.admin_joueurs,       name='admin_joueurs'),
+    path('joueurs/ajouter/',            v.admin_joueur_form,   name='admin_joueur_add'),
+    path('joueurs/pdf/',                v.admin_joueurs_pdf,   name='admin_joueurs_pdf'),
+    path('joueurs/<int:pk>/',           v.admin_joueur_form,   name='admin_joueur_edit'),
     path('joueurs/<int:pk>/detail/',    v.admin_joueur_detail, name='admin_joueur_detail'),
     path('joueurs/<int:pk>/supprimer/', v.admin_joueur_delete, name='admin_joueur_delete'),
+    path('joueurs/<int:pk>/pdf/',       v.admin_joueur_pdf,    name='admin_joueur_pdf'),
 
     # Matchs
     path('matchs/',                   v.admin_matchs,       name='admin_matchs'),
