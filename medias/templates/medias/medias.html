@@ -178,7 +178,7 @@
   <!-- ── ACTUALITÉS ── -->
   <div class="mpanel active" id="news">
     {% if article_une %}
-    <a href="{% url 'article_detail' article_une.pk %}" class="feature feature-link" style="text-decoration:none;color:inherit;">
+    <a href="{% url 'article_detail' article_une.slug %}" class="feature feature-link" style="text-decoration:none;color:inherit;">
       <div>
         {% if article_une.image %}
         <div class="ph">
@@ -216,7 +216,7 @@
       </div>
       <div class="articles-grid">
         {% for article in articles %}
-        <a href="{% url 'article_detail' article.pk %}" class="article-card reveal">
+        <a href="{% url 'article_detail' article.slug %}" class="article-card reveal">
           <div class="ph">
             {% if article.image %}
             <img src="{{ article.image.url }}" alt="{{ article.titre }}">
