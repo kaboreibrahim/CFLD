@@ -55,6 +55,14 @@
           Aucun compte actif — <a href="{% url 'admin_compte_paiement_add' %}" style="color:#B45309;text-decoration:underline;">Ajouter un compte d'abord</a>
         </div>
         {% endif %}
+        <div id="lien-paiement-box" style="display:none;margin-top:8px;">
+          <a id="lien-paiement-btn" href="#" target="_blank" rel="noopener noreferrer"
+            class="btn btn-sm"
+            style="width:100%;justify-content:center;font-family:var(--font-mono);background:#EDE9FE;color:#5B21B6;border-color:#DDD6FE;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <span id="lien-paiement-label">Payer</span>
+          </a>
+        </div>
       </div>
       <div class="field">
         <label class="fi-label">Référence de transaction</label>
@@ -88,4 +96,29 @@
     </div>
   </form>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const COMPTES = {{ comptes_json|safe }};
+  const sel = document.getElementById('id_compte_paiement');
+  const box = document.getElementById('lien-paiement-box');
+  const btn = document.getElementById('lien-paiement-btn');
+  const lbl = document.getElementById('lien-paiement-label');
+  if (!sel) return;
+  function update() {
+    const c = COMPTES[sel.value];
+    if (c && c.lien) {
+      btn.href = c.lien;
+      lbl.textContent = 'Payer via ' + c.mode + ' → ' + c.numero;
+      box.style.display = 'block';
+    } else {
+      box.style.display = 'none';
+    }
+  }
+  sel.addEventListener('change', update);
+  update();
+})();
+</script>
 {% endblock %}

@@ -13,12 +13,13 @@ class ComptePaiementForm(forms.ModelForm):
         model = ComptePaiement
         fields = [
             'mode', 'numero', 'nom_titulaire', 'qr_code',
-            'instructions', 'est_actif', 'ordre_affichage',
+            'lien', 'instructions', 'est_actif', 'ordre_affichage',
         ]
         widgets = {
             'mode': forms.Select(attrs={'class': 'fi-select'}),
             'numero': forms.TextInput(attrs={'class': 'fi-input', 'placeholder': 'Ex: 07 07 07 07 07'}),
             'nom_titulaire': forms.TextInput(attrs={'class': 'fi-input', 'placeholder': 'Nom du titulaire du compte'}),
+            'lien': forms.URLInput(attrs={'class': 'fi-input', 'placeholder': 'https://pay.wave.com/… ou wavemobileapp://…'}),
             'instructions': forms.Textarea(attrs={'class': 'fi-input', 'rows': 3, 'placeholder': 'Instructions pour le paiement (facultatif)'}),
             'ordre_affichage': forms.NumberInput(attrs={'class': 'fi-input', 'min': 0}),
         }

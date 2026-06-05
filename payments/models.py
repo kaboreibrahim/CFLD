@@ -56,6 +56,7 @@ class ComptePaiement(models.Model):
         null=True,
         verbose_name="QR code",
     )
+    lien = models.URLField(max_length=500, blank=True, default="", verbose_name="Lien de paiement")
     instructions = models.TextField(blank=True, default="", verbose_name="Instructions")
     est_actif = models.BooleanField(default=True, verbose_name="Compte actif")
     ordre_affichage = models.PositiveIntegerField(default=0, verbose_name="Ordre d'affichage")

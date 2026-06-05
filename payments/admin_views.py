@@ -1,3 +1,4 @@
+import json
 from datetime import date as date_type
 from functools import wraps
 
@@ -35,6 +36,13 @@ def staff_required(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
+
+def _comptes_json():
+    return json.dumps(
+        {str(c.pk): {'lien': c.lien, 'numero': c.numero, 'mode': c.get_mode_display()}
+         for c in ComptePaiement.objects.filter(est_actif=True)},
+        ensure_ascii=False,
+    )
 
 def _base_ctx(request, section=''):
     return {
@@ -119,7 +127,7 @@ def admin_paiement_visite_form(request, pk=None):
         messages.success(request, "Paiement visite médicale enregistré.")
         return redirect('admin_paiements_visite')
     ctx = _base_ctx(request, 'paiements_visite')
-    ctx.update({'form': form, 'obj': obj})
+    ctx.update({'form': form, 'obj': obj, 'comptes_json': _comptes_json()})
     return render(request, 'admin_cfld/paiement_visite_form.html', ctx)
 
 
@@ -190,7 +198,7 @@ def admin_paiement_inscription_form(request, pk=None):
         messages.success(request, "Paiement inscription enregistré.")
         return redirect('admin_paiements_inscription')
     ctx = _base_ctx(request, 'paiements_inscription')
-    ctx.update({'form': form, 'obj': obj})
+    ctx.update({'form': form, 'obj': obj, 'comptes_json': _comptes_json()})
     return render(request, 'admin_cfld/paiement_inscription_form.html', ctx)
 
 
@@ -418,7 +426,7 @@ def admin_versement_add(request, cotisation_pk):
         return redirect('admin_cotisation_detail', pk=cotisation_pk)
 
     ctx = _base_ctx(request, 'cotisations')
-    ctx.update({'form': form, 'cotisation': cotisation})
+    ctx.update({'form': form, 'cotisation': cotisation, 'comptes_json': _comptes_json()})
     return render(request, 'admin_cfld/versement_form.html', ctx)
 
 

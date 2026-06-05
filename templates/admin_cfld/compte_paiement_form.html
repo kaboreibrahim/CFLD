@@ -40,6 +40,12 @@
         {% if form.nom_titulaire.errors %}<div class="fi-err">{{ form.nom_titulaire.errors.0 }}</div>{% endif %}
       </div>
       <div class="field span2">
+        <label class="fi-label">Lien de paiement <span style="opacity:.45;font-weight:400;">(facultatif)</span></label>
+        {{ form.lien }}
+        {% if form.lien.errors %}<div class="fi-err">{{ form.lien.errors.0 }}</div>{% endif %}
+        <span class="help" style="font-size:11px;color:rgba(11,11,11,.42);">Lien direct pour initier le paiement — ex : <code>https://pay.wave.com/m/…</code> ou <code>wavemobileapp://send?phone=…</code></span>
+      </div>
+      <div class="field span2">
         <label class="fi-label">Instructions de dépôt</label>
         {{ form.instructions }}
       </div>

@@ -172,10 +172,64 @@
       {% endif %}
     </div>
 
-    <div class="compte-numero">{{ c.numero }}</div>
+    <!-- Numéro + copier -->
+    <div style="padding:12px 20px 4px;display:flex;align-items:center;gap:8px;">
+      <a href="tel:{{ c.numero }}" class="compte-numero" style="padding:0;margin:0;text-decoration:none;color:var(--ink);display:block;flex:1;" title="Appeler / Payer">{{ c.numero }}</a>
+      <button onclick="copyNum('{{ c.numero|escapejs }}', this)" title="Copier le numéro"
+        style="flex-shrink:0;width:28px;height:28px;border-radius:6px;border:1px solid rgba(11,11,11,.14);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(11,11,11,.5);transition:all .12s;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </button>
+    </div>
+
     <div class="compte-titulaire">{{ c.nom_titulaire }}</div>
     <div class="compte-instructions">
       {% if c.instructions %}{{ c.instructions|truncatechars:80 }}{% else %}<em style="opacity:.4;">Aucune instruction</em>{% endif %}
+    </div>
+
+    <!-- Bouton Payer -->
+    <div style="padding:0 20px 14px;">
+      {% if c.lien %}
+      <a href="{{ c.lien }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm"
+        style="width:100%;justify-content:center;font-family:var(--font-mono);
+        {% if c.mode == 'wave' %}background:#EDE9FE;color:#5B21B6;border-color:#DDD6FE;
+        {% elif c.mode == 'orange_money' %}background:#FEF3C7;color:#92400E;border-color:#FDE68A;
+        {% elif c.mode == 'moov' %}background:#DBEAFE;color:#1E40AF;border-color:#BFDBFE;
+        {% elif c.mode == 'mtn' %}background:#FEF9C3;color:#713F12;border-color:#FDE68A;
+        {% else %}background:#F3F4F6;color:#374151;border-color:#E5E7EB;{% endif %}">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Payer via {{ c.get_mode_display }}
+      </a>
+      {% elif c.mode == 'wave' %}
+      <a href="wavemobileapp://send?phone={{ c.numero }}" class="btn btn-sm"
+        style="width:100%;justify-content:center;background:#EDE9FE;color:#5B21B6;border-color:#DDD6FE;font-family:var(--font-mono);">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Payer via Wave
+      </a>
+      {% elif c.mode == 'orange_money' %}
+      <a href="tel:{{ c.numero }}" class="btn btn-sm"
+        style="width:100%;justify-content:center;background:#FEF3C7;color:#92400E;border-color:#FDE68A;font-family:var(--font-mono);">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Payer via Orange Money
+      </a>
+      {% elif c.mode == 'moov' %}
+      <a href="tel:{{ c.numero }}" class="btn btn-sm"
+        style="width:100%;justify-content:center;background:#DBEAFE;color:#1E40AF;border-color:#BFDBFE;font-family:var(--font-mono);">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Payer via Moov Money
+      </a>
+      {% elif c.mode == 'mtn' %}
+      <a href="tel:{{ c.numero }}" class="btn btn-sm"
+        style="width:100%;justify-content:center;background:#FEF9C3;color:#713F12;border-color:#FDE68A;font-family:var(--font-mono);">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Payer via MTN
+      </a>
+      {% else %}
+      <a href="tel:{{ c.numero }}" class="btn btn-sm"
+        style="width:100%;justify-content:center;background:#F3F4F6;color:#374151;border-color:#E5E7EB;font-family:var(--font-mono);">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Contacter / Payer
+      </a>
+      {% endif %}
     </div>
 
     <div class="compte-card-bottom">
@@ -224,6 +278,18 @@
 
 {% block extra_js %}
 <script>
+function copyNum(numero, btn) {
+  navigator.clipboard.writeText(numero).then(() => {
+    const orig = btn.innerHTML;
+    btn.style.background = '#D1FAE5';
+    btn.style.color = '#059669';
+    btn.style.borderColor = '#6EE7B7';
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    showToast(numero + ' copié', 'ok');
+    setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; btn.style.borderColor = ''; }, 1800);
+  }).catch(() => showToast('Impossible de copier', 'err'));
+}
+
 let _deletePk = null;
 
 function openDeleteModal(pk, nom) {

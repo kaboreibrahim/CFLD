@@ -400,7 +400,7 @@ textarea.fi-input { min-height: 88px; resize: vertical; }
                 </div>
                 <div class="type-name">Visite médicale</div>
                 <div class="type-desc">Frais de visite médicale obligatoire</div>
-                <div class="type-price">20 500 FCFA</div>
+                <div class="type-price">20 000 FCFA</div>
               </label>
               <label class="type-card {% if old.type_frais == 'inscription' %}selected{% endif %}" id="card-inscription" onclick="selectType('inscription')">
                 <input type="radio" name="type_frais" value="inscription" {% if old.type_frais == 'inscription' %}checked{% endif %}>
@@ -566,7 +566,7 @@ textarea.fi-input { min-height: 88px; resize: vertical; }
 
           <!-- Comptes disponibles -->
           {% if comptes_actifs %}
-          {% comment %} <div class="comptes-bloc">
+          <div class="comptes-bloc">
             <div class="comptes-bloc-hd">Numéros disponibles pour le dépôt</div>
             {% for c in comptes_actifs %}
             <div class="compte-row">
@@ -602,7 +602,7 @@ textarea.fi-input { min-height: 88px; resize: vertical; }
               {% endif %}
             </div>
             {% endfor %}
-          </div> {% endcomment %}
+          </div>
           {% endif %}
 
           <!-- Capture dépôt -->
@@ -839,14 +839,14 @@ textarea.fi-input { min-height: 88px; resize: vertical; }
     var montantInput = document.getElementById('id_montant');
     if (montantInput) {
       montantInput.placeholder = t === 'visite_medicale'
-        ? '20 500 FCFA'
+        ? '20 000 FCFA'
         : '200 000 inscription à 100 000 versement';
     }
     var infoBox = document.getElementById('montant-info');
     if (infoBox) {
       if (t === 'visite_medicale') {
         infoBox.style.display = 'block';
-        infoBox.innerHTML = 'Frais de visite médicale&nbsp;: <strong>20 500 FCFA</strong>';
+        infoBox.innerHTML = 'Frais de visite médicale&nbsp;: <strong>20 000 FCFA</strong>';
       } else if (t === 'inscription') {
         infoBox.style.display = 'block';
         infoBox.innerHTML = 'Inscription complète&nbsp;: <strong>200 000 FCFA</strong> &nbsp;·&nbsp; Versement&nbsp;: <strong>100 000 FCFA</strong>';
