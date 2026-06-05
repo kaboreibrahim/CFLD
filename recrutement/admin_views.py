@@ -79,6 +79,134 @@ def admin_joueurs(request):
 
 
 @staff_required
+def admin_joueurs_excel(request):
+    import io
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+    from django.http import HttpResponse
+
+    q     = request.GET.get('q', '')
+    poste = request.GET.get('poste', 'all')
+    cat   = request.GET.get('categorie', 'all')
+    actif = request.GET.get('actif', 'all')
+
+    qs = Joueur.objects.select_related('candidature').order_by('categorie', 'sexe', 'poste', 'numero')
+    if q:
+        qs = qs.filter(nom__icontains=q) | qs.filter(prenom__icontains=q)
+    if poste != 'all':
+        qs = qs.filter(poste=poste)
+    if cat != 'all':
+        qs = qs.filter(categorie=cat)
+    if actif == 'actif':
+        qs = qs.filter(actif=True)
+    elif actif == 'inactif':
+        qs = qs.filter(actif=False)
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Joueurs CFLD"
+
+    # ── Styles ──
+    rouge      = "C8161D"
+    blanc      = "FFFFFF"
+    gris_clair = "F5F3EE"
+    gris_ligne = "EDEBE4"
+
+    hd_font    = Font(bold=True, color=blanc, size=10, name="Calibri")
+    hd_fill    = PatternFill("solid", fgColor=rouge)
+    hd_align   = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    thin       = Side(style="thin", color="D1D5DB")
+    thin_bord  = Border(left=thin, right=thin, top=thin, bottom=thin)
+    alt_fill   = PatternFill("solid", fgColor=gris_ligne)
+    body_font  = Font(size=9, name="Calibri")
+    center     = Alignment(horizontal="center", vertical="center")
+    left       = Alignment(horizontal="left",   vertical="center")
+
+    # ── En-têtes ──
+    headers = [
+        "Réf. CFLD", "N°", "Nom", "Prénom", "Catégorie", "Poste", "Sexe",
+        "Date naissance", "Âge", "Nationalité", "Pied fort",
+        "Téléphone WA", "Email", "Adresse",
+        "Nom parent", "Tél. parent", "Email parent",
+        "Ancien club", "N° licence", "Date inscription",
+        "Matchs", "Buts", "Info scolaire", "Contact urgence", "Actif",
+    ]
+    ws.append(headers)
+    for col_idx, _ in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_idx)
+        cell.font    = hd_font
+        cell.fill    = hd_fill
+        cell.alignment = hd_align
+        cell.border  = thin_bord
+    ws.row_dimensions[1].height = 28
+
+    # ── Données ──
+    for i, j in enumerate(qs, 2):
+        row = [
+            j.candidature.reference if j.candidature else '',
+            j.numero,
+            j.nom,
+            j.prenom,
+            j.categorie,
+            j.get_poste_display(),
+            j.get_sexe_display(),
+            j.date_naissance.strftime('%d/%m/%Y') if j.date_naissance else '',
+            j.age,
+            j.nationalite,
+            j.pied_fort or '',
+            j.telephone_whatsapp or '',
+            j.email or '',
+            j.adresse or '',
+            j.nom_parent or '',
+            j.telephone_parent or '',
+            j.email_parent or '',
+            j.ancien_club or '',
+            j.numero_licence or '',
+            j.date_inscription.strftime('%d/%m/%Y') if j.date_inscription else '',
+            j.matchs_joues,
+            j.buts,
+            j.info_scolaire or '',
+            j.contact_urgence or '',
+            'Oui' if j.actif else 'Non',
+        ]
+        ws.append(row)
+        fill = alt_fill if i % 2 == 0 else PatternFill("solid", fgColor="FFFFFF")
+        for col_idx, _ in enumerate(row, 1):
+            cell = ws.cell(row=i, column=col_idx)
+            cell.font      = body_font
+            cell.fill      = fill
+            cell.border    = thin_bord
+            cell.alignment = center if col_idx in (1, 4, 5, 6, 8, 10, 20, 21, 24) else left
+        ws.row_dimensions[i].height = 18
+
+    # ── Largeurs de colonnes ──
+    col_widths = [14, 6, 18, 18, 10, 14, 10, 14, 6, 16, 12,
+                  16, 26, 22, 20, 16, 26, 18, 14, 16,
+                  8, 6, 22, 22, 7]
+    for idx, w in enumerate(col_widths, 1):
+        ws.column_dimensions[get_column_letter(idx)].width = w
+
+    # ── Figer la première ligne ──
+    ws.freeze_panes = "A2"
+
+    # ── Auto-filtre ──
+    ws.auto_filter.ref = f"A1:{get_column_letter(len(headers))}1"
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    from django.utils import timezone as tz_util
+    date_str = tz_util.localdate().strftime('%Y%m%d')
+    response = HttpResponse(
+        buf.read(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = f'attachment; filename="joueurs_cfld_{date_str}.xlsx"'
+    return response
+
+
+@staff_required
 def admin_joueur_form(request, pk=None):
     obj  = get_object_or_404(Joueur, pk=pk) if pk else None
     form = JoueurForm(request.POST or None, request.FILES or None, instance=obj)
