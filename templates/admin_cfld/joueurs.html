@@ -1,20 +1,160 @@
 {% extends "admin_cfld/base.html" %}
 {% block title %}Joueurs{% endblock %}
 
+{% block extra_css %}
+<style>
+/* ── Stats postes ── */
+.poste-stats {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.poste-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid rgba(11,11,11,.1);
+  border-radius: 9px;
+  padding: 12px 18px;
+  flex: 1;
+  min-width: 120px;
+  text-decoration: none;
+  transition: all .14s;
+  position: relative;
+  overflow: hidden;
+}
+.poste-stat::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2.5px;
+}
+.poste-stat.ps-all::after  { background: linear-gradient(90deg,#64748B,#94A3B8); }
+.poste-stat.ps-gk::after   { background: linear-gradient(90deg,#D97706,#F59E0B); }
+.poste-stat.ps-def::after  { background: linear-gradient(90deg,#2563EB,#60A5FA); }
+.poste-stat.ps-mil::after  { background: linear-gradient(90deg,#059669,#10B981); }
+.poste-stat.ps-att::after  { background: linear-gradient(90deg,#C8161D,#EE2630); }
+.poste-stat:hover { box-shadow: 0 3px 12px rgba(11,11,11,.09); transform: translateY(-1px); }
+.poste-stat.active { border-color: rgba(11,11,11,.22); }
+.ps-ico {
+  width: 32px; height: 32px;
+  border-radius: 7px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.ps-ico svg { width: 14px; height: 14px; }
+.ps-all  .ps-ico { background: rgba(11,11,11,.06);  color: rgba(11,11,11,.5); }
+.ps-gk   .ps-ico { background: rgba(217,119,6,.1);  color: #D97706; }
+.ps-def  .ps-ico { background: rgba(37,99,235,.1);  color: #2563EB; }
+.ps-mil  .ps-ico { background: rgba(5,150,105,.1);  color: #059669; }
+.ps-att  .ps-ico { background: rgba(200,22,29,.1);  color: #C8161D; }
+.ps-info { min-width: 0; }
+.ps-lbl {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.4);
+}
+.ps-val {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -.02em;
+  color: var(--ink);
+  margin-top: 1px;
+}
+
+/* ── Tableau ── */
+.joueur-col { grid-template-columns: 48px 1.6fr 90px 115px 64px 64px 80px 120px; }
+
+.j-av {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(11,11,11,.07);
+}
+.j-av-fb {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: linear-gradient(135deg,#C8161D,#8A0D12);
+  color: #fff;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 700;
+  flex-shrink: 0; letter-spacing: .03em;
+}
+.j-num {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(11,11,11,.3);
+}
+.j-stat {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Poste pill coloré */
+.pill-gk  { background: rgba(217,119,6,.1);  color: #92400E; }
+.pill-def { background: rgba(37,99,235,.1);  color: #1E3A8A; }
+.pill-mil { background: rgba(5,150,105,.1);  color: #065F46; }
+.pill-att { background: rgba(200,22,29,.1);  color: #9B0D13; }
+
+/* État vide amélioré */
+.empty-state-lg {
+  padding: 72px 24px;
+  text-align: center;
+}
+.empty-state-lg .es-icon {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  background: rgba(11,11,11,.05);
+  display: grid; place-items: center;
+  margin: 0 auto 16px;
+  color: rgba(11,11,11,.25);
+}
+.empty-state-lg .es-icon svg { width: 26px; height: 26px; }
+.empty-state-lg .es-title {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 500;
+  color: rgba(11,11,11,.4); margin: 0 0 6px;
+}
+.empty-state-lg .es-sub {
+  font-family: var(--font-mono);
+  font-size: 10.5px; letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.28); margin: 0;
+}
+
+@media (max-width: 1100px) {
+  .poste-stats { gap: 8px; }
+  .ps-val { font-size: 22px; }
+}
+@media (max-width: 768px) {
+  .poste-stats { grid-template-columns: 1fr 1fr; display: grid; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-hd">
   <div class="page-hd-left">
     <div class="pg-eyebrow">
       <a href="{% url 'admin_dashboard' %}">Accueil</a>
-      <span class="sep">›</span>
-      Équipe
+      <span class="sep">›</span> Équipe
     </div>
     <h1 class="pg-title">Joueurs <span class="pg-count">{{ total }}</span></h1>
   </div>
   <div class="page-hd-right">
     <a href="{% url 'admin_joueurs_pdf' %}{% if poste_actif != 'all' or q %}?{% if poste_actif != 'all' %}poste={{ poste_actif }}{% if q %}&amp;{% endif %}{% endif %}{% if q %}q={{ q }}{% endif %}{% endif %}" class="btn btn-ghost" title="Télécharger la liste en PDF">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      Télécharger PDF
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Exporter PDF
     </a>
     <a href="{% url 'admin_joueur_add' %}" class="btn btn-dark">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -23,27 +163,79 @@
   </div>
 </div>
 
+<!-- ── Stats par poste ── -->
+<div class="poste-stats">
+
+  <a href="?" class="poste-stat ps-all {% if poste_actif == 'all' %}active{% endif %}">
+    <div class="ps-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+    <div class="ps-info">
+      <div class="ps-lbl">Effectif total</div>
+      <div class="ps-val">{{ total }}</div>
+    </div>
+  </a>
+
+  <a href="?poste=GK{% if q %}&q={{ q }}{% endif %}" class="poste-stat ps-gk {% if poste_actif == 'GK' %}active{% endif %}">
+    <div class="ps-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+    </div>
+    <div class="ps-info">
+      <div class="ps-lbl">Gardiens</div>
+      <div class="ps-val" style="color:#92400E;">{{ stats_postes.GK|default:0 }}</div>
+    </div>
+  </a>
+
+  <a href="?poste=DEF{% if q %}&q={{ q }}{% endif %}" class="poste-stat ps-def {% if poste_actif == 'DEF' %}active{% endif %}">
+    <div class="ps-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <div class="ps-info">
+      <div class="ps-lbl">Défenseurs</div>
+      <div class="ps-val" style="color:#1E3A8A;">{{ stats_postes.DEF|default:0 }}</div>
+    </div>
+  </a>
+
+  <a href="?poste=MIL{% if q %}&q={{ q }}{% endif %}" class="poste-stat ps-mil {% if poste_actif == 'MIL' %}active{% endif %}">
+    <div class="ps-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    </div>
+    <div class="ps-info">
+      <div class="ps-lbl">Milieux</div>
+      <div class="ps-val" style="color:#065F46;">{{ stats_postes.MIL|default:0 }}</div>
+    </div>
+  </a>
+
+  <a href="?poste=ATT{% if q %}&q={{ q }}{% endif %}" class="poste-stat ps-att {% if poste_actif == 'ATT' %}active{% endif %}">
+    <div class="ps-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    </div>
+    <div class="ps-info">
+      <div class="ps-lbl">Attaquants</div>
+      <div class="ps-val" style="color:#9B0D13;">{{ stats_postes.ATT|default:0 }}</div>
+    </div>
+  </a>
+
+</div>
+
+<!-- ── Filtres ── -->
 <form method="get">
   <div class="filter-bar">
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input type="text" name="q" value="{{ q }}" placeholder="Rechercher un joueur…" autofocus>
     </div>
-    <div class="f-pills">
-      <a href="?" class="f-pill {% if poste_actif == 'all' %}active{% endif %}">Tous</a>
-      <a href="?poste=GK{% if q %}&q={{ q }}{% endif %}" class="f-pill {% if poste_actif == 'GK' %}active{% endif %}">Gardiens</a>
-      <a href="?poste=DEF{% if q %}&q={{ q }}{% endif %}" class="f-pill {% if poste_actif == 'DEF' %}active{% endif %}">Défenseurs</a>
-      <a href="?poste=MIL{% if q %}&q={{ q }}{% endif %}" class="f-pill {% if poste_actif == 'MIL' %}active{% endif %}">Milieux</a>
-      <a href="?poste=ATT{% if q %}&q={{ q }}{% endif %}" class="f-pill {% if poste_actif == 'ATT' %}active{% endif %}">Attaquants</a>
-    </div>
+    {% if poste_actif != 'all' %}<input type="hidden" name="poste" value="{{ poste_actif }}">{% endif %}
     {% if q %}
     <button type="submit" class="btn btn-dark btn-sm">Chercher</button>
+    <a href="?{% if poste_actif != 'all' %}poste={{ poste_actif }}{% endif %}" class="btn btn-ghost btn-sm">Effacer</a>
     {% endif %}
   </div>
 </form>
 
+<!-- ── Tableau ── -->
 <div class="t-wrap">
-  <div class="t-row t-head" style="grid-template-columns:44px 1fr 90px 110px 60px 60px 80px 140px;">
+  <div class="t-row t-head joueur-col">
     <div class="th">#</div>
     <div class="th">Joueur</div>
     <div class="th">Poste</div>
@@ -53,24 +245,39 @@
     <div class="th">Statut</div>
     <div class="th" style="text-align:right;">Actions</div>
   </div>
+
   {% for j in joueurs %}
-  <div class="t-row" id="row-j{{ j.pk }}" style="grid-template-columns:44px 1fr 90px 110px 60px 60px 80px 140px;">
-    <div style="font-family:var(--font-mono);font-size:12px;color:rgba(11,11,11,.38);font-weight:600;">{{ j.numero }}</div>
+  <div class="t-row joueur-col" id="row-j{{ j.pk }}">
+
+    <div class="j-num">{{ j.numero }}</div>
+
     <div style="display:flex;align-items:center;gap:10px;">
       {% if j.photo %}
-        <img src="{{ j.photo.url }}" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(11,11,11,.08);">
+        <img src="{{ j.photo.url }}" alt="{{ j.prenom }}" class="j-av">
       {% else %}
-        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#C8161D,#8A0D12);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0;letter-spacing:.03em;">{{ j.prenom|slice:":1"|upper }}{{ j.nom|slice:":1"|upper }}</div>
+        <div class="j-av-fb">{{ j.prenom|slice:":1"|upper }}{{ j.nom|slice:":1"|upper }}</div>
       {% endif %}
-      <div>
-        <div style="font-weight:500;font-size:13px;">{{ j.prenom }} {{ j.nom }}</div>
-        <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);">{{ j.age }} ans</div>
+      <div style="min-width:0;">
+        <div style="font-weight:500;font-size:13px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ j.prenom }} {{ j.nom }}</div>
+        <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.4);margin-top:1px;">{{ j.age }} ans</div>
       </div>
     </div>
-    <div><span class="pill">{{ j.poste }}</span></div>
-    <div style="font-size:12.5px;color:rgba(11,11,11,.65);">{{ j.nationalite }}</div>
-    <div style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--ink);">{{ j.matchs_joues }}</div>
-    <div style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--ink);">{{ j.buts }}</div>
+
+    <div>
+      <span class="pill
+        {% if j.poste == 'GK' %}pill-gk
+        {% elif j.poste == 'DEF' %}pill-def
+        {% elif j.poste == 'MIL' %}pill-mil
+        {% elif j.poste == 'ATT' %}pill-att
+        {% endif %}">{{ j.poste }}</span>
+    </div>
+
+    <div style="font-size:12.5px;color:rgba(11,11,11,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ j.nationalite }}</div>
+
+    <div class="j-stat">{{ j.matchs_joues }}</div>
+
+    <div class="j-stat" style="{% if j.buts > 0 %}color:#C8161D;{% endif %}">{{ j.buts }}</div>
+
     <div>
       {% if j.actif %}
         <span class="badge-status bs-accepted">Actif</span>
@@ -78,12 +285,13 @@
         <span class="badge-status bs-refused">Inactif</span>
       {% endif %}
     </div>
+
     <div class="row-actions">
       <a href="{% url 'admin_joueur_detail' j.pk %}" class="ic-btn" title="Voir le profil">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
       </a>
-      <a href="{% url 'admin_joueur_pdf' j.pk %}" class="ic-btn" title="Télécharger PDF">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <a href="{% url 'admin_joueur_pdf' j.pk %}" class="ic-btn" title="Fiche PDF">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       </a>
       <a href="{% url 'admin_joueur_edit' j.pk %}" class="ic-btn" title="Modifier">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -92,12 +300,17 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
       </button>
     </div>
+
   </div>
   {% empty %}
-  <div class="empty-state">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <p>Aucun joueur trouvé</p>
+  <div class="empty-state-lg">
+    <div class="es-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+    <div class="es-title">Aucun joueur trouvé</div>
+    <p class="es-sub">{% if q %}Aucun résultat pour « {{ q }} »{% else %}L'effectif est vide — commencez par ajouter un joueur{% endif %}</p>
   </div>
   {% endfor %}
 </div>
+
 {% endblock %}

@@ -1,0 +1,85 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}Enregistrer un versement — {{ cotisation.joueur.nom_complet }}{% endblock %}
+
+{% block content %}
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_cotisations_dashboard' %}">Cotisations</a>
+      <span class="sep">›</span>
+      <a href="{% url 'admin_cotisation_detail' cotisation.pk %}">{{ cotisation.joueur.nom_complet }}</a>
+      <span class="sep">›</span>
+      Versement
+    </div>
+    <h1 class="pg-title">Versement — {{ cotisation.joueur.prenom }} {{ cotisation.joueur.nom }}</h1>
+  </div>
+</div>
+
+<!-- Récap cotisation -->
+<div style="background:#fff;border:1px solid rgba(11,11,11,.08);border-radius:13px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+  <div>
+    <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.38);">Versé</div>
+    <div style="font-family:var(--font-mono);font-size:15px;font-weight:700;color:#059669;">{{ cotisation.total_verse|floatformat:0 }} F</div>
+  </div>
+  <div style="width:1px;height:32px;background:rgba(11,11,11,.08);"></div>
+  <div>
+    <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.38);">Restant</div>
+    <div style="font-family:var(--font-mono);font-size:15px;font-weight:700;color:#B45309;">{{ cotisation.reste_a_payer|floatformat:0 }} F</div>
+  </div>
+  <div style="width:1px;height:32px;background:rgba(11,11,11,.08);"></div>
+  <div style="flex:1;min-width:140px;">
+    <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.38);margin-bottom:5px;">Progression</div>
+    <div style="height:6px;background:rgba(11,11,11,.08);border-radius:999px;overflow:hidden;">
+      <div style="height:100%;border-radius:999px;background:{% if cotisation.progression_pct >= 100 %}#059669{% elif cotisation.progression_pct >= 50 %}#B45309{% else %}#C8161D{% endif %};width:{{ cotisation.progression_pct }}%;transition:width .5s;"></div>
+    </div>
+    <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.38);margin-top:3px;">{{ cotisation.nb_versements_valides }}/9 · {{ cotisation.progression_pct }}%</div>
+  </div>
+</div>
+
+<div class="form-card" style="max-width:600px;">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="field">
+        <label class="fi-label">Type de versement *</label>
+        {{ form.type_versement }}
+        {% if form.type_versement.errors %}<div class="fi-err">{{ form.type_versement.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field">
+        <label class="fi-label">Montant (FCFA) *</label>
+        {{ form.montant }}
+        <div class="fi-hint">1er versement : 200 000 F · Mensuel : 100 000 F</div>
+        {% if form.montant.errors %}<div class="fi-err">{{ form.montant.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field">
+        <label class="fi-label">Numéro de dépôt</label>
+        {{ form.compte_paiement }}
+      </div>
+      <div class="field">
+        <label class="fi-label">Référence de transaction</label>
+        {{ form.reference_transaction }}
+        <div class="fi-hint">ID visible sur la capture d'écran</div>
+      </div>
+      <div class="field">
+        <label class="fi-label">Date du versement</label>
+        {{ form.date_versement }}
+      </div>
+      <div class="field">
+        <label class="fi-label">Capture d'écran du dépôt</label>
+        {{ form.capture_depot }}
+      </div>
+      <div class="field span2">
+        <label class="fi-label">Notes internes</label>
+        {{ form.notes }}
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Enregistrer le versement
+      </button>
+      <a href="{% url 'admin_cotisation_detail' cotisation.pk %}" class="btn btn-ghost">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

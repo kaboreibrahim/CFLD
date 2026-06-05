@@ -1,13 +1,39 @@
 {% extends "admin_cfld/base.html" %}
 {% block title %}Articles{% endblock %}
 
+{% block extra_css %}
+<style>
+.art-col { grid-template-columns: 80px 1fr 105px 130px 46px 75px 80px; }
+
+/* Thumbnail article */
+.art-thumb { width:68px;height:46px;border-radius:7px;object-fit:cover;display:block;flex-shrink:0; }
+.art-thumb-fb { width:68px;height:46px;border-radius:7px;background:rgba(11,11,11,.06);display:grid;place-items:center;flex-shrink:0; }
+.art-thumb-fb svg { width:20px;height:20px;color:rgba(11,11,11,.25); }
+
+/* Catégorie avec couleurs */
+.cat-academie { background:#EDE9FE;color:#5B21B6; }
+.cat-club      { background:#DBEAFE;color:#1E40AF; }
+.cat-joueur    { background:rgba(200,22,29,.1);color:#9B0D13; }
+.cat-match     { background:rgba(5,150,105,.1);color:#065F46; }
+.cat-evenement { background:#FEF3C7;color:#92400E; }
+
+/* Étoile une */
+.star-une { color:#C8161D; }
+.star-none { color:rgba(11,11,11,.15); }
+
+/* Empty */
+.es-lg { padding:64px 24px;text-align:center; }
+.es-lg .es-ico { width:52px;height:52px;border-radius:12px;background:rgba(11,11,11,.05);display:grid;place-items:center;margin:0 auto 14px;color:rgba(11,11,11,.25); }
+.es-lg .es-ico svg { width:24px;height:24px; }
+.es-lg .es-ttl { font-family:var(--font-display);font-size:17px;font-weight:500;color:rgba(11,11,11,.4);margin:0 0 5px; }
+.es-lg .es-sub { font-family:var(--font-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:rgba(11,11,11,.28);margin:0; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-hd">
   <div class="page-hd-left">
-    <div class="pg-eyebrow">
-      <a href="{% url 'admin_dashboard' %}">Accueil</a>
-      <span class="sep">›</span> Contenu
-    </div>
+    <div class="pg-eyebrow"><a href="{% url 'admin_dashboard' %}">Accueil</a><span class="sep">›</span>Contenu</div>
     <h1 class="pg-title">Articles <span class="pg-count">{{ total }}</span></h1>
   </div>
   <div class="page-hd-right">
@@ -32,47 +58,52 @@
       <a href="?cat=match{% if q %}&q={{ q }}{% endif %}" class="f-pill {% if cat_actif == 'match' %}active{% endif %}">Match</a>
       <a href="?cat=evenement{% if q %}&q={{ q }}{% endif %}" class="f-pill {% if cat_actif == 'evenement' %}active{% endif %}">Événement</a>
     </div>
-    {% if q %}<button type="submit" class="btn btn-dark btn-sm">Chercher</button>{% endif %}
+    {% if q %}<button type="submit" class="btn btn-dark btn-sm">Chercher</button><a href="?" class="btn btn-ghost btn-sm">Effacer</a>{% endif %}
   </div>
 </form>
 
 <div class="t-wrap">
-  <div class="t-row t-head" style="grid-template-columns:68px 1fr 100px 130px 55px 75px 80px;">
+  <div class="t-row t-head art-col">
     <div class="th">Image</div>
     <div class="th">Titre</div>
     <div class="th">Catégorie</div>
-    <div class="th">Date</div>
-    <div class="th">Une</div>
+    <div class="th">Publication</div>
+    <div class="th" style="text-align:center;" title="À la une">★</div>
     <div class="th">Statut</div>
     <div class="th" style="text-align:right;">Actions</div>
   </div>
+
   {% for a in articles %}
-  <div class="t-row" id="row-a{{ a.pk }}" style="grid-template-columns:68px 1fr 100px 130px 55px 75px 80px;">
+  <div class="t-row art-col" id="row-a{{ a.pk }}">
+
     <div>
       {% if a.image %}
-        <img src="{{ a.image.url }}" alt="" style="width:54px;height:38px;object-fit:cover;border-radius:5px;display:block;">
+        <img src="{{ a.image.url }}" alt="" class="art-thumb">
       {% else %}
-        <div style="width:54px;height:38px;background:rgba(11,11,11,.06);border-radius:5px;display:grid;place-items:center;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(11,11,11,.3)" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="art-thumb-fb">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         </div>
       {% endif %}
     </div>
-    <div>
-      <div style="font-weight:500;font-size:13px;color:var(--ink);line-height:1.35;">{{ a.titre|truncatechars:65 }}</div>
-      {% if a.accroche %}<div style="font-size:11.5px;color:rgba(11,11,11,.45);margin-top:2px;line-height:1.4;">{{ a.accroche|truncatechars:90 }}</div>{% endif %}
+
+    <div style="min-width:0;">
+      <div style="font-weight:500;font-size:13px;color:var(--ink);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ a.titre|truncatechars:65 }}</div>
+      {% if a.accroche %}<div style="font-size:11.5px;color:rgba(11,11,11,.42);margin-top:2px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ a.accroche|truncatechars:80 }}</div>{% endif %}
     </div>
-    <div><span class="pill">{{ a.get_categorie_display }}</span></div>
+
+    <div>
+      <span class="pill cat-{{ a.categorie }}">{{ a.get_categorie_display }}</span>
+    </div>
+
     <div>
       <div style="font-family:var(--font-mono);font-size:11px;color:var(--ink);">{{ a.date_publication|date:"d/m/Y" }}</div>
-      <div style="font-family:var(--font-mono);font-size:10px;color:rgba(11,11,11,.38);">{{ a.date_publication|date:"H:i" }}</div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:rgba(11,11,11,.35);margin-top:1px;">{{ a.date_publication|date:"H:i" }}</div>
     </div>
+
     <div style="text-align:center;">
-      {% if a.en_une %}
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#C8161D" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      {% else %}
-        <span style="color:rgba(11,11,11,.2);">—</span>
-      {% endif %}
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="{% if a.en_une %}#C8161D{% else %}none{% endif %}" stroke="{% if a.en_une %}#C8161D{% else %}rgba(11,11,11,.2){% endif %}" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
     </div>
+
     <div>
       {% if a.publie %}
         <span class="badge-status bs-publie">Publié</span>
@@ -80,6 +111,7 @@
         <span class="badge-status bs-brouillon">Brouillon</span>
       {% endif %}
     </div>
+
     <div class="row-actions">
       <a href="{% url 'admin_article_edit' a.pk %}" class="ic-btn" title="Modifier">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -90,9 +122,10 @@
     </div>
   </div>
   {% empty %}
-  <div class="empty-state">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-    <p>Aucun article trouvé</p>
+  <div class="es-lg">
+    <div class="es-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+    <div class="es-ttl">Aucun article</div>
+    <p class="es-sub">{% if q %}Aucun résultat pour « {{ q }} »{% else %}Rédigez votre premier article{% endif %}</p>
   </div>
   {% endfor %}
 </div>

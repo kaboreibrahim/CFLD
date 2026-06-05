@@ -18,6 +18,7 @@ from medias.forms import ArticleForm, PhotoForm, VideoForm
 from pages.forms import InfoTickerForm
 from recrutement.pdf_utils import generer_pdf_inscription
 from recrutement.email_utils import envoyer_validation_inscription, envoyer_refus_inscription
+from payments.models import PaiementVisiteMedicale, PaiementInscription
 
 
 # ── Décorateur staff ─────────────────────────────────────────
@@ -33,9 +34,11 @@ def staff_required(view_func):
 def _base_ctx(request, section=''):
     """Contexte commun injecté dans tous les templates admin."""
     return {
-        'pending_count': Candidature.objects.filter(statut='pending').count(),
-        'unread_count':  Message.objects.filter(lu=False).count(),
-        'section':       section,
+        'pending_count':       Candidature.objects.filter(statut='pending').count(),
+        'unread_count':        Message.objects.filter(lu=False).count(),
+        'section':             section,
+        'pending_visite':      PaiementVisiteMedicale.objects.filter(statut_validation='pending').count(),
+        'pending_inscription': PaiementInscription.objects.filter(statut_validation='pending').count(),
     }
 
 
@@ -66,9 +69,12 @@ def admin_joueurs(request):
         qs = qs.filter(nom__icontains=q) | qs.filter(prenom__icontains=q)
     if poste != 'all':
         qs = qs.filter(poste=poste)
+    from django.db.models import Count
+    stats = {item['poste']: item['n'] for item in
+             Joueur.objects.values('poste').annotate(n=Count('pk'))}
     ctx = _base_ctx(request, 'joueurs')
     ctx.update({'joueurs': qs, 'q': q, 'poste_actif': poste,
-                'total': Joueur.objects.count()})
+                'total': Joueur.objects.count(), 'stats_postes': stats})
     return render(request, 'admin_cfld/joueurs.html', ctx)
 
 

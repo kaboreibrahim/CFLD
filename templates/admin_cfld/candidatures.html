@@ -1,31 +1,320 @@
 {% extends "admin_cfld/base.html" %}
 {% block title %}Candidatures{% endblock %}
 
+{% block extra_css %}
+<style>
+/* ── Pipeline funnel ── */
+.pipeline {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  background: #fff;
+  border: 1px solid rgba(11,11,11,.1);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.pipe-step {
+  padding: 18px 20px 16px;
+  position: relative;
+  border-right: 1px solid rgba(11,11,11,.07);
+  transition: background .13s;
+}
+.pipe-step:last-child { border-right: 0; }
+.pipe-step:hover { background: #FDFCF8; }
+.pipe-arrow {
+  position: absolute;
+  right: -11px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border: 1px solid rgba(11,11,11,.1);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+  color: rgba(11,11,11,.3);
+}
+.pipe-arrow svg { width: 10px; height: 10px; }
+.pipe-step:last-child .pipe-arrow { display: none; }
+.pipe-ico {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 10px;
+}
+.pipe-ico svg { width: 14px; height: 14px; }
+.pipe-lbl {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.4);
+  margin-bottom: 4px;
+}
+.pipe-val {
+  font-family: var(--font-display);
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+.pipe-sub {
+  font-size: 11px;
+  color: rgba(11,11,11,.38);
+  margin-top: 6px;
+}
+.pipe-bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 0;
+}
+
+/* ── Bannière migration ── */
+.migration-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-left: 3px solid #D97706;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+}
+.migration-banner-info { display: flex; align-items: center; gap: 10px; }
+.migration-banner-info svg { flex-shrink: 0; color: #D97706; width: 18px; height: 18px; }
+.migration-title { font-weight: 600; font-size: 13.5px; color: #78350F; }
+.migration-sub { font-family: var(--font-mono); font-size: 10px; color: #92400E; margin-top: 2px; letter-spacing: .03em; }
+
+/* ── Tableau ── */
+.cand-col { grid-template-columns: 96px 1.5fr 90px 55px 1fr 90px auto; }
+
+/* Bordure gauche statut */
+.cand-row-pending  { border-left: 2.5px solid #D97706; }
+.cand-row-waiting  { border-left: 2.5px solid #2563EB; }
+.cand-row-refused  { border-left: 2.5px solid #9CA3AF; opacity: .75; }
+.cand-row-accepted { border-left: 2.5px solid #059669; }
+
+/* Photo / avatar candidat */
+.cand-photo {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid rgba(11,11,11,.07);
+}
+.cand-initials {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #C8161D, #8A0D12);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: .03em;
+}
+.cand-name-main { font-weight: 500; font-size: 13px; color: var(--ink); }
+.cand-name-sub  { font-family: var(--font-mono); font-size: 9.5px; color: rgba(11,11,11,.4); margin-top: 1px; }
+
+/* Boutons d'action principaux */
+.action-btns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+.act-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  font-family: var(--font-text);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all .14s;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.act-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
+.act-btn.accept {
+  background: rgba(5,150,105,.1);
+  color: #065F46;
+  border-color: rgba(5,150,105,.25);
+}
+.act-btn.accept:hover { background: #059669; color: #fff; border-color: #059669; }
+.act-btn.refuse {
+  background: rgba(200,22,29,.08);
+  color: #9B0D13;
+  border-color: rgba(200,22,29,.2);
+}
+.act-btn.refuse:hover { background: #C8161D; color: #fff; border-color: #C8161D; }
+.act-btn.wait {
+  background: rgba(37,99,235,.08);
+  color: #1E3A8A;
+  border-color: rgba(37,99,235,.2);
+}
+.act-btn.wait:hover { background: #2563EB; color: #fff; border-color: #2563EB; }
+.act-btn.pdf {
+  background: rgba(11,11,11,.05);
+  color: rgba(11,11,11,.55);
+  border-color: rgba(11,11,11,.12);
+}
+.act-btn.pdf:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+.act-btn.spin { pointer-events: none; opacity: .6; }
+
+/* Spinner inline */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 11px; height: 11px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ── Modale de confirmation ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11,11,11,.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s;
+}
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+.modal-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(11,11,11,.2);
+  transform: scale(.96) translateY(6px);
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1);
+}
+.modal-overlay.open .modal-box {
+  transform: scale(1) translateY(0);
+}
+.modal-icon {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: rgba(200,22,29,.1);
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+  color: #C8161D;
+}
+.modal-icon svg { width: 20px; height: 20px; }
+.modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 500; margin: 0 0 8px; color: var(--ink); }
+.modal-body { font-size: 13.5px; color: rgba(11,11,11,.6); line-height: 1.55; margin: 0; }
+.modal-candidate-name { font-weight: 600; color: var(--ink); }
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 22px;
+}
+.modal-actions .btn { flex: 1; justify-content: center; }
+
+/* ── État vide amélioré ── */
+.empty-state-lg {
+  padding: 72px 24px;
+  text-align: center;
+}
+.empty-state-lg .es-icon {
+  width: 56px; height: 56px;
+  border-radius: 14px;
+  background: rgba(11,11,11,.05);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 16px;
+  color: rgba(11,11,11,.25);
+}
+.empty-state-lg .es-icon svg { width: 26px; height: 26px; }
+.empty-state-lg .es-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+  color: rgba(11,11,11,.4);
+  margin: 0 0 6px;
+}
+.empty-state-lg .es-sub {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.28);
+  margin: 0;
+}
+
+@media (max-width: 1100px) {
+  .pipeline { grid-template-columns: 1fr 1fr; }
+  .pipe-step:nth-child(2) { border-right: 0; }
+  .pipe-step:nth-child(2) .pipe-arrow,
+  .pipe-step:nth-child(4) .pipe-arrow { display: none; }
+}
+@media (max-width: 768px) {
+  .pipeline { grid-template-columns: 1fr 1fr; }
+  .pipe-val  { font-size: 30px; }
+  .act-btn span { display: none; }
+  .act-btn { padding: 6px 8px; }
+  .act-btn svg { width: 13px; height: 13px; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
+
+<!-- ── En-tête ── -->
 <div class="page-hd">
   <div class="page-hd-left">
     <div class="pg-eyebrow">
       <a href="{% url 'admin_dashboard' %}">Accueil</a>
       <span class="sep">›</span> Recrutement
     </div>
-    <h1 class="pg-title">Candidatures</h1>
+    <h1 class="pg-title">Candidatures <span class="pg-count">{{ stats.total }}</span></h1>
   </div>
   <div class="page-hd-right">
     <a href="{% url 'admin_joueurs' %}" class="btn btn-ghost btn-sm">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      Voir les joueurs
+      Voir l'effectif
     </a>
   </div>
 </div>
 
-<!-- Bannière migration si des candidatures acceptées ne sont pas encore dans l'effectif -->
+<!-- ── Bannière migration ── -->
 {% if non_migrees_count %}
-<div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
-  <div style="display:flex;align-items:center;gap:10px;">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+<div class="migration-banner">
+  <div class="migration-banner-info">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     <div>
-      <div style="font-weight:600;font-size:13.5px;color:#78350F;">{{ non_migrees_count }} candidature{{ non_migrees_count|pluralize }} acceptée{{ non_migrees_count|pluralize }} non encore dans l'effectif</div>
-      <div style="font-family:var(--font-mono);font-size:10px;color:#92400E;margin-top:2px;letter-spacing:.04em;">Ces joueurs ont été acceptés mais ne figurent pas encore dans la liste des joueurs.</div>
+      <div class="migration-title">{{ non_migrees_count }} candidature{{ non_migrees_count|pluralize }} acceptée{{ non_migrees_count|pluralize }} non dans l'effectif</div>
+      <div class="migration-sub">Ces joueurs ont été acceptés mais ne figurent pas encore dans la liste des joueurs.</div>
     </div>
   </div>
   <button class="btn btn-dark btn-sm" id="btnMigrer" onclick="migrerTous()">
@@ -35,40 +324,71 @@
 </div>
 {% endif %}
 
-<!-- KPI -->
-<div class="kpi-row">
-  <div class="kpi">
-    <div class="kpi-ico slate">
+<!-- ── Pipeline de recrutement ── -->
+<div class="pipeline">
+
+  <!-- Total -->
+  <div class="pipe-step">
+    <div class="pipe-bar" style="background:linear-gradient(90deg,#64748B,#94A3B8);"></div>
+    <div class="pipe-ico" style="background:rgba(11,11,11,.06);color:rgba(11,11,11,.45);">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     </div>
-    <div class="kpi-lbl">En cours</div>
-    <div class="kpi-val">{{ stats.total }}</div>
-    <div class="kpi-sub">hors acceptées</div>
+    <div class="pipe-lbl">Total en cours</div>
+    <div class="pipe-val" style="color:var(--ink);">{{ stats.total }}</div>
+    <div class="pipe-sub">hors acceptées</div>
+    <div class="pipe-arrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
   </div>
-  <div class="kpi {% if stats.pending %}k-amber{% endif %}">
-    <div class="kpi-ico {% if stats.pending %}amber{% else %}slate{% endif %}">
+
+  <!-- En attente -->
+  <div class="pipe-step">
+    <div class="pipe-bar" style="background:linear-gradient(90deg,#B45309,#F59E0B);"></div>
+    <div class="pipe-ico" style="background:rgba(180,83,9,.1);color:#B45309;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     </div>
-    <div class="kpi-lbl">En attente</div>
-    <div class="kpi-val">{{ stats.pending }}</div>
-    <div class="kpi-sub">à traiter</div>
-  </div>
-  <div class="kpi k-blue">
-    <div class="kpi-ico blue">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div class="pipe-lbl">En attente</div>
+    <div class="pipe-val" style="color:{% if stats.pending %}#92400E{% else %}rgba(11,11,11,.25){% endif %};">{{ stats.pending }}</div>
+    <div class="pipe-sub">
+      {% if stats.pending %}<a href="?statut=pending" style="color:#B45309;text-decoration:none;font-weight:500;">Traiter →</a>{% else %}Aucune{% endif %}
     </div>
-    <div class="kpi-lbl">Mise en attente</div>
-    <div class="kpi-val">{{ stats.waiting }}</div>
+    <div class="pipe-arrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
   </div>
-  <div class="kpi">
-    <div class="kpi-ico slate">
+
+  <!-- Mise en attente -->
+  <div class="pipe-step">
+    <div class="pipe-bar" style="background:linear-gradient(90deg,#2563EB,#60A5FA);"></div>
+    <div class="pipe-ico" style="background:rgba(37,99,235,.1);color:#2563EB;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="10" y1="15" x2="10" y2="3"/><line x1="14" y1="15" x2="14" y2="3"/><rect x="3" y="15" width="18" height="6" rx="2"/></svg>
+    </div>
+    <div class="pipe-lbl">Mise en attente</div>
+    <div class="pipe-val" style="color:{% if stats.waiting %}#1E3A8A{% else %}rgba(11,11,11,.25){% endif %};">{{ stats.waiting }}</div>
+    <div class="pipe-sub">
+      {% if stats.waiting %}<a href="?statut=waiting" style="color:#2563EB;text-decoration:none;font-weight:500;">Voir →</a>{% else %}Aucune{% endif %}
+    </div>
+    <div class="pipe-arrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  </div>
+
+  <!-- Refusées -->
+  <div class="pipe-step">
+    <div class="pipe-bar" style="background:linear-gradient(90deg,#9CA3AF,#D1D5DB);"></div>
+    <div class="pipe-ico" style="background:rgba(11,11,11,.06);color:rgba(11,11,11,.4);">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </div>
-    <div class="kpi-lbl">Refusées</div>
-    <div class="kpi-val">{{ stats.refused }}</div>
+    <div class="pipe-lbl">Refusées</div>
+    <div class="pipe-val" style="color:rgba(11,11,11,.35);">{{ stats.refused }}</div>
+    <div class="pipe-sub">
+      {% if stats.refused %}<a href="?statut=refused" style="color:rgba(11,11,11,.45);text-decoration:none;font-weight:500;">Voir →</a>{% else %}Aucune{% endif %}
+    </div>
   </div>
+
 </div>
 
+<!-- ── Filtres ── -->
 <form method="get">
   <div class="filter-bar">
     <div class="search-wrap">
@@ -77,20 +397,27 @@
     </div>
     <div class="f-pills">
       <a href="?" class="f-pill {% if statut_actif == 'all' %}active{% endif %}">Toutes</a>
-      <a href="?statut=pending{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'pending' %}active{% endif %}">En attente</a>
-      <a href="?statut=waiting{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'waiting' %}active{% endif %}">Mise en attente</a>
+      <a href="?statut=pending{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'pending' %}active{% endif %}">
+        En attente{% if stats.pending %} · {{ stats.pending }}{% endif %}
+      </a>
+      <a href="?statut=waiting{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'waiting' %}active{% endif %}">
+        Mise en attente{% if stats.waiting %} · {{ stats.waiting }}{% endif %}
+      </a>
       <a href="?statut=refused{% if recherche %}&q={{ recherche }}{% endif %}" class="f-pill {% if statut_actif == 'refused' %}active{% endif %}">Refusées</a>
     </div>
-    {% if recherche %}<button type="submit" class="btn btn-dark btn-sm">Chercher</button>{% endif %}
+    {% if recherche %}
+    <button type="submit" class="btn btn-dark btn-sm">Chercher</button>
+    <a href="?" class="btn btn-ghost btn-sm">Effacer</a>
+    {% endif %}
   </div>
 </form>
 
+<!-- ── Tableau ── -->
 <div class="t-wrap">
-  <div class="t-row t-head" style="grid-template-columns:100px 1fr 80px 65px 72px 100px 80px 1fr;">
+  <div class="t-row t-head cand-col">
     <div class="th">Réf.</div>
     <div class="th">Candidat</div>
-    <div class="th">Section</div>
-    <div class="th">Poste</div>
+    <div class="th">Section / Poste</div>
     <div class="th">Âge</div>
     <div class="th">Contact</div>
     <div class="th">Statut</div>
@@ -98,172 +425,261 @@
   </div>
 
   {% for c in candidatures %}
-  <div class="t-row" id="row-c{{ c.pk }}" style="grid-template-columns:100px 1fr 80px 65px 72px 100px 80px 1fr;">
+  <div class="t-row cand-col cand-row-{{ c.statut }}" id="row-c{{ c.pk }}">
 
-    <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);letter-spacing:.04em;">{{ c.reference }}</div>
+    <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);letter-spacing:.04em;line-height:1.5;">{{ c.reference }}</div>
 
     <div style="display:flex;align-items:center;gap:10px;">
       {% if c.photo %}
-        <img src="{{ c.photo.url }}" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(11,11,11,.08);">
+        <img src="{{ c.photo.url }}" alt="{{ c.prenom }}" class="cand-photo">
       {% else %}
-        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#C8161D,#8A0D12);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ c.initiales }}</div>
+        <div class="cand-initials">{{ c.initiales }}</div>
       {% endif %}
-      <div>
-        <div style="font-weight:500;font-size:13px;color:var(--ink);">{{ c.prenom }} {{ c.nom }}</div>
-        <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);">{{ c.nationalite }}</div>
+      <div style="min-width:0;">
+        <div class="cand-name-main">{{ c.prenom }} {{ c.nom }}</div>
+        <div class="cand-name-sub">{{ c.nationalite }}</div>
       </div>
     </div>
 
-    <div>
+    <div style="display:flex;flex-direction:column;gap:4px;">
       <span class="pill" {% if c.sexe == 'F' %}style="background:rgba(200,22,29,.12);color:#8A0D12;"{% endif %}>{{ c.section }}</span>
+      <span class="pill">{{ c.poste }}</span>
     </div>
 
-    <div><span class="pill">{{ c.poste }}</span></div>
+    <div style="font-family:var(--font-mono);font-size:12px;color:rgba(11,11,11,.55);">{{ c.age }}<span style="font-size:9px;color:rgba(11,11,11,.35);margin-left:2px;">ans</span></div>
 
-    <div style="font-family:var(--font-mono);font-size:12px;color:rgba(11,11,11,.6);">{{ c.age }} ans</div>
-
-    <div>
-      <div style="font-size:11px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:95px;">{{ c.email|truncatechars:18 }}</div>
-      <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);">{{ c.telephone_whatsapp }}</div>
+    <div style="min-width:0;">
+      <div style="font-size:11px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.email|truncatechars:20 }}</div>
+      <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.4);margin-top:2px;">{{ c.telephone_whatsapp }}</div>
     </div>
 
     <div>
       <span class="badge-status bs-{{ c.statut }}" id="badge-{{ c.pk }}">{{ c.get_statut_display }}</span>
     </div>
 
-    <div class="row-actions" style="flex-wrap:wrap;gap:4px;justify-content:flex-end;">
+    <!-- Actions -->
+    <div class="action-btns" id="actions-{{ c.pk }}" style="justify-content:flex-end;">
       {% if c.statut != 'accepted' %}
-      <button class="ic-btn ok" title="Accepter — intègre l'effectif automatiquement" onclick="doAction({{ c.pk }}, 'accept')">
+      <button class="act-btn accept" title="Accepter et intégrer dans l'effectif" onclick="doAction({{ c.pk }}, 'accept', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      </button>
-      {% endif %}
-      {% if c.statut != 'refused' %}
-      <button class="ic-btn del" title="Refuser" onclick="doAction({{ c.pk }}, 'refuse')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <span>Accepter</span>
       </button>
       {% endif %}
       {% if c.statut == 'pending' %}
-      <button class="ic-btn info" title="Mettre en attente" onclick="doAction({{ c.pk }}, 'wait')">
+      <button class="act-btn wait" title="Mettre en liste d'attente" onclick="doAction({{ c.pk }}, 'wait', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="10" y1="15" x2="10" y2="3"/><line x1="14" y1="15" x2="14" y2="3"/><rect x="3" y="15" width="18" height="6" rx="2"/></svg>
+        <span>Attente</span>
+      </button>
+      {% endif %}
+      {% if c.statut != 'refused' %}
+      <button class="act-btn refuse" title="Refuser la candidature" onclick="openRefuseModal({{ c.pk }}, '{{ c.prenom|escapejs }} {{ c.nom|escapejs }}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <span>Refuser</span>
       </button>
       {% endif %}
       {% if c.pdf_inscription %}
-      <a href="{% url 'candidature_pdf_voir' c.pk %}" target="_blank" class="ic-btn" title="Voir le PDF">
+      <a href="{% url 'candidature_pdf_voir' c.pk %}" target="_blank" class="act-btn pdf" title="Voir le PDF">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-      </a>
-      <a href="{% url 'candidature_pdf_telecharger' c.pk %}" class="ic-btn" title="Télécharger le PDF">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>PDF</span>
       </a>
       {% endif %}
-      <button class="ic-btn" title="Régénérer le PDF" onclick="regenererPDF({{ c.pk }})">
+      <button class="ic-btn" title="Régénérer le PDF" onclick="regenererPDF({{ c.pk }}, this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
       </button>
     </div>
 
   </div>
   {% empty %}
-  <div class="empty-state">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    <p>Aucune candidature</p>
+  <div class="empty-state-lg">
+    <div class="es-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <div class="es-title">Aucune candidature</div>
+    <p class="es-sub">{% if recherche %}Aucun résultat pour « {{ recherche }} »{% elif statut_actif != 'all' %}Aucune candidature dans ce statut{% else %}Les candidatures apparaîtront ici{% endif %}</p>
   </div>
   {% endfor %}
 </div>
+
+<!-- ── Modale confirmation refus ── -->
+<div class="modal-overlay" id="refuseModal">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+    <h2 class="modal-title">Refuser la candidature</h2>
+    <p class="modal-body">
+      Vous êtes sur le point de refuser la candidature de <span class="modal-candidate-name" id="modalName"></span>. Cette action peut être annulée en acceptant ultérieurement le candidat.
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeRefuseModal()">Annuler</button>
+      <button class="btn btn-dark" id="modalConfirmBtn" onclick="confirmRefuse()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:14px;height:14px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Confirmer le refus
+      </button>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-const LABELS = { pending:'En attente', waiting:'Mise en attente', accepted:'Acceptée', refused:'Refusée' };
+const LABELS  = { pending:'En attente', waiting:'Mise en attente', accepted:'Acceptée', refused:'Refusée' };
 const CLASSES = { pending:'bs-pending', waiting:'bs-waiting', accepted:'bs-accepted', refused:'bs-refused' };
 
-function doAction(pk, action) {
-  const row = document.getElementById('row-c' + pk);
+let _refusePk   = null;
+let _refuseBtn  = null;
+
+/* ─── Actions candidature ─── */
+function doAction(pk, action, btn) {
+  if (btn) {
+    btn.classList.add('spin');
+    btn.innerHTML = '<span class="spinner"></span>';
+  }
   const fd = new FormData();
   fd.append('action', action);
   fetch(`/admin-cfld/candidature/${pk}/action/`, {
     method: 'POST',
     headers: { 'X-CSRFToken': '{{ csrf_token }}' },
     body: fd,
-  }).then(r => r.json()).then(d => {
+  })
+  .then(r => r.json())
+  .then(d => {
     if (d.success) {
       if (d.statut === 'accepted') {
-        // Candidature acceptée → retirer immédiatement de la liste
+        const row = document.getElementById('row-c' + pk);
         if (row) {
-          row.style.transition = 'opacity .35s, transform .35s, max-height .4s';
+          row.style.transition = 'opacity .35s, transform .35s';
           row.style.opacity = '0';
-          row.style.transform = 'translateX(12px)';
-          setTimeout(() => {
-            row.style.maxHeight = '0';
-            row.style.overflow = 'hidden';
-            row.style.padding = '0';
-            setTimeout(() => row.remove(), 300);
-          }, 350);
+          row.style.transform = 'translateX(14px)';
+          setTimeout(() => row.remove(), 360);
         }
-        showToast('✓ Accepté — joueur intégré dans l\'effectif', 'ok');
-        // Mettre à jour le KPI "En attente"
-        _decKPI();
+        showToast('Accepté — joueur intégré dans l\'effectif', 'ok');
       } else {
-        // Juste mise à jour du badge
         const badge = document.getElementById('badge-' + pk);
         if (badge) {
           badge.textContent = LABELS[d.statut] || d.statut;
           badge.className = 'badge-status ' + (CLASSES[d.statut] || '');
         }
+        // Mettre à jour la bordure de la ligne
+        const row = document.getElementById('row-c' + pk);
+        if (row) {
+          row.className = row.className.replace(/cand-row-\w+/, 'cand-row-' + d.statut);
+        }
         showToast('Statut mis à jour', 'ok');
       }
-    } else { showToast('Erreur', 'err'); }
-  }).catch(() => showToast('Erreur réseau', 'err'));
+    } else {
+      showToast('Erreur', 'err');
+      if (btn) { btn.classList.remove('spin'); }
+    }
+  })
+  .catch(() => {
+    showToast('Erreur réseau', 'err');
+    if (btn) { btn.classList.remove('spin'); }
+  });
 }
 
-function _decKPI() {
-  // Pas de rechargement forcé — le compteur se met à jour au prochain chargement
+/* ─── Modale refus ─── */
+function openRefuseModal(pk, name) {
+  _refusePk = pk;
+  document.getElementById('modalName').textContent = name;
+  document.getElementById('refuseModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
-
-function _injecterBoutonsPDF(pk, urlVoir, urlDl) {
-  const actionsDiv = document.querySelector('#row-c' + pk + ' .row-actions');
-  if (!actionsDiv) return;
-  actionsDiv.querySelectorAll('.pdf-btn').forEach(b => b.remove());
-  const mkBtn = (tag, href, title, svgPath) => {
-    const el = document.createElement(tag);
-    if (href) { el.href = href; if (urlVoir === href) el.target = '_blank'; }
-    el.className = 'ic-btn pdf-btn';
-    el.title = title;
-    el.style.textDecoration = 'none';
-    el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${svgPath}</svg>`;
-    return el;
-  };
-  actionsDiv.appendChild(mkBtn('a', urlVoir, 'Voir le PDF', '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'));
-  actionsDiv.appendChild(mkBtn('a', urlDl, 'Télécharger', '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>'));
+function closeRefuseModal() {
+  document.getElementById('refuseModal').classList.remove('open');
+  document.body.style.overflow = '';
+  _refusePk  = null;
+  _refuseBtn = null;
 }
+function confirmRefuse() {
+  if (!_refusePk) return;
+  const confirmBtn = document.getElementById('modalConfirmBtn');
+  confirmBtn.disabled = true;
+  confirmBtn.innerHTML = '<span class="spinner"></span> Refus en cours…';
+  doAction(_refusePk, 'refuse', null);
+  closeRefuseModal();
+  confirmBtn.disabled = false;
+  confirmBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:14px;height:14px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Confirmer le refus';
+}
+document.getElementById('refuseModal').addEventListener('click', function(e) {
+  if (e.target === this) closeRefuseModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeRefuseModal();
+});
 
-function regenererPDF(pk) {
+/* ─── Régénération PDF ─── */
+function regenererPDF(pk, btn) {
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+  }
   fetch(`/admin-cfld/candidature/${pk}/pdf/regenerer/`, {
     method: 'POST',
     headers: { 'X-CSRFToken': '{{ csrf_token }}' },
     body: new FormData(),
-  }).then(r => r.json()).then(d => {
-    if (d.success) showToast('PDF régénéré', 'ok');
-    else showToast('Erreur : ' + (d.error || 'inconnue'), 'err');
-  }).catch(() => showToast('Erreur réseau', 'err'));
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      showToast('PDF régénéré', 'ok');
+      if (d.url_voir && d.url_dl) _injecterBoutonsPDF(pk, d.url_voir, d.url_dl);
+    } else {
+      showToast('Erreur : ' + (d.error || 'inconnue'), 'err');
+    }
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
+    }
+  })
+  .catch(() => {
+    showToast('Erreur réseau', 'err');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
+    }
+  });
 }
 
+function _injecterBoutonsPDF(pk, urlVoir, urlDl) {
+  const actionsDiv = document.getElementById('actions-' + pk);
+  if (!actionsDiv) return;
+  actionsDiv.querySelectorAll('.pdf-btn').forEach(b => b.remove());
+  const a = document.createElement('a');
+  a.href = urlVoir;
+  a.target = '_blank';
+  a.className = 'act-btn pdf pdf-btn';
+  a.title = 'Voir le PDF';
+  a.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span>PDF</span>';
+  actionsDiv.insertBefore(a, actionsDiv.lastElementChild);
+}
+
+/* ─── Migration masse ─── */
 function migrerTous() {
   const btn = document.getElementById('btnMigrer');
   btn.disabled = true;
-  btn.textContent = 'Migration en cours…';
+  btn.innerHTML = '<span class="spinner"></span> Migration en cours…';
   fetch('{% url "admin_migrer_acceptees" %}', {
     method: 'POST',
     headers: { 'X-CSRFToken': '{{ csrf_token }}' },
-  }).then(r => r.json()).then(d => {
+  })
+  .then(r => r.json())
+  .then(d => {
     if (d.ok) {
       const msg = `${d.migres} joueur${d.migres > 1 ? 's' : ''} migré${d.migres > 1 ? 's' : ''} dans l'effectif`;
       showToast(msg, 'ok');
-      // Masquer la bannière
-      btn.closest('div[style*="FEF3C7"]')?.remove();
-      if (d.errors && d.errors.length) {
-        console.warn('Erreurs migration:', d.errors);
-      }
-    } else { showToast('Erreur lors de la migration', 'err'); btn.disabled = false; }
-  }).catch(() => { showToast('Erreur réseau', 'err'); btn.disabled = false; });
+      btn.closest('.migration-banner')?.remove();
+    } else {
+      showToast('Erreur lors de la migration', 'err');
+      btn.disabled = false;
+      btn.innerHTML = 'Migrer vers l\'effectif';
+    }
+  })
+  .catch(() => {
+    showToast('Erreur réseau', 'err');
+    btn.disabled = false;
+  });
 }
 </script>
 {% endblock %}

@@ -1,0 +1,926 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Paiement — CFLD Centre de Formation Lancine Diomandé{% endblock %}
+{% block description %}Soumettez votre preuve de paiement pour les frais de visite médicale ou d'inscription au CFLD.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css">
+<style>
+/* ═══════════════════════════════════════════
+   CFLD PAYMENT PAGE
+   ═══════════════════════════════════════════ */
+:root {
+  --red: #C8161D;
+  --red-deep: #8A0D12;
+  --red-light: #FFF0F0;
+  --ink: #0B0B0B;
+  --paper: #F7F5F1;
+  --muted: rgba(11,11,11,.45);
+  --border: rgba(11,11,11,.1);
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-text: 'Inter Tight', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+.pay-page { background: #F0EEE7; min-height: 100vh; }
+
+/* ── HERO ── */
+.pay-hero {
+  background: linear-gradient(135deg, #130505 0%, #1a0808 50%, #2d0a0a 100%);
+  position: relative; overflow: hidden;
+  padding: 52px 20px 44px;
+  text-align: center;
+}
+.pay-hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(200,22,29,.25), transparent);
+  pointer-events: none;
+}
+.pay-hero-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px; padding: 5px 14px 5px 10px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.7);
+  backdrop-filter: blur(8px); margin-bottom: 20px;
+}
+.pay-hero-tag span { width: 6px; height: 6px; border-radius: 50%; background: #EE2630; flex-shrink: 0; animation: blink 1.6s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+.pay-hero h1 {
+  font-family: var(--font-display); font-size: clamp(26px, 5vw, 40px);
+  font-weight: 600; color: #F7F5F1; line-height: 1.1; letter-spacing: -.025em;
+  margin-bottom: 12px;
+}
+.pay-hero p { font-size: 14px; color: rgba(247,245,241,.6); max-width: 480px; margin: 0 auto 20px; line-height: 1.6; }
+.pay-hero-badges { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+.pay-badge {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 999px; padding: 4px 12px;
+  font-family: var(--font-mono); font-size: 9.5px; font-weight: 600;
+  letter-spacing: .1em; color: rgba(255,255,255,.5);
+}
+
+/* ── MAIN ── */
+.pay-main { max-width: 640px; margin: 0 auto; padding: 28px 16px 64px; }
+
+/* ── STEP INDICATOR ── */
+.step-bar { display: flex; align-items: center; margin-bottom: 28px; }
+.step-dot {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2px solid rgba(11,11,11,.15); background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 700;
+  color: rgba(11,11,11,.35); transition: all .3s; flex-shrink: 0;
+}
+.step-dot.done { background: var(--red); border-color: var(--red); color: #fff; }
+.step-dot.current { background: #fff; border-color: var(--red); color: var(--red); box-shadow: 0 0 0 4px rgba(200,22,29,.12); }
+.step-line { flex: 1; height: 2px; background: rgba(11,11,11,.1); transition: background .4s; margin: 0 6px; }
+.step-line.done { background: var(--red); }
+.step-labels { display: flex; justify-content: space-between; margin-top: 8px; }
+.step-lbl { font-family: var(--font-mono); font-size: 8.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); text-align: center; flex: 1; }
+.step-lbl.current { color: var(--red); font-weight: 700; }
+
+/* ── PROGRESS BAR ── */
+.pay-progress { height: 3px; background: rgba(11,11,11,.08); border-radius: 999px; margin-bottom: 6px; }
+.pay-progress-fill { height: 100%; background: var(--red); border-radius: 999px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+.pay-step-lbl { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-align: right; margin-bottom: 18px; letter-spacing: .08em; }
+
+/* ── PANELS ── */
+.step-panel { display: none; }
+.step-panel.active { display: block; animation: fadeUp .28s cubic-bezier(.4,0,.2,1); }
+.step-panel.active.rev { animation: fadeUpRev .28s cubic-bezier(.4,0,.2,1); }
+@keyframes fadeUp    { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeUpRev { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── CARD ── */
+.pay-card {
+  background: #fff; border: 1px solid rgba(11,11,11,.08);
+  border-radius: 18px; overflow: hidden;
+  box-shadow: 0 2px 16px rgba(11,11,11,.06);
+}
+.card-hd {
+  padding: 20px 24px 18px;
+  border-bottom: 1px solid rgba(11,11,11,.06);
+  display: flex; align-items: center; gap: 14px;
+}
+.card-hd-icon {
+  width: 42px; height: 42px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.card-hd-icon svg { width: 20px; height: 20px; }
+.card-hd-step { font-family: var(--font-mono); font-size: 9px; letter-spacing: .25em; text-transform: uppercase; margin-bottom: 3px; }
+.card-hd h2 { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--ink); line-height: 1.1; letter-spacing: -.02em; }
+.card-body { padding: 22px 24px; display: flex; flex-direction: column; gap: 18px; }
+
+/* ── FIELDS ── */
+.fi-label { display: block; font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: rgba(11,11,11,.45); margin-bottom: 7px; }
+.fi-label .req { color: var(--red); }
+.fi-input {
+  width: 100%; min-height: 48px; border-radius: 11px;
+  border: 1.5px solid rgba(11,11,11,.12); background: #FAFAF8;
+  padding: 11px 14px; font-size: 14px; font-weight: 500; color: var(--ink);
+  font-family: var(--font-text); transition: border-color .2s, box-shadow .2s, background .2s;
+  appearance: none; -webkit-appearance: none;
+}
+.fi-input::placeholder { color: rgba(11,11,11,.28); font-weight: 400; }
+.fi-input:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(200,22,29,.1); background: #fff; }
+.fi-input.is-err { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,.08); }
+select.fi-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23aaa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center; background-size: 16px;
+  padding-right: 36px; cursor: pointer;
+}
+textarea.fi-input { min-height: 88px; resize: vertical; }
+.fi-hint { font-size: 11.5px; color: rgba(11,11,11,.4); margin-top: 5px; }
+.fi-err { display: none; align-items: center; gap: 5px; margin-top: 5px; font-size: 11.5px; font-weight: 600; color: #DC2626; }
+.fi-err.show { display: flex; }
+.fi-err svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+/* ── TYPE CARDS ── */
+.type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.type-card {
+  position: relative; padding: 16px 14px; border-radius: 13px;
+  border: 1.5px solid rgba(11,11,11,.1); background: #FAFAF8;
+  cursor: pointer; transition: all .2s; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.type-card:hover { border-color: var(--red); background: #fff; }
+.type-card.selected { border-color: var(--red); background: rgba(200,22,29,.04); box-shadow: 0 0 0 3px rgba(200,22,29,.1); }
+.type-card input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.type-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.type-icon svg { width: 22px; height: 22px; }
+.type-name { font-family: var(--font-text); font-size: 13px; font-weight: 600; color: var(--ink); }
+.type-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+/* ── REFERENCE LOOKUP ── */
+.ref-wrap { position: relative; }
+.ref-found {
+  margin-top: 10px; padding: 12px 14px; border-radius: 11px;
+  border: 1.5px solid rgba(16,185,129,.3); background: rgba(16,185,129,.06);
+  display: none; align-items: center; gap: 10px;
+}
+.ref-found.show { display: flex; }
+.ref-found-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; flex-shrink: 0; }
+.ref-found-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+.ref-found-meta { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-top: 1px; }
+.ref-not-found {
+  margin-top: 10px; padding: 10px 14px; border-radius: 11px;
+  border: 1.5px solid rgba(239,68,68,.2); background: rgba(239,68,68,.04);
+  display: none; font-size: 12px; font-weight: 600; color: #DC2626;
+}
+.ref-not-found.show { display: block; }
+
+/* ── MODE CARDS ── */
+.mode-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.mode-card {
+  position: relative; padding: 12px 8px; border-radius: 11px;
+  border: 1.5px solid rgba(11,11,11,.1); background: #FAFAF8;
+  cursor: pointer; transition: all .18s; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.mode-card:hover { border-color: var(--red); background: #fff; }
+.mode-card.selected { border-color: var(--red); background: rgba(200,22,29,.04); box-shadow: 0 0 0 3px rgba(200,22,29,.1); }
+.mode-card input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.mode-dot { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--font-mono); font-size: 10px; font-weight: 700; }
+.mode-lbl { font-size: 11px; font-weight: 600; color: var(--ink); }
+
+/* ── UPLOAD ZONE ── */
+.upload-zone {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 28px 20px; border-radius: 13px;
+  border: 2px dashed rgba(11,11,11,.13); background: #FAFAF8;
+  cursor: pointer; transition: all .2s; text-align: center;
+}
+.upload-zone:hover, .upload-zone.has-file { border-color: var(--red); background: rgba(200,22,29,.03); }
+.upload-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(11,11,11,.06); display: flex; align-items: center; justify-content: center; }
+.upload-icon svg { width: 22px; height: 22px; color: rgba(11,11,11,.35); }
+.upload-title { font-size: 13px; font-weight: 600; color: var(--ink); }
+.upload-sub { font-size: 11.5px; color: var(--muted); }
+
+/* ── COMPTES INFO ── */
+.comptes-bloc { border-radius: 13px; border: 1.5px solid rgba(11,11,11,.08); overflow: hidden; }
+.comptes-bloc-hd { padding: 10px 14px; background: rgba(11,11,11,.03); font-family: var(--font-mono); font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid rgba(11,11,11,.06); }
+.compte-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid rgba(11,11,11,.05); }
+.compte-row:last-child { border-bottom: none; }
+.compte-mode-dot { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--font-mono); font-size: 10px; font-weight: 700; flex-shrink: 0; }
+.compte-num { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--ink); }
+.compte-name { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+.compte-qr { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(11,11,11,.08); flex-shrink: 0; margin-left: auto; }
+
+/* ── RECAP ── */
+.recap-card { border-radius: 13px; background: #FAFAF8; border: 1.5px solid rgba(11,11,11,.08); overflow: hidden; }
+.recap-hd { padding: 10px 16px; background: rgba(200,22,29,.06); border-bottom: 1px solid rgba(200,22,29,.1); font-family: var(--font-mono); font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: var(--red); font-weight: 700; }
+.recap-body { padding: 4px 0; }
+.recap-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 9px 16px; border-bottom: 1px solid rgba(11,11,11,.05); }
+.recap-row:last-child { border-bottom: none; }
+.recap-k { font-family: var(--font-mono); font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); flex-shrink: 0; padding-top: 2px; }
+.recap-v { font-size: 13px; font-weight: 600; color: var(--ink); text-align: right; }
+
+/* ── CHECKLIST ── */
+.checklist { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; background: rgba(11,11,11,.02); border: 1px solid rgba(11,11,11,.06); border-radius: 12px; }
+.chk-item { display: flex; align-items: flex-start; gap: 9px; font-size: 12.5px; color: rgba(11,11,11,.65); line-height: 1.5; }
+.chk-item svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
+
+/* ── NAVIGATION ── */
+.pay-nav { display: flex; gap: 10px; margin-top: 16px; }
+.btn-prev {
+  display: none; flex: 1; height: 52px; align-items: center; justify-content: center; gap: 8px;
+  border: 1.5px solid rgba(11,11,11,.15); border-radius: 13px; background: #fff;
+  font-size: 13px; font-weight: 600; color: rgba(11,11,11,.65); cursor: pointer;
+  transition: all .15s; font-family: var(--font-text);
+}
+.btn-prev:hover { border-color: rgba(11,11,11,.3); color: var(--ink); }
+.btn-prev svg { width: 16px; height: 16px; }
+.btn-next {
+  flex: 1; height: 52px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  border: none; border-radius: 13px; background: var(--ink); cursor: pointer;
+  font-size: 13px; font-weight: 600; color: #fff; font-family: var(--font-text);
+  transition: background .15s; box-shadow: 0 4px 14px rgba(11,11,11,.18);
+}
+.btn-next:hover { background: #252525; }
+.btn-next svg { width: 16px; height: 16px; }
+.btn-submit {
+  display: none; flex: 1; height: 52px; align-items: center; justify-content: center; gap: 8px;
+  border: none; border-radius: 13px; background: var(--red); cursor: pointer;
+  font-size: 13px; font-weight: 600; color: #fff; font-family: var(--font-text);
+  transition: background .15s; box-shadow: 0 4px 14px rgba(200,22,29,.3);
+}
+.btn-submit:hover { background: var(--red-deep); }
+.btn-submit svg { width: 16px; height: 16px; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.btn-spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
+
+/* ── SUCCESS OVERLAY ── */
+.success-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  display: flex; align-items: flex-end; justify-content: center; padding: 20px;
+  background: rgba(11,11,11,.7); backdrop-filter: blur(6px);
+}
+@media (min-width: 500px) { .success-overlay { align-items: center; } }
+.success-card {
+  background: #fff; border-radius: 22px; width: 100%; max-width: 420px;
+  overflow: hidden; animation: successIn .4s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 24px 64px rgba(11,11,11,.3);
+}
+@keyframes successIn { from{opacity:0;transform:translateY(24px) scale(.96)} to{opacity:1;transform:none} }
+.success-top {
+  background: linear-gradient(135deg, #130505, #2d0a0a);
+  padding: 36px 28px 32px; text-align: center;
+}
+.success-check { width: 72px; height: 72px; border-radius: 50%; background: rgba(200,22,29,.25); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+.success-check svg { width: 36px; height: 36px; color: #EE2630; }
+.success-top h2 { font-family: var(--font-display); font-size: 26px; font-weight: 600; color: #F7F5F1; margin-bottom: 8px; letter-spacing: -.02em; }
+.success-top p { font-size: 13px; color: rgba(247,245,241,.6); line-height: 1.6; max-width: 300px; margin: 0 auto; }
+.success-actions { padding: 20px 24px; display: flex; flex-direction: column; gap: 10px; }
+.success-btn-main { height: 48px; border-radius: 12px; border: none; background: var(--red); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-text); transition: background .15s; }
+.success-btn-main:hover { background: var(--red-deep); }
+.success-btn-sec { height: 48px; border-radius: 12px; border: 1.5px solid rgba(11,11,11,.12); background: #fff; color: rgba(11,11,11,.7); font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font-text); transition: all .15s; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+.success-btn-sec:hover { border-color: rgba(11,11,11,.25); color: var(--ink); }
+
+/* ── GLOBAL ERROR ── */
+.err-banner { display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; border-radius: 12px; border: 1.5px solid rgba(239,68,68,.2); background: rgba(239,68,68,.06); margin-bottom: 16px; font-size: 13px; font-weight: 600; color: #DC2626; }
+.err-banner svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
+
+/* ── TomSelect overrides ── */
+.ts-wrapper { width: 100%; }
+.ts-wrapper .ts-control {
+  border: 1.5px solid rgba(11,11,11,.12) !important; border-radius: 11px !important;
+  background: #FAFAF8 !important; min-height: 48px !important;
+  padding: 10px 36px 10px 14px !important; box-shadow: none !important;
+  font-size: 14px !important; font-weight: 500 !important; color: var(--ink) !important;
+  font-family: var(--font-text) !important; transition: border-color .2s, box-shadow .2s !important;
+}
+.ts-wrapper.focus .ts-control { border-color: var(--red) !important; box-shadow: 0 0 0 3px rgba(200,22,29,.1) !important; background: #fff !important; }
+.ts-wrapper .ts-control input { all: unset !important; font-size: 14px !important; font-weight: 400 !important; color: var(--ink) !important; flex: 1 !important; min-width: 60px !important; }
+.ts-wrapper .ts-control input::placeholder { color: rgba(11,11,11,.28) !important; }
+.ts-wrapper .ts-control .item { background: rgba(200,22,29,.1) !important; color: var(--red) !important; border-radius: 6px !important; padding: 2px 8px !important; font-weight: 700 !important; font-size: 12px !important; border: none !important; }
+.ts-dropdown { border: 1.5px solid rgba(11,11,11,.1) !important; border-radius: 12px !important; box-shadow: 0 12px 32px rgba(11,11,11,.12) !important; overflow: hidden !important; margin-top: 4px !important; background: #fff !important; }
+.ts-dropdown .option { padding: 10px 14px !important; font-size: 13px !important; font-weight: 500 !important; color: rgba(11,11,11,.75) !important; }
+.ts-dropdown .option:hover, .ts-dropdown .option.active { background: rgba(200,22,29,.05) !important; color: var(--ink) !important; }
+.ts-dropdown .option.selected { background: rgba(200,22,29,.08) !important; color: var(--red) !important; font-weight: 700 !important; }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .type-grid { grid-template-columns: 1fr 1fr; }
+  .mode-grid { grid-template-columns: repeat(3, 1fr); }
+  .card-body { padding: 18px 16px; }
+  .card-hd { padding: 16px 18px 14px; }
+  .pay-main { padding: 20px 12px 56px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pay-page">
+
+<!-- ── HERO ── -->
+<div class="pay-hero">
+  <div class="pay-hero-tag">
+    <span></span>
+    Paiements CFLD
+  </div>
+  <h1>Soumettre une preuve<br>de paiement</h1>
+  <p>Effectuez votre dépôt via Wave, Orange Money ou autre, puis soumettez ici la capture d'écran. L'administration CFLD vérifiera avant validation.</p>
+  <div class="pay-hero-badges">
+    <span class="pay-badge">3 étapes simples</span>
+    <span class="pay-badge">Visite médicale</span>
+    <span class="pay-badge">Frais d'inscription</span>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="pay-main">
+
+  <!-- Erreur globale -->
+  {% if errors.global %}
+  <div class="err-banner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    {{ errors.global }}
+  </div>
+  {% endif %}
+
+  <!-- Step indicator -->
+  <div>
+    <div class="step-bar">
+      <div class="step-dot current" id="dot-1">1</div>
+      <div class="step-line" id="line-12"></div>
+      <div class="step-dot" id="dot-2">2</div>
+      <div class="step-line" id="line-23"></div>
+      <div class="step-dot" id="dot-3">3</div>
+    </div>
+    <div class="step-labels">
+      <span class="step-lbl current" id="lbl-1">Identification</span>
+      <span class="step-lbl" id="lbl-2">Paiement</span>
+      <span class="step-lbl" id="lbl-3">Confirmation</span>
+    </div>
+  </div>
+  <div class="pay-progress" style="margin-top:10px;">
+    <div class="pay-progress-fill" id="prog-fill" style="width:33.3%"></div>
+  </div>
+  <p class="pay-step-lbl" id="step-counter">Étape 1 / 3</p>
+
+  <form method="post" enctype="multipart/form-data" id="pay-form" novalidate>
+    {% csrf_token %}
+
+    <!-- ════════ STEP 1 : IDENTIFICATION ════════ -->
+    <div class="step-panel active" id="step-1">
+      <div class="pay-card">
+        <div class="card-hd">
+          <div class="card-hd-icon" style="background:rgba(200,22,29,.1);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#C8161D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div>
+            <div class="card-hd-step" style="color: var(--red);">Étape 1 / 3</div>
+            <h2>Identification</h2>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <!-- Type de frais -->
+          <div>
+            <label class="fi-label">Type de frais <span class="req">*</span></label>
+            <div class="type-grid">
+              <label class="type-card {% if old.type_frais == 'visite_medicale' %}selected{% endif %}" id="card-visite" onclick="selectType('visite_medicale')">
+                <input type="radio" name="type_frais" value="visite_medicale" {% if old.type_frais == 'visite_medicale' %}checked{% endif %}>
+                <div class="type-icon" style="background:rgba(200,22,29,.1);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#C8161D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg>
+                </div>
+                <div class="type-name">Visite médicale</div>
+                <div class="type-desc">Frais de visite médicale obligatoire</div>
+              </label>
+              <label class="type-card {% if old.type_frais == 'inscription' %}selected{% endif %}" id="card-inscription" onclick="selectType('inscription')">
+                <input type="radio" name="type_frais" value="inscription" {% if old.type_frais == 'inscription' %}checked{% endif %}>
+                <div class="type-icon" style="background:rgba(11,11,11,.06);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="rgba(11,11,11,.55)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                </div>
+                <div class="type-name">Inscription</div>
+                <div class="type-desc">Frais d'inscription au club</div>
+              </label>
+            </div>
+            <p class="fi-err {% if errors.type_frais %}show{% endif %}" id="err-type">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {% if errors.type_frais %}{{ errors.type_frais }}{% else %}Sélectionnez le type de frais.{% endif %}
+            </p>
+          </div>
+
+          <!-- Référence CFLD -->
+          <div>
+            <label class="fi-label" for="id_reference_cfld">Référence CFLD <span class="req">*</span></label>
+            <div class="ref-wrap">
+              <input type="text" id="id_reference_cfld" name="reference_cfld"
+                value="{{ old.reference_cfld|default:'' }}"
+                placeholder="Ex: CFLD-123456"
+                class="fi-input {% if errors.reference_cfld %}is-err{% endif %}"
+                autocomplete="off"
+                style="font-family:var(--font-mono);font-size:14px;letter-spacing:.05em;text-transform:uppercase;">
+              <div class="ref-found {% if old.reference_cfld and not errors.reference_cfld %}show{% endif %}" id="ref-found-box">
+                <div class="ref-found-dot"></div>
+                <div>
+                  <div class="ref-found-name" id="ref-found-name"></div>
+                  <div class="ref-found-meta" id="ref-found-meta"></div>
+                </div>
+              </div>
+              <div class="ref-not-found {% if errors.reference_cfld %}show{% endif %}" id="ref-notfound-box">
+                {% if errors.reference_cfld %}{{ errors.reference_cfld }}{% else %}Aucun dossier trouvé pour cette référence.{% endif %}
+              </div>
+            </div>
+            <p class="fi-hint">Votre référence figure sur votre fiche d'inscription (format CFLD-XXXXXX)</p>
+          </div>
+
+          <!-- Nom soumetteur -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+              <label class="fi-label" for="id_nom_soumetteur">Votre nom <span class="req">*</span></label>
+              <input type="text" id="id_nom_soumetteur" name="nom_soumetteur"
+                value="{{ old.nom_soumetteur|default:'' }}"
+                placeholder="Nom complet"
+                class="fi-input {% if errors.nom_soumetteur %}is-err{% endif %}">
+              <p class="fi-err {% if errors.nom_soumetteur %}show{% endif %}" id="err-nom">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {% if errors.nom_soumetteur %}{{ errors.nom_soumetteur }}{% else %}Votre nom est obligatoire.{% endif %}
+              </p>
+            </div>
+            <div>
+              <label class="fi-label" for="id_telephone_soumetteur">Téléphone <span class="req">*</span></label>
+              <input type="tel" id="id_telephone_soumetteur" name="telephone_soumetteur"
+                value="{{ old.telephone_soumetteur|default:'' }}"
+                placeholder="07 XX XX XX XX"
+                class="fi-input {% if errors.telephone_soumetteur %}is-err{% endif %}">
+              <p class="fi-err {% if errors.telephone_soumetteur %}show{% endif %}" id="err-tel">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {% if errors.telephone_soumetteur %}{{ errors.telephone_soumetteur }}{% else %}Votre téléphone est obligatoire.{% endif %}
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ STEP 2 : PAIEMENT ════════ -->
+    <div class="step-panel" id="step-2">
+      <div class="pay-card">
+        <div class="card-hd">
+          <div class="card-hd-icon" style="background:rgba(11,11,11,.06);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="rgba(11,11,11,.6)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
+          <div>
+            <div class="card-hd-step" style="color:var(--muted);">Étape 2 / 3</div>
+            <h2>Détails du paiement</h2>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <!-- Montant + Date -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+              <label class="fi-label" for="id_montant">Montant (FCFA) <span class="req">*</span></label>
+              <input type="number" id="id_montant" name="montant"
+                value="{{ old.montant|default:'' }}"
+                placeholder="Ex: 5000" min="1"
+                class="fi-input {% if errors.montant %}is-err{% endif %}">
+              <p class="fi-err {% if errors.montant %}show{% endif %}" id="err-montant">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {% if errors.montant %}{{ errors.montant }}{% else %}Le montant est obligatoire.{% endif %}
+              </p>
+            </div>
+            <div>
+              <label class="fi-label" for="id_date_paiement">Date du paiement</label>
+              <input type="date" id="id_date_paiement" name="date_paiement"
+                value="{{ old.date_paiement|default:'' }}"
+                class="fi-input">
+            </div>
+          </div>
+
+          <!-- Numéro de dépôt -->
+          <div>
+            <label class="fi-label" for="id_compte_paiement">Numéro utilisé pour le dépôt <span class="req">*</span></label>
+            <select id="id_compte_paiement" name="compte_paiement" class="fi-input" onchange="onCompteChange(this)">
+              <option value="">— Sélectionner le numéro de dépôt —</option>
+              {% for c in comptes_actifs %}
+              <option value="{{ c.pk }}"
+                data-mode="{{ c.get_mode_display }}"
+                {% if old.compte_paiement == c.pk|stringformat:"s" %}selected{% endif %}>
+                {{ c.get_mode_display }} — {{ c.numero }} ({{ c.nom_titulaire }})
+              </option>
+              {% endfor %}
+            </select>
+            <!-- Badge mode déduit dynamiquement -->
+            <div id="mode-badge" style="display:none;margin-top:8px;display:inline-flex;align-items:center;gap:6px;background:rgba(200,22,29,.08);border:1px solid rgba(200,22,29,.15);border-radius:999px;padding:4px 12px;">
+              <div style="width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;"></div>
+              <span id="mode-badge-text" style="font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--red);letter-spacing:.08em;"></span>
+            </div>
+            <p class="fi-err {% if errors.compte_paiement %}show{% endif %}" id="err-compte">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {% if errors.compte_paiement %}{{ errors.compte_paiement }}{% else %}Sélectionnez le numéro utilisé.{% endif %}
+            </p>
+          </div>
+
+          <!-- Référence de transaction -->
+          <div>
+            <label class="fi-label" for="id_reference_transaction">Référence de la transaction <span class="req">*</span></label>
+            <input type="text" id="id_reference_transaction" name="reference_transaction"
+              value="{{ old.reference_transaction|default:'' }}"
+              placeholder="Ex: WV241105ABCD1234 ou OM-123456"
+              class="fi-input {% if errors.reference_transaction %}is-err{% endif %}"
+              style="font-family:var(--font-mono);letter-spacing:.04em;">
+            <p class="fi-hint">La référence / ID visible sur la capture d'écran du dépôt</p>
+            <p class="fi-err {% if errors.reference_transaction %}show{% endif %}" id="err-ref-trans">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {% if errors.reference_transaction %}{{ errors.reference_transaction }}{% else %}La référence de transaction est obligatoire.{% endif %}
+            </p>
+          </div>
+
+          <!-- Comptes disponibles -->
+          {% if comptes_actifs %}
+          <div class="comptes-bloc">
+            <div class="comptes-bloc-hd">Numéros disponibles pour le dépôt</div>
+            {% for c in comptes_actifs %}
+            <div class="compte-row">
+              <div class="compte-mode-dot" style="
+                {% if c.mode == 'wave' %}background:#00B6F0;
+                {% elif c.mode == 'orange_money' %}background:#FF6600;
+                {% elif c.mode == 'moov' %}background:#0057A8;
+                {% elif c.mode == 'mtn' %}background:#FFC107;color:#333;
+                {% elif c.mode == 'virement' %}background:#00613a;
+                {% else %}background:#64748b;{% endif %}
+              ">{{ c.get_mode_display|slice:":2"|upper }}</div>
+              <div style="flex:1;">
+                <div class="compte-num">{{ c.numero }}</div>
+                <div class="compte-name">{{ c.nom_titulaire }}</div>
+                {% if c.instructions %}<div style="font-size:11px;color:rgba(11,11,11,.4);margin-top:2px;">{{ c.instructions }}</div>{% endif %}
+              </div>
+              {% if c.qr_code %}
+              <img src="{{ c.qr_code.url }}" alt="QR {{ c.nom_titulaire }}" class="compte-qr">
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <!-- Capture dépôt -->
+          <div>
+            <label class="fi-label">Capture d'écran du dépôt <span class="req">*</span></label>
+            <label class="upload-zone {% if old.capture_depot %}has-file{% endif %}" id="upload-zone">
+              <div class="upload-icon" id="upload-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <div class="upload-title" id="upload-title">Joindre la capture d'écran</div>
+              <div class="upload-sub" id="upload-sub">PNG ou JPG — Photo du reçu de dépôt</div>
+              <input type="file" name="capture_depot" id="id_capture_depot" accept="image/*" style="display:none;">
+            </label>
+            <p class="fi-err {% if errors.capture_depot %}show{% endif %}" id="err-capture">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {% if errors.capture_depot %}{{ errors.capture_depot }}{% else %}La capture d'écran est obligatoire.{% endif %}
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ STEP 3 : CONFIRMATION ════════ -->
+    <div class="step-panel" id="step-3">
+      <div class="pay-card">
+        <div class="card-hd">
+          <div class="card-hd-icon" style="background:rgba(11,11,11,.06);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="rgba(11,11,11,.55)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><rect x="2" y="3" width="20" height="18" rx="2"/></svg>
+          </div>
+          <div>
+            <div class="card-hd-step" style="color:var(--muted);">Étape 3 / 3</div>
+            <h2>Confirmation &amp; envoi</h2>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <!-- Notes facultatives -->
+          <div>
+            <label class="fi-label" for="id_notes">Notes <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;color:rgba(11,11,11,.35);">(facultatif)</span></label>
+            <textarea id="id_notes" name="notes" placeholder="Informations complémentaires pour l'administration…" class="fi-input">{{ old.notes|default:'' }}</textarea>
+          </div>
+
+          <!-- Récapitulatif -->
+          <div class="recap-card">
+            <div class="recap-hd">Récapitulatif</div>
+            <div class="recap-body">
+              <div class="recap-row">
+                <span class="recap-k">Type</span>
+                <span class="recap-v" id="recap-type">—</span>
+              </div>
+              <div class="recap-row">
+                <span class="recap-k">Référence</span>
+                <span class="recap-v" id="recap-ref">—</span>
+              </div>
+              <div class="recap-row">
+                <span class="recap-k">Candidat</span>
+                <span class="recap-v" id="recap-nom">—</span>
+              </div>
+              <div class="recap-row">
+                <span class="recap-k">Montant</span>
+                <span class="recap-v" id="recap-montant">—</span>
+              </div>
+              <div class="recap-row">
+                <span class="recap-k">Numéro dépôt</span>
+                <span class="recap-v" id="recap-compte">—</span>
+              </div>
+              <div class="recap-row">
+                <span class="recap-k">Réf. transaction</span>
+                <span class="recap-v" id="recap-ref-trans" style="font-family:var(--font-mono);font-size:12px;">—</span>
+              </div>
+              <div class="recap-row">
+                <span class="recap-k">Capture</span>
+                <span class="recap-v" id="recap-capture">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Checklist -->
+          <div class="checklist">
+            <div class="chk-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Votre paiement sera enregistré en attente de vérification.
+            </div>
+            <div class="chk-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Un administrateur CFLD vérifiera la capture avant de valider.
+            </div>
+            <div class="chk-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(11,11,11,.25)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              La capture d'écran doit bien montrer la transaction et le montant.
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="pay-nav">
+      <button type="button" class="btn-prev" id="btn-prev" onclick="prevStep()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Précédent
+      </button>
+      <button type="button" class="btn-next" id="btn-next" onclick="nextStep()">
+        Suivant
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button type="submit" class="btn-submit" id="btn-submit">
+        <span id="btn-submit-inner" style="display:flex;align-items:center;gap:8px;">
+          Envoyer
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </span>
+      </button>
+    </div>
+
+  </form>
+</div>
+</div>
+
+<!-- ════════ SUCCESS MODAL ════════ -->
+{% if success %}
+<div class="success-overlay" id="success-overlay">
+  <div class="success-card">
+    <div class="success-top">
+      <div class="success-check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2>Demande envoyée !</h2>
+      <p>{% for m in messages %}{{ m }}{% endfor %}</p>
+    </div>
+    <div class="success-actions">
+      <button class="success-btn-main" onclick="closeSuccess()">Faire un autre paiement</button>
+      <a href="{% url 'accueil' %}" class="success-btn-sec">Retour à l'accueil</a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var cur = 1, goBack = false;
+  var selectedType = '{{ old.type_frais|default:"" }}';
+  var refData = null;
+
+  var TYPE_LABELS = { visite_medicale: 'Visite médicale', inscription: "Frais d'inscription" };
+
+  // ── STEP MANAGEMENT ──
+  function showStep(n) {
+    document.getElementById('step-' + cur).classList.remove('active', 'rev');
+    document.getElementById('step-' + cur).classList.add('step-panel');
+    var next = document.getElementById('step-' + n);
+    next.classList.remove('step-panel');
+    next.classList.add('step-panel', 'active');
+    if (goBack) next.classList.add('rev');
+    cur = n;
+    updateUI();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateUI() {
+    for (var i = 1; i <= 3; i++) {
+      var d = document.getElementById('dot-' + i);
+      var l = document.getElementById('lbl-' + i);
+      d.className = 'step-dot';
+      if (l) l.className = 'step-lbl';
+      if (i < cur) { d.classList.add('done'); d.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="width:14px;height:14px;"><polyline points="20 6 9 17 4 12"/></svg>'; }
+      else if (i === cur) { d.classList.add('current'); d.textContent = i; if (l) l.classList.add('current'); }
+      else { d.textContent = i; }
+    }
+    var l12 = document.getElementById('line-12'), l23 = document.getElementById('line-23');
+    if (l12) l12.classList.toggle('done', cur > 1);
+    if (l23) l23.classList.toggle('done', cur > 2);
+    document.getElementById('prog-fill').style.width = ((cur / 3) * 100) + '%';
+    document.getElementById('step-counter').textContent = 'Étape ' + cur + ' / 3';
+
+    var bp = document.getElementById('btn-prev'), bn = document.getElementById('btn-next'), bs = document.getElementById('btn-submit');
+    if (cur === 1) { bp.style.display = 'none'; } else { bp.style.display = 'flex'; }
+    if (cur === 3) {
+      bn.style.display = 'none'; bs.style.display = 'flex';
+      buildRecap();
+    } else {
+      bn.style.display = 'flex'; bs.style.display = 'none';
+    }
+  }
+
+  // ── VALIDATION ──
+  function validate(s) {
+    var ok = true;
+    if (s === 1) {
+      if (!selectedType) { show('err-type', true); ok = false; } else { show('err-type', false); }
+      var ref = val('reference_cfld');
+      if (!ref) { show('err-ref', false); /* will be caught server-side */ }
+      if (!val('nom_soumetteur')) { show('err-nom', true); ok = false; } else { show('err-nom', false); }
+      if (!val('telephone_soumetteur')) { show('err-tel', true); ok = false; } else { show('err-tel', false); }
+      if (!ref) { showRefError('La référence CFLD est obligatoire.'); ok = false; }
+    }
+    if (s === 2) {
+      if (!val('montant')) { show('err-montant', true); ok = false; } else { show('err-montant', false); }
+      if (!val('reference_transaction')) { show('err-ref-trans', true); ok = false; } else { show('err-ref-trans', false); }
+      var f = document.getElementById('id_capture_depot');
+      if (!f || !f.files || !f.files.length) { show('err-capture', true); ok = false; } else { show('err-capture', false); }
+    }
+    return ok;
+  }
+
+  function show(id, v) { var el = document.getElementById(id); if (el) el.classList.toggle('show', v); }
+  function val(name) { var el = document.querySelector('[name="' + name + '"]'); return el ? el.value.trim() : ''; }
+
+  window.nextStep = function () {
+    if (!validate(cur)) {
+      var btn = document.getElementById('btn-next');
+      btn.style.transform = 'scale(.95)';
+      setTimeout(function () { btn.style.transform = ''; }, 150);
+      return;
+    }
+    goBack = false;
+    if (cur < 3) showStep(cur + 1);
+  };
+  window.prevStep = function () { goBack = true; if (cur > 1) showStep(cur - 1); };
+
+  // ── TYPE SELECTION ──
+  window.selectType = function (t) {
+    selectedType = t;
+    document.getElementById('card-visite').classList.toggle('selected', t === 'visite_medicale');
+    document.getElementById('card-inscription').classList.toggle('selected', t === 'inscription');
+    show('err-type', false);
+  };
+
+  // ── COMPTE CHANGE → afficher le mode déduit ──
+  window.onCompteChange = function (sel) {
+    var opt = sel.options[sel.selectedIndex];
+    var badge = document.getElementById('mode-badge');
+    var badgeText = document.getElementById('mode-badge-text');
+    if (opt && opt.value && opt.dataset.mode) {
+      badgeText.textContent = 'Mode : ' + opt.dataset.mode;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
+    show('err-compte', false);
+  };
+
+  // ── REFERENCE LOOKUP ──
+  function lookupRef() {
+    var ref = val('reference_cfld').toUpperCase();
+    if (!ref || ref.length < 6) { hideRefFeedback(); return; }
+    fetch('/paiements/verifier-reference/?ref=' + encodeURIComponent(ref))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.found) {
+          refData = d;
+          document.getElementById('ref-found-name').textContent = d.nom_complet;
+          document.getElementById('ref-found-meta').textContent = d.reference + ' · ' + d.categorie + ' · ' + d.statut;
+          document.getElementById('ref-found-box').classList.add('show');
+          document.getElementById('ref-notfound-box').classList.remove('show');
+        } else {
+          refData = null;
+          hideRefFeedback();
+          showRefError('Aucun dossier trouvé pour cette référence.');
+        }
+      });
+  }
+
+  function hideRefFeedback() {
+    document.getElementById('ref-found-box').classList.remove('show');
+    document.getElementById('ref-notfound-box').classList.remove('show');
+  }
+
+  function showRefError(msg) {
+    var el = document.getElementById('ref-notfound-box');
+    el.textContent = msg; el.classList.add('show');
+    document.getElementById('ref-found-box').classList.remove('show');
+  }
+
+  // ── RECAP ──
+  function buildRecap() {
+    setText('recap-type', TYPE_LABELS[selectedType] || '—');
+    setText('recap-ref', val('reference_cfld') || '—');
+    setText('recap-nom', refData ? refData.nom_complet : (val('nom_soumetteur') || '—'));
+    var mt = val('montant');
+    setText('recap-montant', mt ? parseInt(mt).toLocaleString('fr-FR') + ' FCFA' : '—');
+    // Compte sélectionné
+    var sel = document.getElementById('id_compte_paiement');
+    var opt = sel && sel.options[sel.selectedIndex];
+    setText('recap-compte', opt && opt.value ? opt.text : '—');
+    // Référence transaction
+    setText('recap-ref-trans', val('reference_transaction') || '—');
+    var f = document.getElementById('id_capture_depot');
+    setText('recap-capture', f && f.files && f.files.length ? f.files[0].name : '—');
+  }
+  function setText(id, t) { var el = document.getElementById(id); if (el) el.textContent = t; }
+
+  // ── UPLOAD ──
+  function initUpload() {
+    var input = document.getElementById('id_capture_depot');
+    var zone = document.getElementById('upload-zone');
+    var title = document.getElementById('upload-title');
+    var sub = document.getElementById('upload-sub');
+    if (!input) return;
+    input.addEventListener('change', function () {
+      if (this.files && this.files[0]) {
+        title.textContent = this.files[0].name;
+        sub.textContent = (this.files[0].size / 1024).toFixed(0) + ' Ko';
+        zone.classList.add('has-file');
+        show('err-capture', false);
+      }
+    });
+  }
+
+  // ── SUBMIT ──
+  function initSubmit() {
+    var form = document.getElementById('pay-form');
+    form.addEventListener('submit', function () {
+      var btn = document.getElementById('btn-submit');
+      btn.disabled = true;
+      document.getElementById('btn-submit-inner').innerHTML = '<span class="btn-spinner"></span><span>Envoi…</span>';
+    });
+  }
+
+  // ── SUCCESS MODAL ──
+  window.closeSuccess = function () {
+    var o = document.getElementById('success-overlay');
+    if (o) { o.style.opacity = '0'; o.style.transition = 'opacity .25s'; setTimeout(function () { o.remove(); }, 260); }
+  };
+
+  // ── INIT ──
+  document.addEventListener('DOMContentLoaded', function () {
+    // Pre-select type si reprise après erreur
+    if (selectedType) selectType(selectedType);
+    // Init badge mode si compte déjà sélectionné
+    var compteEl = document.getElementById('id_compte_paiement');
+    if (compteEl && compteEl.value) onCompteChange(compteEl);
+    // Ref input
+    var refInput = document.getElementById('id_reference_cfld');
+    if (refInput) {
+      refInput.addEventListener('input', function () {
+        this.value = this.value.toUpperCase();
+        clearTimeout(this._t);
+        this._t = setTimeout(lookupRef, 500);
+      });
+      // Lookup immédiat si valeur présente
+      if (refInput.value) setTimeout(lookupRef, 100);
+    }
+    // TomSelect sur le compte
+    var compteEl = document.getElementById('id_compte_paiement');
+    if (compteEl && window.TomSelect) {
+      new TomSelect('#id_compte_paiement', { allowEmptyOption: true, placeholder: '— Choisir le numéro de dépôt —' });
+    }
+    initUpload();
+    initSubmit();
+    updateUI();
+    // Modal success
+    var overlay = document.getElementById('success-overlay');
+    if (overlay) document.body.style.overflow = 'hidden';
+  });
+
+})();
+</script>
+{% endblock %}

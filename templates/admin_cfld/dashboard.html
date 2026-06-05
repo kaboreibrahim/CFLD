@@ -1,7 +1,224 @@
 {% extends "admin_cfld/base.html" %}
 {% block title %}Tableau de bord{% endblock %}
 
+{% block extra_css %}
+<style>
+/* ── KPI améliorées ── */
+.kpi {
+  position: relative;
+  overflow: hidden;
+}
+.kpi-watermark {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 80px;
+  height: 80px;
+  opacity: .055;
+  pointer-events: none;
+}
+.kpi-watermark svg {
+  width: 100%;
+  height: 100%;
+}
+.kpi-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .08em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-top: 8px;
+  font-weight: 600;
+}
+.kpi-trend.up   { background: rgba(5,150,105,.12); color: #059669; }
+.kpi-trend.down { background: rgba(200,22,29,.1);  color: #9B0D13; }
+.kpi-trend.neu  { background: rgba(11,11,11,.07);  color: rgba(11,11,11,.5); }
+.kpi-trend svg  { width: 9px; height: 9px; }
+.kpi-val { font-size: 48px; }
+
+/* ── Raccourcis rapides ── */
+.shortcuts {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+.shortcut {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  background: #fff;
+  border: 1px solid rgba(11,11,11,.1);
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  transition: all .14s;
+  white-space: nowrap;
+}
+.shortcut svg { width: 14px; height: 14px; flex-shrink: 0; color: rgba(11,11,11,.45); transition: color .14s; }
+.shortcut:hover { border-color: var(--ink); box-shadow: 0 2px 8px rgba(11,11,11,.08); transform: translateY(-1px); }
+.shortcut:hover svg { color: var(--ink); }
+.shortcut .sc-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #C8161D;
+  flex-shrink: 0;
+}
+
+/* ── Widget header ── */
+.widget-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.widget-title {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.5);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.widget-title svg { width: 12px; height: 12px; }
+.widget-link {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.35);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color .13s;
+}
+.widget-link:hover { color: var(--ink); }
+.widget-link svg { width: 10px; height: 10px; }
+
+/* ── Candidature row ── */
+.cand-av {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: .03em;
+  color: #fff;
+}
+.cand-av.av-0 { background: linear-gradient(135deg, #C8161D, #7F1D1D); }
+.cand-av.av-1 { background: linear-gradient(135deg, #2563EB, #1E3A8A); }
+.cand-av.av-2 { background: linear-gradient(135deg, #059669, #064E3B); }
+.cand-av.av-3 { background: linear-gradient(135deg, #D97706, #78350F); }
+.cand-av.av-4 { background: linear-gradient(135deg, #7C3AED, #4C1D95); }
+.cand-info { min-width: 0; flex: 1; }
+.cand-name { font-weight: 500; font-size: 13px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cand-meta { font-family: var(--font-mono); font-size: 9.5px; color: rgba(11,11,11,.4); margin-top: 1px; }
+
+/* ── Match row ── */
+.match-date-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  background: #F5F3EE;
+  border-radius: 8px;
+  flex-shrink: 0;
+  border: 1px solid rgba(11,11,11,.08);
+}
+.match-date-chip .day {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--ink);
+}
+.match-date-chip .month {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(11,11,11,.4);
+  margin-top: 1px;
+}
+.match-vs {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.match-vs .vs-sep {
+  color: rgba(11,11,11,.3);
+  font-weight: 400;
+  font-size: 11px;
+  margin: 0 4px;
+}
+.match-comp {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: rgba(11,11,11,.38);
+  margin-top: 2px;
+}
+
+/* ── Message row ── */
+.msg-unread-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #C8161D;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(200,22,29,.18);
+}
+.msg-row-unread { background: #FFFBF5 !important; }
+.msg-sender { font-weight: 500; font-size: 13px; color: var(--ink); }
+.msg-subject { color: rgba(11,11,11,.45); font-weight: 400; }
+.msg-preview { font-size: 11.5px; color: rgba(11,11,11,.42); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msg-date { font-family: var(--font-mono); font-size: 10px; color: rgba(11,11,11,.35); white-space: nowrap; }
+
+/* ── Alerte paiements en attente ── */
+.dash-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid rgba(200,22,29,.2);
+  border-left: 3px solid #C8161D;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 28px;
+  font-size: 13px;
+  color: var(--ink);
+}
+.dash-alert svg { width: 16px; height: 16px; color: #C8161D; flex-shrink: 0; }
+.dash-alert a { color: #9B0D13; font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
+
+@media (max-width: 768px) {
+  .shortcuts { gap: 6px; }
+  .shortcut { padding: 7px 12px; font-size: 12px; }
+  .kpi-val { font-size: 36px !important; }
+  .kpi-watermark { width: 60px; height: 60px; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
+
+<!-- ── En-tête page ── -->
 <div class="page-hd">
   <div class="page-hd-left">
     <div class="pg-eyebrow">
@@ -22,68 +239,177 @@
   </div>
 </div>
 
-<!-- KPI -->
+<!-- ── Alerte si paiements en attente ── -->
+{% if pending_visite or pending_inscription %}
+<div class="dash-alert">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <div>
+    {% if pending_visite %}
+      <a href="{% url 'admin_paiements_visite' %}?statut=pending">{{ pending_visite }} paiement{{ pending_visite|pluralize }} visite médicale</a> en attente de validation.
+    {% endif %}
+    {% if pending_inscription %}
+      {% if pending_visite %} &nbsp;·&nbsp; {% endif %}
+      <a href="{% url 'admin_paiements_inscription' %}?statut=pending">{{ pending_inscription }} frais d'inscription</a> à traiter.
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<!-- ── KPI ── -->
 <div class="kpi-row">
+
+  <!-- Joueurs actifs -->
   <div class="kpi k-green">
+    <div class="kpi-watermark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
     <div class="kpi-ico green">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     </div>
     <div class="kpi-lbl">Joueurs actifs</div>
-    <div class="kpi-val">{{ joueurs_count }}</div>
+    <div class="kpi-val" style="color:#065F46;">{{ joueurs_count }}</div>
+    <div>
+      <span class="kpi-trend neu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Effectif
+      </span>
+    </div>
     <div class="kpi-sub"><a href="{% url 'admin_joueurs' %}">Gérer l'effectif →</a></div>
   </div>
+
+  <!-- Matchs à venir -->
   <div class="kpi k-blue">
+    <div class="kpi-watermark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M9.17 14.83l-4.24 4.24"/></svg>
+    </div>
     <div class="kpi-ico blue">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z"/></svg>
     </div>
     <div class="kpi-lbl">Matchs à venir</div>
     <div class="kpi-val">{{ matchs_count }}</div>
+    <div>
+      <span class="kpi-trend {% if matchs_count %}up{% else %}neu{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="{% if matchs_count %}18 15 12 9 6 15{% else %}5 12 19 12{% endif %}"/></svg>
+        Calendrier
+      </span>
+    </div>
     <div class="kpi-sub"><a href="{% url 'admin_matchs' %}">Voir le calendrier →</a></div>
   </div>
+
+  <!-- Candidatures en attente -->
   <div class="kpi {% if pending_count %}k-amber{% endif %}">
+    <div class="kpi-watermark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
     <div class="kpi-ico {% if pending_count %}amber{% else %}slate{% endif %}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     </div>
     <div class="kpi-lbl">Candidatures en attente</div>
-    <div class="kpi-val">{{ pending_count }}</div>
+    <div class="kpi-val" {% if pending_count %}style="color:#92400E;"{% endif %}>{{ pending_count }}</div>
+    <div>
+      <span class="kpi-trend {% if pending_count %}down{% else %}neu{% endif %}">
+        {% if pending_count %}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        À traiter
+        {% else %}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        À jour
+        {% endif %}
+      </span>
+    </div>
     <div class="kpi-sub"><a href="{% url 'admin_candidatures' %}?statut=pending">Traiter →</a></div>
   </div>
+
+  <!-- Messages non lus -->
   <div class="kpi {% if unread_count %}k-red{% endif %}">
+    <div class="kpi-watermark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+    </div>
     <div class="kpi-ico {% if unread_count %}red{% else %}slate{% endif %}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
     </div>
     <div class="kpi-lbl">Messages non lus</div>
-    <div class="kpi-val">{{ unread_count }}</div>
+    <div class="kpi-val" {% if unread_count %}style="color:#9B0D13;"{% endif %}>{{ unread_count }}</div>
+    <div>
+      <span class="kpi-trend {% if unread_count %}down{% else %}neu{% endif %}">
+        {% if unread_count %}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Non lus
+        {% else %}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Tout lu
+        {% endif %}
+      </span>
+    </div>
     <div class="kpi-sub"><a href="{% url 'admin_messages' %}?filtre=non_lu">Consulter →</a></div>
   </div>
+
 </div>
 
-<!-- Grille principale -->
+<!-- ── Raccourcis rapides ── -->
+<div class="shortcuts">
+  <a href="{% url 'admin_joueur_add' %}" class="shortcut">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="12" y1="14" x2="12" y2="22"/><line x1="8" y1="18" x2="16" y2="18"/></svg>
+    Ajouter un joueur
+  </a>
+  <a href="{% url 'admin_match_add' %}" class="shortcut">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Planifier un match
+  </a>
+  <a href="{% url 'admin_article_add' %}" class="shortcut">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+    Rédiger un article
+  </a>
+  <a href="{% url 'admin_candidatures' %}" class="shortcut">
+    {% if pending_count %}<span class="sc-dot"></span>{% endif %}
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Candidatures{% if pending_count %} ({{ pending_count }}){% endif %}
+  </a>
+  <a href="{% url 'admin_paiements_visite' %}" class="shortcut">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    Paiements
+  </a>
+  <a href="{% url 'admin_cotisations_dashboard' %}" class="shortcut">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Cotisations
+  </a>
+</div>
+
+<!-- ── Grille widgets ── -->
 <div class="dash-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:22px;">
 
   <!-- Candidatures récentes -->
   <div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
-      <span style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(11,11,11,.45);">Candidatures récentes</span>
-      <a href="{% url 'admin_candidatures' %}" style="font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(11,11,11,.38);text-decoration:none;">Tout voir →</a>
+    <div class="widget-hd">
+      <span class="widget-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Candidatures récentes
+      </span>
+      <a href="{% url 'admin_candidatures' %}" class="widget-link">
+        Tout voir
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
     </div>
     <div class="t-wrap">
       {% if recent_cands %}
         {% for c in recent_cands %}
-        <div class="t-row" style="grid-template-columns:1fr auto auto;padding:12px 16px;">
-          <div>
-            <div style="font-weight:500;font-size:13px;color:var(--ink);">{{ c.prenom }} {{ c.nom }}</div>
-            <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);margin-top:1px;">{{ c.reference }} · {{ c.get_poste_display }}</div>
+        <div class="t-row" style="grid-template-columns:32px 1fr auto auto;padding:11px 16px;gap:12px;align-items:center;">
+          <div class="cand-av {% cycle 'av-0' 'av-1' 'av-2' 'av-3' 'av-4' %}">
+            {{ c.prenom|slice:":1"|upper }}{{ c.nom|slice:":1"|upper }}
+          </div>
+          <div class="cand-info">
+            <div class="cand-name">{{ c.prenom }} {{ c.nom }}</div>
+            <div class="cand-meta">{{ c.reference }} · {{ c.get_poste_display }}</div>
           </div>
           <span class="badge-status bs-{{ c.statut }}">{{ c.get_statut_display }}</span>
-          <a href="{% url 'admin_candidatures' %}?q={{ c.reference }}" class="ic-btn" title="Voir" style="margin-left:4px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          <a href="{% url 'admin_candidatures' %}?q={{ c.reference }}" class="ic-btn" title="Voir">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </a>
         </div>
         {% endfor %}
       {% else %}
         <div class="empty-state">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
           <p>Aucune candidature</p>
         </div>
       {% endif %}
@@ -92,26 +418,40 @@
 
   <!-- Prochains matchs -->
   <div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
-      <span style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(11,11,11,.45);">Prochains matchs</span>
-      <a href="{% url 'admin_matchs' %}" style="font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(11,11,11,.38);text-decoration:none;">Tout voir →</a>
+    <div class="widget-hd">
+      <span class="widget-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/></svg>
+        Prochains matchs
+      </span>
+      <a href="{% url 'admin_matchs' %}" class="widget-link">
+        Tout voir
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
     </div>
     <div class="t-wrap">
       {% if prochains_matchs %}
         {% for m in prochains_matchs %}
-        <div class="t-row" style="grid-template-columns:1fr auto;padding:12px 16px;">
-          <div>
-            <div style="font-weight:500;font-size:13px;color:var(--ink);">{{ m.equipe_domicile }} <span style="color:rgba(11,11,11,.3);font-weight:400;font-size:11px;">vs</span> {{ m.equipe_exterieur }}</div>
-            <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);margin-top:1px;">{{ m.date|date:"d/m/Y à H:i" }} · {{ m.competition }}</div>
+        <div class="t-row" style="grid-template-columns:42px 1fr auto;padding:11px 16px;gap:12px;align-items:center;">
+          <div class="match-date-chip">
+            <span class="day">{{ m.date|date:"d" }}</span>
+            <span class="month">{{ m.date|date:"M" }}</span>
+          </div>
+          <div style="min-width:0;">
+            <div class="match-vs">
+              {{ m.equipe_domicile }}
+              <span class="vs-sep">vs</span>
+              {{ m.equipe_exterieur }}
+            </div>
+            <div class="match-comp">{{ m.date|date:"H:i" }} · {{ m.competition }}</div>
           </div>
           <a href="{% url 'admin_match_edit' m.pk %}" class="ic-btn" title="Modifier">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </a>
         </div>
         {% endfor %}
       {% else %}
         <div class="empty-state">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/></svg>
           <p>Aucun match à venir</p>
         </div>
       {% endif %}
@@ -120,33 +460,46 @@
 
   <!-- Messages récents -->
   <div class="dash-span2" style="grid-column:span 2;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
-      <span style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(11,11,11,.45);">Messages récents</span>
-      <a href="{% url 'admin_messages' %}" style="font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(11,11,11,.38);text-decoration:none;">Tout voir →</a>
+    <div class="widget-hd">
+      <span class="widget-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Messages récents
+        {% if unread_count %}<span style="background:#C8161D;color:#fff;border-radius:999px;padding:1px 7px;font-size:9px;font-weight:700;">{{ unread_count }}</span>{% endif %}
+      </span>
+      <a href="{% url 'admin_messages' %}" class="widget-link">
+        Tout voir
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
     </div>
     <div class="t-wrap">
       {% if recent_msgs %}
+        <div class="t-row t-head" style="grid-template-columns:16px 1fr 130px auto;padding:9px 16px;gap:14px;">
+          <div class="th"></div>
+          <div class="th">Expéditeur &amp; message</div>
+          <div class="th">Date</div>
+          <div class="th"></div>
+        </div>
         {% for msg in recent_msgs %}
-        <div class="t-row" style="grid-template-columns:10px 1fr 190px 100px auto;padding:12px 16px;align-items:center;gap:14px;">
-          <div>
-            {% if not msg.lu %}
-            <div style="width:7px;height:7px;border-radius:50%;background:var(--green);"></div>
-            {% endif %}
+        <div class="t-row {% if not msg.lu %}msg-row-unread{% endif %}" style="grid-template-columns:16px 1fr 130px auto;padding:11px 16px;gap:14px;align-items:center;">
+          <div style="display:flex;align-items:center;justify-content:center;">
+            {% if not msg.lu %}<div class="msg-unread-dot"></div>{% endif %}
           </div>
-          <div>
-            <div style="font-weight:{% if not msg.lu %}600{% else %}400{% endif %};font-size:13px;color:var(--ink);">{{ msg.nom }} <span style="color:rgba(11,11,11,.45);font-weight:400;">— {{ msg.get_sujet_display }}</span></div>
-            <div style="font-size:11.5px;color:rgba(11,11,11,.45);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ msg.message|truncatechars:90 }}</div>
+          <div style="min-width:0;">
+            <div>
+              <span class="msg-sender" style="{% if not msg.lu %}font-weight:600;{% endif %}">{{ msg.nom }}</span>
+              <span class="msg-subject"> — {{ msg.get_sujet_display }}</span>
+            </div>
+            <div class="msg-preview">{{ msg.message|truncatechars:100 }}</div>
           </div>
-          <div style="font-size:12px;color:rgba(11,11,11,.38);">{{ msg.nom }}</div>
-          <div style="font-family:var(--font-mono);font-size:10px;color:rgba(11,11,11,.38);">{{ msg.date_envoi|date:"d/m/Y" }}</div>
+          <div class="msg-date">{{ msg.date_envoi|date:"d/m/Y à H:i" }}</div>
           <a href="{% url 'admin_message_detail' msg.pk %}" class="ic-btn" title="Lire">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </a>
         </div>
         {% endfor %}
       {% else %}
         <div class="empty-state">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
           <p>Aucun message</p>
         </div>
       {% endif %}

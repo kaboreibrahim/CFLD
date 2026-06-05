@@ -1,13 +1,89 @@
 {% extends "admin_cfld/base.html" %}
 {% block title %}Photos{% endblock %}
 
+{% block extra_css %}
+<style>
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.photo-card {
+  background: #fff;
+  border: 1px solid rgba(11,11,11,.1);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow .15s, transform .15s;
+}
+.photo-card:hover { box-shadow: 0 6px 22px rgba(11,11,11,.12); transform: translateY(-2px); }
+
+.photo-thumb-wrap {
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  position: relative;
+  background: #F0EEE8;
+}
+.photo-thumb-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .35s cubic-bezier(.4,0,.2,1);
+}
+.photo-card:hover .photo-thumb-wrap img { transform: scale(1.05); }
+
+.photo-hidden-badge {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: rgba(11,11,11,.72);
+  color: #fff;
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+}
+.photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(11,11,11,.0);
+  transition: background .2s;
+  display: flex;
+  align-items: flex-end;
+  padding: 10px;
+}
+.photo-card:hover .photo-overlay { background: rgba(11,11,11,.18); }
+
+.photo-body { padding: 11px 14px 13px; }
+.photo-legend {
+  font-size: 12.5px; font-weight: 500;
+  color: var(--ink); line-height: 1.35;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+.photo-meta {
+  font-family: var(--font-mono); font-size: 9.5px;
+  color: rgba(11,11,11,.42); margin-bottom: 10px;
+}
+.photo-actions { display: flex; gap: 6px; }
+.photo-actions .btn { flex: 1; justify-content: center; }
+
+/* Empty */
+.es-lg { padding:64px 24px;text-align:center; }
+.es-lg .es-ico { width:52px;height:52px;border-radius:12px;background:rgba(11,11,11,.05);display:grid;place-items:center;margin:0 auto 14px;color:rgba(11,11,11,.25); }
+.es-lg .es-ico svg { width:24px;height:24px; }
+.es-lg .es-ttl { font-family:var(--font-display);font-size:17px;font-weight:500;color:rgba(11,11,11,.4);margin:0 0 5px; }
+.es-lg .es-sub { font-family:var(--font-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:rgba(11,11,11,.28);margin:0; }
+
+@media(max-width:768px){ .photos-grid { grid-template-columns: 1fr 1fr; gap: 10px; } }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-hd">
   <div class="page-hd-left">
-    <div class="pg-eyebrow">
-      <a href="{% url 'admin_dashboard' %}">Accueil</a>
-      <span class="sep">›</span> Contenu
-    </div>
+    <div class="pg-eyebrow"><a href="{% url 'admin_dashboard' %}">Accueil</a><span class="sep">›</span>Contenu</div>
     <h1 class="pg-title">Photos <span class="pg-count">{{ photos|length }}</span></h1>
   </div>
   <div class="page-hd-right">
@@ -19,20 +95,21 @@
 </div>
 
 {% if photos %}
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;">
+<div class="photos-grid">
   {% for p in photos %}
-  <div id="row-p{{ p.pk }}" style="background:#fff;border:1px solid rgba(11,11,11,.1);border-radius:10px;overflow:hidden;transition:box-shadow .15s;" onmouseenter="this.style.boxShadow='0 4px 18px rgba(0,0,0,.1)'" onmouseleave="this.style.boxShadow='none'">
-    <div style="aspect-ratio:4/3;overflow:hidden;position:relative;">
-      <img src="{{ p.image.url }}" alt="{{ p.legende }}" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;" onmouseenter="this.style.transform='scale(1.04)'" onmouseleave="this.style.transform='scale(1)'">
+  <div class="photo-card" id="row-p{{ p.pk }}">
+    <div class="photo-thumb-wrap">
+      <img src="{{ p.image.url }}" alt="{{ p.legende }}">
       {% if not p.afficher %}
-      <div style="position:absolute;top:8px;right:8px;background:rgba(11,11,11,.7);color:#fff;border-radius:4px;padding:2px 7px;font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;">Masquée</div>
+      <div class="photo-hidden-badge">Masquée</div>
       {% endif %}
+      <div class="photo-overlay"></div>
     </div>
-    <div style="padding:12px 14px;">
-      <div style="font-size:12.5px;font-weight:500;color:var(--ink);margin-bottom:3px;line-height:1.35;">{{ p.legende|default:"Sans légende"|truncatechars:42 }}</div>
-      <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);margin-bottom:10px;">{{ p.date|date:"d/m/Y" }}{% if p.auteur %} · {{ p.auteur|truncatechars:18 }}{% endif %}</div>
-      <div style="display:flex;gap:6px;">
-        <a href="{% url 'admin_photo_edit' p.pk %}" class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;">
+    <div class="photo-body">
+      <div class="photo-legend">{{ p.legende|default:"Sans légende"|truncatechars:42 }}</div>
+      <div class="photo-meta">{{ p.date|date:"d/m/Y" }}{% if p.auteur %} · {{ p.auteur|truncatechars:20 }}{% endif %}</div>
+      <div class="photo-actions">
+        <a href="{% url 'admin_photo_edit' p.pk %}" class="btn btn-ghost btn-sm">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           Modifier
         </a>
@@ -46,9 +123,10 @@
 </div>
 {% else %}
 <div class="t-wrap">
-  <div class="empty-state">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-    <p>Aucune photo dans la galerie</p>
+  <div class="es-lg">
+    <div class="es-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></div>
+    <div class="es-ttl">Galerie vide</div>
+    <p class="es-sub">Ajoutez des photos pour enrichir la galerie</p>
   </div>
 </div>
 {% endif %}

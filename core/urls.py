@@ -35,6 +35,9 @@ urlpatterns = [
     # ── Contact ───────────────────────────────────────────────
     path('contact/', include('contact.urls')),
 
+    # ── Paiements (formulaire public) ─────────────────────────
+    path('paiements/', include('payments.urls')),
+
     # ── Admin custom ──────────────────────────────────────────
     path('admin-cfld/', include('recrutement.admin_urls')),
 

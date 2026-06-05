@@ -1,0 +1,55 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}Nouvelle cotisation annuelle{% endblock %}
+
+{% block content %}
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span>
+      <a href="{% url 'admin_cotisations_dashboard' %}">Cotisations</a>
+      <span class="sep">›</span>
+      Nouveau
+    </div>
+    <h1 class="pg-title">Créer une cotisation annuelle</h1>
+  </div>
+</div>
+
+<div class="form-card" style="max-width:560px;">
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="field span2">
+        <label class="fi-label">Joueur *</label>
+        {{ form.joueur }}
+        {% if form.joueur.errors %}<div class="fi-err">{{ form.joueur.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field">
+        <label class="fi-label">Année *</label>
+        {{ form.annee }}
+        {% if form.annee.errors %}<div class="fi-err">{{ form.annee.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field">
+        <label class="fi-label">Montant total (FCFA)</label>
+        {{ form.montant_total }}
+        <div class="fi-hint">Défaut : 1 000 000 FCFA (200k + 8×100k)</div>
+      </div>
+      <div class="field">
+        <label class="fi-label">Statut</label>
+        {{ form.statut }}
+      </div>
+      <div class="field span2">
+        <label class="fi-label">Notes</label>
+        {{ form.notes }}
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Créer la cotisation
+      </button>
+      <a href="{% url 'admin_cotisations_dashboard' %}" class="btn btn-ghost">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

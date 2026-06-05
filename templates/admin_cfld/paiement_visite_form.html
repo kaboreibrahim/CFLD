@@ -1,0 +1,103 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}{% if obj %}Modifier{% else %}Enregistrer{% endif %} — Visite médicale{% endblock %}
+
+{% block content %}
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span>
+      <a href="{% url 'admin_paiements_visite' %}">Visites médicales</a>
+      <span class="sep">›</span>
+      {% if obj %}Modifier{% else %}Nouveau{% endif %}
+    </div>
+    <h1 class="pg-title">{% if obj %}Modifier le paiement{% else %}Paiement visite médicale{% endif %}</h1>
+  </div>
+</div>
+
+<div class="form-card" style="max-width:680px;">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-section-title" style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.38);margin-bottom:14px;">
+      Identification du candidat
+    </div>
+
+    <div class="form-grid" style="grid-template-columns:1fr;">
+      <div class="field">
+        <label class="fi-label">Candidature *</label>
+        {{ form.candidature }}
+        {% if form.candidature.errors %}<div class="fi-err">{{ form.candidature.errors.0 }}</div>{% endif %}
+        <div class="fi-hint">La référence CFLD est automatiquement récupérée depuis la candidature sélectionnée</div>
+      </div>
+      {% if obj %}
+      <div class="field">
+        <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" style="width:16px;height:16px;flex-shrink:0;"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+          <div>
+            <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:#15803D;">{{ obj.candidature.reference }}</div>
+            <div style="font-size:12px;color:#166534;">{{ obj.candidature.prenom }} {{ obj.candidature.nom }} · {{ obj.candidature.categorie }}</div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="form-section-title" style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.38);margin:18px 0 14px;">
+      Détails du paiement
+    </div>
+
+    <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="field">
+        <label class="fi-label">Montant (FCFA) *</label>
+        {{ form.montant }}
+        {% if form.montant.errors %}<div class="fi-err">{{ form.montant.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field">
+        <label class="fi-label">Date du paiement *</label>
+        {{ form.date_paiement }}
+        {% if form.date_paiement.errors %}<div class="fi-err">{{ form.date_paiement.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field">
+        <label class="fi-label">Numéro utilisé pour le dépôt *</label>
+        {{ form.compte_paiement }}
+        {% if form.compte_paiement.errors %}<div class="fi-err">{{ form.compte_paiement.errors.0 }}</div>{% endif %}
+        {% if not form.compte_paiement.field.queryset.count %}
+        <div class="fi-hint" style="color:#B45309;">
+          Aucun compte actif — <a href="{% url 'admin_compte_paiement_add' %}" style="color:#B45309;text-decoration:underline;">Ajouter un compte d'abord</a>
+        </div>
+        {% endif %}
+      </div>
+      <div class="field">
+        <label class="fi-label">Référence de transaction</label>
+        {{ form.reference_transaction }}
+        <div class="fi-hint">Référence / ID visible sur la capture d'écran du dépôt</div>
+        {% if form.reference_transaction.errors %}<div class="fi-err">{{ form.reference_transaction.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field span2">
+        <label class="fi-label">Capture d'écran du dépôt *</label>
+        {% if obj and obj.capture_depot %}
+          <div style="margin-bottom:10px;">
+            <img src="{{ obj.capture_depot.url }}" alt="Capture dépôt" style="max-width:200px;max-height:150px;border-radius:8px;border:1px solid rgba(11,11,11,.1);object-fit:cover;">
+            <div style="font-size:11px;color:rgba(11,11,11,.4);margin-top:4px;">Capture actuelle — choisir un nouveau fichier pour remplacer</div>
+          </div>
+        {% endif %}
+        {{ form.capture_depot }}
+        {% if form.capture_depot.errors %}<div class="fi-err">{{ form.capture_depot.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field span2">
+        <label class="fi-label">Notes internes</label>
+        {{ form.notes }}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Enregistrer le paiement
+      </button>
+      <a href="{% url 'admin_paiements_visite' %}" class="btn btn-ghost">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

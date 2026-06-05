@@ -1,61 +1,105 @@
 {% extends "admin_cfld/base.html" %}
 {% block title %}Messages{% endblock %}
 
+{% block extra_css %}
+<style>
+.msg-col { grid-template-columns: 16px 1fr 200px 120px 80px; }
+
+.msg-unread-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #C8161D;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(200,22,29,.15);
+}
+.row-unread { background: #FFFBF5 !important; border-left: 2.5px solid #C8161D; }
+
+.msg-sujet { font-size:13px;color:var(--ink);line-height:1.35; }
+.msg-sujet.unread { font-weight:600; }
+.msg-preview { font-size:11.5px;color:rgba(11,11,11,.42);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+
+.msg-sender { font-size:13px;color:var(--ink); }
+.msg-sender.unread { font-weight:500; }
+.msg-email { font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.4);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.msg-date { font-family:var(--font-mono);font-size:11px;color:rgba(11,11,11,.5); }
+.msg-date-h { font-family:var(--font-mono);font-size:10px;color:rgba(11,11,11,.32);margin-top:1px; }
+
+.unread-counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #C8161D;
+  color: #fff;
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  margin-left: 5px;
+}
+
+.es-lg { padding:64px 24px;text-align:center; }
+.es-lg .es-ico { width:52px;height:52px;border-radius:12px;background:rgba(11,11,11,.05);display:grid;place-items:center;margin:0 auto 14px;color:rgba(11,11,11,.25); }
+.es-lg .es-ico svg { width:24px;height:24px; }
+.es-lg .es-ttl { font-family:var(--font-display);font-size:17px;font-weight:500;color:rgba(11,11,11,.4);margin:0 0 5px; }
+.es-lg .es-sub { font-family:var(--font-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:rgba(11,11,11,.28);margin:0; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-hd">
   <div class="page-hd-left">
-    <div class="pg-eyebrow">
-      <a href="{% url 'admin_dashboard' %}">Accueil</a>
-      <span class="sep">›</span> Communication
-    </div>
-    <h1 class="pg-title">Messages <span class="pg-count">{{ total }}</span></h1>
+    <div class="pg-eyebrow"><a href="{% url 'admin_dashboard' %}">Accueil</a><span class="sep">›</span>Communication</div>
+    <h1 class="pg-title">
+      Messages <span class="pg-count">{{ total }}</span>
+      {% if unread_count %}<span class="unread-counter">{{ unread_count }} non lu{{ unread_count|pluralize }}</span>{% endif %}
+    </h1>
   </div>
 </div>
 
-<div class="filter-bar">
+<div class="filter-bar" style="margin-bottom:12px;">
   <div class="f-pills">
     <a href="?" class="f-pill {% if filtre == 'all' %}active{% endif %}">Tous</a>
-    <a href="?filtre=non_lu" class="f-pill {% if filtre == 'non_lu' %}active{% endif %}">Non lus{% if unread_count %} ({{ unread_count }}){% endif %}</a>
+    <a href="?filtre=non_lu" class="f-pill {% if filtre == 'non_lu' %}active{% endif %}">
+      Non lus
+      {% if unread_count %}<span style="background:rgba(200,22,29,.15);color:#9B0D13;border-radius:999px;padding:0 5px;font-size:9px;margin-left:3px;">{{ unread_count }}</span>{% endif %}
+    </a>
   </div>
 </div>
 
 <div class="t-wrap">
-  <div class="t-row t-head" style="grid-template-columns:14px 1fr 200px 110px 60px 80px;">
+  <div class="t-row t-head msg-col">
     <div class="th"></div>
-    <div class="th">Message</div>
+    <div class="th">Sujet &amp; aperçu</div>
     <div class="th">Expéditeur</div>
     <div class="th">Date</div>
-    <div class="th">Lu</div>
     <div class="th" style="text-align:right;">Actions</div>
   </div>
+
   {% for msg in messages_list %}
-  <div class="t-row" id="row-msg{{ msg.pk }}" style="grid-template-columns:14px 1fr 200px 110px 60px 80px;{% if not msg.lu %}background:#FDFCFB;{% endif %}">
-    <div style="display:flex;align-items:center;">
-      {% if not msg.lu %}
-      <div style="width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
-      {% endif %}
+  <div class="t-row msg-col {% if not msg.lu %}row-unread{% endif %}" id="row-msg{{ msg.pk }}">
+
+    <div style="display:flex;align-items:center;justify-content:center;">
+      {% if not msg.lu %}<div class="msg-unread-dot"></div>{% endif %}
     </div>
+
+    <div style="min-width:0;">
+      <div class="msg-sujet {% if not msg.lu %}unread{% endif %}">{{ msg.get_sujet_display }}</div>
+      <div class="msg-preview">{{ msg.message|truncatechars:110 }}</div>
+    </div>
+
+    <div style="min-width:0;">
+      <div class="msg-sender {% if not msg.lu %}unread{% endif %}">{{ msg.nom }}</div>
+      <div class="msg-email">{{ msg.email }}</div>
+    </div>
+
     <div>
-      <div style="font-weight:{% if not msg.lu %}600{% else %}400{% endif %};font-size:13px;color:var(--ink);line-height:1.35;">{{ msg.get_sujet_display|truncatechars:60 }}</div>
-      <div style="font-size:11.5px;color:rgba(11,11,11,.45);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ msg.message|truncatechars:110 }}</div>
+      <div class="msg-date">{{ msg.date_envoi|date:"d/m/Y" }}</div>
+      <div class="msg-date-h">{{ msg.date_envoi|date:"H:i" }}</div>
     </div>
-    <div>
-      <div style="font-size:13px;font-weight:{% if not msg.lu %}500{% else %}400{% endif %};color:var(--ink);">{{ msg.nom }}</div>
-      <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);">{{ msg.email }}</div>
-    </div>
-    <div>
-      <div style="font-family:var(--font-mono);font-size:11px;color:rgba(11,11,11,.55);">{{ msg.date_envoi|date:"d/m/Y" }}</div>
-      <div style="font-family:var(--font-mono);font-size:10px;color:rgba(11,11,11,.35);">{{ msg.date_envoi|date:"H:i" }}</div>
-    </div>
-    <div style="text-align:center;">
-      {% if msg.lu %}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      {% else %}
-        <div style="width:8px;height:8px;border-radius:50%;background:var(--green);margin:0 auto;"></div>
-      {% endif %}
-    </div>
+
     <div class="row-actions">
-      <a href="{% url 'admin_message_detail' msg.pk %}" class="ic-btn" title="Lire le message">
+      <a href="{% url 'admin_message_detail' msg.pk %}" class="ic-btn {% if not msg.lu %}ok{% endif %}" title="Lire le message">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </a>
       <button class="ic-btn del" title="Supprimer" onclick="confirmDelete('{% url 'admin_message_delete' msg.pk %}', document.getElementById('row-msg{{ msg.pk }}'))">
@@ -64,9 +108,10 @@
     </div>
   </div>
   {% empty %}
-  <div class="empty-state">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-    <p>Aucun message</p>
+  <div class="es-lg">
+    <div class="es-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+    <div class="es-ttl">Aucun message</div>
+    <p class="es-sub">{% if filtre == 'non_lu' %}Tous les messages ont été lus{% else %}Aucun message reçu{% endif %}</p>
   </div>
   {% endfor %}
 </div>

@@ -111,3 +111,51 @@ class Candidature(models.Model):
     def section(self):
         sexe_label = 'Masculin' if self.sexe == 'M' else 'Féminin'
         return f"{self.categorie} {sexe_label}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.statut == 'accepted':
+            self.creer_ou_mettre_a_jour_joueur()
+
+    def creer_ou_mettre_a_jour_joueur(self):
+        from django.db.models import Max
+        from django.utils import timezone
+        from effectif.models import Joueur
+
+        numero = self.numero_prefere
+        if numero is None:
+            dernier_numero = (
+                Joueur.objects
+                .filter(categorie=self.categorie, sexe=self.sexe)
+                .aggregate(max_numero=Max('numero'))['max_numero']
+            )
+            numero = (dernier_numero or 0) + 1
+
+        Joueur.objects.update_or_create(
+            candidature=self,
+            defaults={
+                'nom': self.nom,
+                'prenom': self.prenom,
+                'date_naissance': self.date_naissance,
+                'sexe': self.sexe,
+                'categorie': self.categorie,
+                'nationalite': self.nationalite,
+                'adresse': self.adresse,
+                'numero': numero,
+                'poste': self.poste,
+                'pied_fort': self.pied_fort,
+                'ancien_club': self.ancien_club,
+                'age': self.age,
+                'telephone_whatsapp': self.telephone_whatsapp,
+                'email': self.email,
+                'nom_parent': self.nom_parent,
+                'telephone_parent': self.telephone_parent,
+                'email_parent': self.email_parent,
+                'info_scolaire': self.info_scolaire,
+                'contact_urgence': self.contact_urgence,
+                'date_inscription': timezone.localdate(),
+                'photo': self.photo,
+                'actif': True,
+            },
+        )

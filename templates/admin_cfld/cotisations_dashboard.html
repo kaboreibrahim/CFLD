@@ -1,0 +1,403 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}Cotisations annuelles{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Layout header ── */
+.cot-header-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 22px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+
+/* ── KPI cotisations ── */
+.cot-kpi-row { display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:0; }
+.cot-kpi { background:#fff;border:1px solid rgba(11,11,11,.1);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden; }
+.cot-kpi::after { content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0; }
+.cot-kpi.k-red::after   { background:linear-gradient(90deg,#C8161D,#EE2630); }
+.cot-kpi.k-green::after { background:linear-gradient(90deg,#059669,#10B981); }
+.cot-kpi.k-amber::after { background:linear-gradient(90deg,#B45309,#F59E0B); }
+.cot-kpi-lbl { font-family:var(--font-mono);font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.42);margin-bottom:4px; }
+.cot-kpi-val { font-family:var(--font-display);font-size:30px;font-weight:500;line-height:1;letter-spacing:-.02em;color:var(--ink); }
+.cot-kpi-val.money { font-size:18px;letter-spacing:-.01em; }
+.cot-kpi-sub { font-family:var(--font-mono);font-size:9px;color:rgba(11,11,11,.35);margin-top:4px; }
+
+/* ── Donut + progression ── */
+.prog-widget {
+  background: #fff;
+  border: 1px solid rgba(11,11,11,.1);
+  border-radius: 10px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.donut-wrap { position:relative; flex-shrink:0; width:100px; height:100px; }
+.donut-label {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.donut-pct {
+  font-family: var(--font-display);
+  font-size: 22px; font-weight: 500;
+  line-height: 1; letter-spacing: -.02em;
+  color: var(--ink);
+}
+.donut-sub { font-family:var(--font-mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:rgba(11,11,11,.38);margin-top:2px; }
+.prog-details { flex: 1; min-width: 0; }
+.prog-title { font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.4);margin-bottom:12px; }
+.prog-row { display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:12px; }
+.prog-row:last-child { margin-bottom:0; }
+.prog-key { font-size:12.5px;color:rgba(11,11,11,.6); }
+.prog-v { font-family:var(--font-mono);font-size:11.5px;font-weight:700;color:var(--ink); }
+.prog-bar-sm { height:4px;background:rgba(11,11,11,.07);border-radius:999px;overflow:hidden;flex:1;margin:0 12px; }
+.prog-bar-fill { height:100%;border-radius:999px;transition:width .6s cubic-bezier(.4,0,.2,1); }
+
+/* ── Tableau cotisations ── */
+.cot-col { grid-template-columns:1.4fr 75px 125px 125px 110px 85px 95px 95px; }
+.prog-bar-row { height:5px;background:rgba(11,11,11,.07);border-radius:999px;overflow:hidden;margin-bottom:2px; }
+.prog-bar-row-fill { height:100%;border-radius:999px; }
+.row-retard { border-left:2.5px solid #C8161D; background:#FFFAFA !important; }
+.row-solde  { border-left:2.5px solid #059669; }
+
+/* ── Bandeau joueurs sans cotisation ── */
+.sans-cot-banner {
+  margin-top:20px;
+  background:#FFFBEB;
+  border:1px solid #FDE68A;
+  border-left:3px solid #D97706;
+  border-radius:8px;
+  padding:14px 18px;
+}
+.sans-cot-title { font-family:var(--font-mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:#92400E;margin-bottom:10px; }
+.sans-cot-list { display:flex;flex-wrap:wrap;gap:6px; }
+.sans-cot-tag { background:#fff;border:1px solid #FDE68A;border-radius:999px;padding:3px 11px;font-size:12px;font-weight:500;color:#78350F; }
+
+/* ── Plan de paiement ── */
+.plan-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px; }
+.plan-card { border-radius:10px;padding:14px 16px; }
+.plan-card.c-red   { background:rgba(200,22,29,.05);border:1px solid rgba(200,22,29,.15); }
+.plan-card.c-gray  { background:rgba(11,11,11,.03);border:1px solid rgba(11,11,11,.08); }
+.plan-card.c-green { background:rgba(5,150,105,.05);border:1px solid rgba(5,150,105,.18); }
+.plan-card-lbl { font-family:var(--font-mono);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:5px; }
+.plan-card.c-red   .plan-card-lbl { color:#C8161D; }
+.plan-card.c-gray  .plan-card-lbl { color:rgba(11,11,11,.4); }
+.plan-card.c-green .plan-card-lbl { color:#059669; }
+.plan-card-val { font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--ink); }
+.plan-card-sub { font-size:11px;color:rgba(11,11,11,.45);margin-top:3px; }
+
+/* ── Modal CSS ── */
+.modal-overlay { position:fixed;inset:0;background:rgba(11,11,11,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .18s; }
+.modal-overlay.open { opacity:1;pointer-events:all; }
+.modal-box { background:#fff;border-radius:12px;overflow:hidden;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(11,11,11,.2);transform:scale(.96) translateY(6px);transition:transform .18s cubic-bezier(.34,1.56,.64,1); }
+.modal-overlay.open .modal-box { transform:scale(1) translateY(0); }
+.modal-hd { background:#130505;padding:22px 24px; }
+.modal-hd-title { font-family:var(--font-display);font-size:20px;color:#F7F5F1;font-weight:500;margin-bottom:5px; }
+.modal-hd-sub { font-size:13px;color:rgba(247,245,241,.5); }
+.modal-bd { padding:20px 24px;display:flex;gap:10px; }
+.modal-bd .btn { flex:1;justify-content:center; }
+
+/* ── Empty state ── */
+.empty-state-lg { padding:64px 24px;text-align:center; }
+.empty-state-lg .es-icon { width:52px;height:52px;border-radius:12px;background:rgba(11,11,11,.05);display:grid;place-items:center;margin:0 auto 14px;color:rgba(11,11,11,.25); }
+.empty-state-lg .es-icon svg { width:24px;height:24px; }
+.empty-state-lg .es-title { font-family:var(--font-display);font-size:17px;font-weight:500;color:rgba(11,11,11,.4);margin:0 0 5px; }
+.empty-state-lg .es-sub { font-family:var(--font-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:rgba(11,11,11,.28);margin:0; }
+
+@media(max-width:1100px){ .cot-kpi-row{grid-template-columns:1fr 1fr;} .cot-header-row{grid-template-columns:1fr;} .prog-widget{flex-direction:column;text-align:center;} }
+@media(max-width:768px){ .cot-kpi-row{grid-template-columns:1fr 1fr;} .plan-grid{grid-template-columns:1fr;} }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow"><a href="{% url 'admin_dashboard' %}">Accueil</a><span class="sep">›</span>Paiements</div>
+    <h1 class="pg-title">Cotisations <span class="pg-count">{{ annee }}</span></h1>
+  </div>
+  <div class="page-hd-right">
+    <form method="get" style="display:flex;gap:8px;align-items:center;">
+      <select name="annee" onchange="this.form.submit()" class="btn btn-ghost" style="cursor:pointer;min-width:100px;">
+        {% for a in annees %}<option value="{{ a }}" {% if a == annee %}selected{% endif %}>{{ a }}</option>{% endfor %}
+      </select>
+    </form>
+    {% if joueurs_sans_cotisation %}
+    <button class="btn btn-ghost" onclick="document.getElementById('modalCreerTous').classList.add('open');document.body.style.overflow='hidden';">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+      Créer pour tous ({{ joueurs_sans_cotisation|length }})
+    </button>
+    {% endif %}
+    <a href="{% url 'admin_cotisation_creer' %}" class="btn btn-dark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Ajouter un joueur
+    </a>
+  </div>
+</div>
+
+<!-- ── KPI + Donut ── -->
+<div class="cot-header-row" style="grid-template-columns:1fr 300px;">
+  <div>
+    <div class="cot-kpi-row">
+      <div class="cot-kpi k-red">
+        <div class="cot-kpi-lbl">Joueurs suivis</div>
+        <div class="cot-kpi-val">{{ total_joueurs }}</div>
+        <div class="cot-kpi-sub">Cotisations {{ annee }}</div>
+      </div>
+      <div class="cot-kpi k-green">
+        <div class="cot-kpi-lbl">Total collecté</div>
+        <div class="cot-kpi-val money" style="color:#065F46;">{{ total_collecte|floatformat:0 }}<span style="font-size:11px;font-weight:400;color:rgba(11,11,11,.4);"> F</span></div>
+      </div>
+      <div class="cot-kpi k-amber">
+        <div class="cot-kpi-lbl">Restant</div>
+        <div class="cot-kpi-val money" style="{% if total_reste %}color:#92400E;{% endif %}">{{ total_reste|floatformat:0 }}<span style="font-size:11px;font-weight:400;color:rgba(11,11,11,.4);"> F</span></div>
+      </div>
+      <div class="cot-kpi">
+        <div class="cot-kpi-lbl">Soldés</div>
+        <div class="cot-kpi-val" style="color:#059669;">{{ nb_soldes }}</div>
+      </div>
+      <div class="cot-kpi">
+        <div class="cot-kpi-lbl">En cours</div>
+        <div class="cot-kpi-val" style="{% if nb_en_cours %}color:#B45309;{% endif %}">{{ nb_en_cours }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Donut -->
+  {% if total_attendu %}
+  {% widthratio total_collecte total_attendu 100 as glob_pct %}
+  {% widthratio total_collecte total_attendu 283 as dash_len %}
+  <div class="prog-widget">
+    <div class="donut-wrap">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="42" fill="none" stroke="#F0EEE8" stroke-width="10"/>
+        <circle cx="50" cy="50" r="42" fill="none"
+          stroke="{% if glob_pct >= 80 %}#059669{% elif glob_pct >= 50 %}#D97706{% else %}#C8161D{% endif %}"
+          stroke-width="10"
+          stroke-dasharray="{{ dash_len }} 283"
+          stroke-dashoffset="0"
+          stroke-linecap="round"
+          transform="rotate(-90 50 50)"/>
+      </svg>
+      <div class="donut-label">
+        <span class="donut-pct">{{ glob_pct }}%</span>
+        <span class="donut-sub">collecté</span>
+      </div>
+    </div>
+    <div class="prog-details">
+      <div class="prog-title">Progression {{ annee }}</div>
+      <div class="prog-row">
+        <span class="prog-key" style="color:#059669;">Collecté</span>
+        <div class="prog-bar-sm"><div class="prog-bar-fill" style="width:{{ glob_pct }}%;background:#059669;"></div></div>
+        <span class="prog-v">{{ total_collecte|floatformat:0 }} F</span>
+      </div>
+      <div class="prog-row">
+        <span class="prog-key" style="color:#D97706;">Restant</span>
+        <div class="prog-bar-sm">
+          {% if total_attendu %}{% widthratio total_reste total_attendu 100 as reste_pct %}{% endif %}
+          <div class="prog-bar-fill" style="width:{{ reste_pct }}%;background:#D97706;"></div>
+        </div>
+        <span class="prog-v">{{ total_reste|floatformat:0 }} F</span>
+      </div>
+      <div style="margin-top:10px;font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.35);">Objectif : {{ total_attendu|floatformat:0 }} FCFA</div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ── Filtres mois / plage de date ── -->
+<div class="filter-bar" style="margin-bottom:16px;flex-direction:column;align-items:stretch;gap:14px;">
+
+  <!-- Pills mois -->
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <span style="font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.4);flex-shrink:0;">Mois</span>
+    <div class="f-pills" style="flex-wrap:wrap;">
+      <a href="?annee={{ annee }}" class="f-pill {% if not mois and not date_debut and not date_fin %}active{% endif %}">Tous</a>
+      {% for m_num, m_nom in mois_choices %}
+      <a href="?annee={{ annee }}&mois={{ m_num }}" class="f-pill {% if mois == m_num %}active{% endif %}">{{ m_nom }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Séparateur -->
+  <div style="height:1px;background:rgba(11,11,11,.07);"></div>
+
+  <!-- Plage de date -->
+  <form method="get" id="formDateRange" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+    <input type="hidden" name="annee" value="{{ annee }}">
+    <span style="font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.4);flex-shrink:0;">Plage</span>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+      <div class="search-wrap" style="flex:none;min-width:0;padding:5px 10px;gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <input type="date" name="date_debut" value="{{ date_debut }}" placeholder="Du" style="width:130px;font-size:12.5px;">
+      </div>
+      <span style="font-family:var(--font-mono);font-size:10px;color:rgba(11,11,11,.35);">→</span>
+      <div class="search-wrap" style="flex:none;min-width:0;padding:5px 10px;gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <input type="date" name="date_fin" value="{{ date_fin }}" placeholder="Au" style="width:130px;font-size:12.5px;">
+      </div>
+      <button type="submit" class="btn btn-dark btn-sm">Filtrer</button>
+      {% if date_debut or date_fin %}
+      <a href="?annee={{ annee }}" class="btn btn-ghost btn-sm">Réinitialiser</a>
+      {% endif %}
+    </div>
+  </form>
+
+</div>
+
+<!-- ── Tableau ── -->
+<div class="t-wrap">
+  {% if mois or date_debut or date_fin %}
+  <div style="padding:10px 18px 0;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.12em;color:rgba(11,11,11,.42);">
+    Résultats filtrés
+    {% if mois %}— mois : <strong style="color:var(--ink);">{% for m_num, m_nom in mois_choices %}{% if m_num == mois %}{{ m_nom }}{% endif %}{% endfor %} {{ annee }}</strong>{% endif %}
+    {% if date_debut %}— du <strong style="color:var(--ink);">{{ date_debut }}</strong>{% endif %}
+    {% if date_fin %}au <strong style="color:var(--ink);">{{ date_fin }}</strong>{% endif %}
+    · {{ cotisations|length }} cotisation(s)
+  </div>
+  {% endif %}
+  <div class="t-row t-head cot-col">
+    <div class="th">Joueur</div>
+    <div class="th">Cat.</div>
+    <div class="th">Versé</div>
+    <div class="th">Restant</div>
+    <div class="th">Progression</div>
+    <div class="th">Versements</div>
+    <div class="th">Statut</div>
+    <div class="th" style="text-align:right;">Actions</div>
+  </div>
+
+  {% for c in cotisations %}
+  <div class="t-row cot-col {% if c.statut == 'en_retard' %}row-retard{% elif c.statut == 'solde' %}row-solde{% endif %}" id="row-cot{{ c.pk }}">
+
+    <div style="display:flex;align-items:center;gap:10px;">
+      {% if c.joueur.photo %}
+        <img src="{{ c.joueur.photo.url }}" style="width:34px;height:34px;border-radius:9px;object-fit:cover;flex-shrink:0;border:1.5px solid rgba(11,11,11,.07);">
+      {% else %}
+        <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#C8161D,#8A0D12);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ c.joueur.prenom|slice:":1"|upper }}{{ c.joueur.nom|slice:":1"|upper }}</div>
+      {% endif %}
+      <div style="min-width:0;">
+        <div style="font-weight:500;font-size:13px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.joueur.prenom }} {{ c.joueur.nom }}</div>
+        <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.38);">{{ c.annee }}</div>
+      </div>
+    </div>
+
+    <div><span class="pill">{{ c.joueur.categorie }}</span></div>
+
+    <div style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:#059669;">{{ c.total_verse|floatformat:0 }} <span style="font-size:9px;font-weight:400;color:rgba(11,11,11,.4);">F</span></div>
+
+    <div style="font-family:var(--font-mono);font-size:12px;font-weight:600;color:{% if c.reste_a_payer == 0 %}rgba(11,11,11,.3){% else %}#B45309{% endif %};">{{ c.reste_a_payer|floatformat:0 }} <span style="font-size:9px;font-weight:400;color:rgba(11,11,11,.4);">F</span></div>
+
+    <div style="min-width:80px;">
+      <div class="prog-bar-row">
+        <div class="prog-bar-row-fill" style="width:{{ c.progression_pct }}%;background:{% if c.progression_pct >= 100 %}#059669{% elif c.progression_pct >= 50 %}#B45309{% else %}#C8161D{% endif %};"></div>
+      </div>
+      <span style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.45);">{{ c.progression_pct }}%</span>
+    </div>
+
+    <div style="text-align:center;">
+      <span style="font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--ink);">{{ c.nb_versements_valides }}</span>
+      <span style="font-size:10px;color:rgba(11,11,11,.38);">/9</span>
+      {% if c.nb_versements_en_attente %}
+      <div style="margin-top:2px;"><span class="badge-status bs-pending" style="font-size:8.5px;padding:1px 5px;">+{{ c.nb_versements_en_attente }}</span></div>
+      {% endif %}
+    </div>
+
+    <div>
+      {% if c.statut == 'solde' %}<span class="badge-status bs-accepted">Soldé</span>
+      {% elif c.statut == 'en_retard' %}<span class="badge-status bs-refused">En retard</span>
+      {% elif c.statut == 'suspendu' %}<span class="badge-status" style="background:#F3F4F6;color:#6B7280;">Suspendu</span>
+      {% else %}<span class="badge-status bs-pending">En cours</span>{% endif %}
+    </div>
+
+    <div style="display:flex;gap:5px;justify-content:flex-end;">
+      <a href="{% url 'admin_cotisation_detail' c.pk %}" class="ic-btn info" title="Voir le détail">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </a>
+      <a href="{% url 'admin_versement_add' c.pk %}" class="ic-btn ok" title="Enregistrer un versement">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </a>
+    </div>
+  </div>
+  {% empty %}
+  <div class="empty-state-lg">
+    <div class="es-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+    <div class="es-title">Aucune cotisation pour {{ annee }}</div>
+    <p class="es-sub"><a href="{% url 'admin_cotisation_creer' %}" style="color:#C8161D;">Créer la première →</a></p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ── Joueurs sans cotisation ── -->
+{% if joueurs_sans_cotisation %}
+<div class="sans-cot-banner">
+  <div class="sans-cot-title">{{ joueurs_sans_cotisation|length }} joueur(s) actif(s) sans cotisation {{ annee }}</div>
+  <div class="sans-cot-list">
+    {% for j in joueurs_sans_cotisation %}
+    <span class="sans-cot-tag">{{ j.prenom }} {{ j.nom }}</span>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- ── Plan de paiement ── -->
+<div style="margin-top:28px;background:#fff;border:1px solid rgba(11,11,11,.08);border-radius:12px;padding:18px 22px;">
+  <p style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.38);margin-bottom:0;">Plan de paiement annuel type — 1 000 000 FCFA</p>
+  <div class="plan-grid">
+    <div class="plan-card c-red">
+      <div class="plan-card-lbl">1er versement</div>
+      <div class="plan-card-val">200 000 F</div>
+      <div class="plan-card-sub">À l'entrée</div>
+    </div>
+    <div class="plan-card c-gray">
+      <div class="plan-card-lbl">8 versements mensuels</div>
+      <div class="plan-card-val">100 000 F</div>
+      <div class="plan-card-sub">Par mois × 8</div>
+    </div>
+    <div class="plan-card c-green">
+      <div class="plan-card-lbl">Total annuel</div>
+      <div class="plan-card-val">1 000 000 F</div>
+      <div class="plan-card-sub">200k + 8×100k</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modale créer pour tous ── -->
+<div class="modal-overlay" id="modalCreerTous">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <div class="modal-hd-title">Créer pour tous</div>
+      <p class="modal-hd-sub">Créer une cotisation {{ annee }} pour les {{ joueurs_sans_cotisation|length }} joueur(s) actif(s) qui n'en ont pas encore.</p>
+    </div>
+    <div class="modal-bd">
+      <button onclick="creerTous({{ annee }})" class="btn btn-dark" id="btnCreerTous">Créer ({{ joueurs_sans_cotisation|length }} joueurs)</button>
+      <button onclick="document.getElementById('modalCreerTous').classList.remove('open');document.body.style.overflow='';" class="btn btn-ghost">Annuler</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('modalCreerTous')?.addEventListener('click', function(e){ if(e.target===this){this.classList.remove('open');document.body.style.overflow='';} });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){document.getElementById('modalCreerTous')?.classList.remove('open');document.body.style.overflow='';} });
+
+function creerTous(annee) {
+  const btn = document.getElementById('btnCreerTous');
+  btn.disabled = true;
+  btn.innerHTML = '<span style="width:12px;height:12px;border:2px solid rgba(255,255,255,.6);border-top-color:transparent;border-radius:50%;display:inline-block;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;"></span> Création en cours…';
+  fetch('{% url "admin_cotisation_creer_tous" %}', {
+    method:'POST',
+    headers:{'X-CSRFToken':'{{ csrf_token }}','Content-Type':'application/x-www-form-urlencoded'},
+    body:'annee='+annee,
+  }).then(r=>r.json()).then(d=>{
+    if(d.ok) { showToast('Cotisations créées','ok'); setTimeout(()=>window.location.reload(),900); }
+    else { showToast('Erreur','err'); btn.disabled=false; btn.textContent='Créer'; }
+  });
+}
+</script>
+{% endblock %}

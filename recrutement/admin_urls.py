@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import admin_views as v
+from payments import admin_views as pv
 
 urlpatterns = [
     # Auth
@@ -67,4 +68,36 @@ urlpatterns = [
     path('ticker/ajouter/',           v.admin_ticker_form,  name='admin_ticker_add'),
     path('ticker/<int:pk>/',          v.admin_ticker_form,  name='admin_ticker_edit'),
     path('ticker/<int:pk>/supprimer/', v.admin_ticker_delete, name='admin_ticker_delete'),
+
+    # Paiements — Comptes
+    path('paiements/comptes/',                        pv.admin_comptes_paiement,        name='admin_comptes_paiement'),
+    path('paiements/comptes/ajouter/',                pv.admin_compte_paiement_form,    name='admin_compte_paiement_add'),
+    path('paiements/comptes/<uuid:pk>/',              pv.admin_compte_paiement_form,    name='admin_compte_paiement_edit'),
+    path('paiements/comptes/<uuid:pk>/supprimer/',    pv.admin_compte_paiement_delete,  name='admin_compte_paiement_delete'),
+
+    # Paiements — Visite médicale
+    path('paiements/visite/',                         pv.admin_paiements_visite,         name='admin_paiements_visite'),
+    path('paiements/visite/ajouter/',                 pv.admin_paiement_visite_form,     name='admin_paiement_visite_add'),
+    path('paiements/visite/<uuid:pk>/',               pv.admin_paiement_visite_form,     name='admin_paiement_visite_edit'),
+    path('paiements/visite/<uuid:pk>/action/',        pv.admin_paiement_visite_action,   name='admin_paiement_visite_action'),
+    path('paiements/visite/<uuid:pk>/pdf/',           pv.admin_visite_pdf,               name='admin_visite_pdf'),
+
+    # Paiements — Inscription
+    path('paiements/inscription/',                    pv.admin_paiements_inscription,       name='admin_paiements_inscription'),
+    path('paiements/inscription/ajouter/',            pv.admin_paiement_inscription_form,   name='admin_paiement_inscription_add'),
+    path('paiements/inscription/<uuid:pk>/',          pv.admin_paiement_inscription_form,   name='admin_paiement_inscription_edit'),
+    path('paiements/inscription/<uuid:pk>/action/',   pv.admin_paiement_inscription_action, name='admin_paiement_inscription_action'),
+
+    # Paiements — Cotisations annuelles
+    path('paiements/cotisations/',                            pv.admin_cotisations_dashboard,  name='admin_cotisations_dashboard'),
+    path('paiements/cotisations/creer/',                      pv.admin_cotisation_creer,       name='admin_cotisation_creer'),
+    path('paiements/cotisations/creer-tous/',                 pv.admin_cotisation_creer_tous,  name='admin_cotisation_creer_tous'),
+    path('paiements/cotisations/<uuid:pk>/',                  pv.admin_cotisation_detail,      name='admin_cotisation_detail'),
+    path('paiements/cotisations/<uuid:cotisation_pk>/versement/', pv.admin_versement_add, name='admin_versement_add'),
+    path('paiements/cotisations/versement/<uuid:pk>/action/', pv.admin_versement_action,       name='admin_versement_action'),
+    path('paiements/cotisations/versement/<uuid:pk>/pdf/',    pv.admin_versement_pdf,          name='admin_versement_pdf'),
+
+    # Paiements — Inscription détail & PDF
+    path('paiements/inscription/<uuid:pk>/detail/', pv.admin_inscription_detail, name='admin_inscription_detail'),
+    path('paiements/inscription/<uuid:pk>/pdf/',    pv.admin_inscription_pdf,    name='admin_inscription_pdf'),
 ]

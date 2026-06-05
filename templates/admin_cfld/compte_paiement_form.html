@@ -1,0 +1,70 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}{% if obj %}Modifier{% else %}Ajouter{% endif %} un compte de paiement{% endblock %}
+
+{% block content %}
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span>
+      <a href="{% url 'admin_comptes_paiement' %}">Comptes de paiement</a>
+      <span class="sep">›</span>
+      {% if obj %}Modifier{% else %}Nouveau{% endif %}
+    </div>
+    <h1 class="pg-title">{% if obj %}Modifier le compte{% else %}Nouveau compte{% endif %}</h1>
+  </div>
+</div>
+
+<div class="form-card" style="max-width:620px;">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="field">
+        <label class="fi-label">Mode de paiement *</label>
+        {{ form.mode }}
+        {% if form.mode.errors %}<div class="fi-err">{{ form.mode.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field">
+        <label class="fi-label">Ordre d'affichage</label>
+        {{ form.ordre_affichage }}
+      </div>
+      <div class="field">
+        <label class="fi-label">Numéro / référence *</label>
+        {{ form.numero }}
+        {% if form.numero.errors %}<div class="fi-err">{{ form.numero.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field">
+        <label class="fi-label">Nom du titulaire *</label>
+        {{ form.nom_titulaire }}
+        {% if form.nom_titulaire.errors %}<div class="fi-err">{{ form.nom_titulaire.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="field span2">
+        <label class="fi-label">Instructions de dépôt</label>
+        {{ form.instructions }}
+      </div>
+      <div class="field">
+        <label class="fi-label">QR Code (facultatif)</label>
+        {% if obj and obj.qr_code %}
+          <img src="{{ obj.qr_code.url }}" alt="QR" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-bottom:8px;border:1px solid rgba(11,11,11,.1);">
+        {% endif %}
+        {{ form.qr_code }}
+      </div>
+      <div class="field" style="align-self:center;">
+        <label class="fi-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          {{ form.est_actif }}
+          <span>Compte actif</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Enregistrer
+      </button>
+      <a href="{% url 'admin_comptes_paiement' %}" class="btn btn-ghost">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

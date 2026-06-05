@@ -1,0 +1,239 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}{{ cotisation.joueur.nom_complet }} — Cotisation {{ cotisation.annee }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.prog-bar { height:8px; background:rgba(11,11,11,.08); border-radius:999px; overflow:hidden; }
+.prog-fill { height:100%; border-radius:999px; transition:width .6s cubic-bezier(.4,0,.2,1); }
+.echeance { display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:11px; margin-bottom:6px; border:1.5px solid; }
+.echeance.solde    { background:rgba(5,150,105,.05); border-color:rgba(5,150,105,.2); }
+.echeance.partiel  { background:rgba(180,83,9,.05); border-color:rgba(180,83,9,.2); }
+.echeance.non_paye { background:rgba(11,11,11,.02); border-color:rgba(11,11,11,.08); }
+.ech-num { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11px; font-weight:700; flex-shrink:0; }
+.ech-num.ok { background:#059669; color:#fff; }
+.ech-num.partial { background:#B45309; color:#fff; }
+.ech-num.ko { background:rgba(11,11,11,.08); color:rgba(11,11,11,.4); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a>
+      <span class="sep">›</span>
+      <a href="{% url 'admin_cotisations_dashboard' %}">Cotisations</a>
+      <span class="sep">›</span>
+      {{ cotisation.joueur.nom_complet }}
+    </div>
+    <h1 class="pg-title">{{ cotisation.joueur.prenom }} {{ cotisation.joueur.nom }} <span class="pg-count">{{ cotisation.annee }}</span></h1>
+  </div>
+  <div class="page-hd-right">
+    <a href="{% url 'admin_versement_add' cotisation.pk %}" class="btn btn-dark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Enregistrer un versement
+    </a>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+  <div class="kpi k-red">
+    <div class="kpi-label">Total annuel</div>
+    <div class="kpi-val" style="font-size:22px;">{{ plan.montant_total|floatformat:0 }} <span style="font-size:12px;">F</span></div>
+  </div>
+  <div class="kpi k-green">
+    <div class="kpi-label">Versé</div>
+    <div class="kpi-val" style="font-size:22px;color:#059669;">{{ plan.total_verse|floatformat:0 }} <span style="font-size:12px;">F</span></div>
+  </div>
+  <div class="kpi k-amber">
+    <div class="kpi-label">Restant</div>
+    <div class="kpi-val" style="font-size:22px;color:#B45309;">{{ plan.total_restant|floatformat:0 }} <span style="font-size:12px;">F</span></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Échéances soldées</div>
+    <div class="kpi-val" style="font-size:22px;">{{ plan.nb_soldes }}<span style="font-size:13px;color:rgba(11,11,11,.35);">/{{ plan.nb_echeances }}</span></div>
+  </div>
+</div>
+
+<!-- Barre de progression -->
+<div style="background:#fff;border:1px solid rgba(11,11,11,.08);border-radius:13px;padding:16px 22px;margin-bottom:22px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <span style="font-weight:500;font-size:13px;">Progression vers 1 000 000 FCFA</span>
+    <span style="font-family:var(--font-mono);font-size:11px;color:rgba(11,11,11,.5);">
+      {{ plan.nb_soldes }} soldées · {{ plan.nb_partiels }} partielle(s) · {{ plan.nb_non_payes }} impayée(s)
+    </span>
+  </div>
+  <div class="prog-bar">
+    <div class="prog-fill" style="width:{{ plan.progression_pct }}%;background:{% if plan.progression_pct >= 100 %}#059669{% elif plan.progression_pct >= 50 %}#B45309{% else %}#C8161D{% endif %};"></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;margin-top:8px;font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.38);">
+    <span>0</span>
+    <span>200k</span>
+    <span>400k</span>
+    <span>600k</span>
+    <span>800k</span>
+    <span>1 000k</span>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start;">
+
+  <!-- Historique des versements -->
+  <div>
+    <p style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.38);margin-bottom:12px;">Historique des versements</p>
+    <div class="t-wrap">
+      <div class="t-row t-head" style="grid-template-columns:100px 120px 140px 110px 80px 160px;">
+        <div class="th">Type</div>
+        <div class="th">Montant</div>
+        <div class="th">Compte / Réf.</div>
+        <div class="th">Date</div>
+        <div class="th">Statut</div>
+        <div class="th" style="text-align:right;">Actions</div>
+      </div>
+      {% for v in versements %}
+      <div class="t-row" id="row-v{{ v.pk }}" style="grid-template-columns:100px 120px 140px 110px 80px 160px;">
+        <div style="font-size:11.5px;">
+          {{ v.get_type_versement_display }}
+          {% if v.source_inscription %}
+          <div style="font-size:9.5px;font-family:var(--font-mono);color:rgba(11,11,11,.4);">Auto-inscription</div>
+          {% endif %}
+        </div>
+        <div style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:{% if v.est_valide %}#059669{% else %}rgba(11,11,11,.6){% endif %};">
+          {{ v.montant|floatformat:0 }} F
+        </div>
+        <div style="font-size:11px;">
+          {% if v.compte_paiement %}
+          <div style="font-weight:500;">{{ v.compte_paiement.get_mode_display }}</div>
+          <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.4);">{{ v.compte_paiement.numero }}</div>
+          {% endif %}
+          {% if v.reference_transaction %}
+          <div style="font-family:var(--font-mono);font-size:9px;color:rgba(11,11,11,.45);">{{ v.reference_transaction }}</div>
+          {% endif %}
+        </div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:rgba(11,11,11,.55);">{{ v.date_versement|date:"d/m/Y" }}</div>
+        <div id="sv-{{ v.pk }}">
+          {% if v.statut_validation == 'approved' %}
+            <span class="badge-status bs-accepted">Validé</span>
+          {% elif v.statut_validation == 'pending' %}
+            <span class="badge-status bs-pending">Attente</span>
+          {% else %}
+            <span class="badge-status bs-refused">Refusé</span>
+          {% endif %}
+        </div>
+        <div style="display:flex;gap:5px;justify-content:flex-end;">
+          {% if v.capture_depot %}
+          <a href="{{ v.capture_depot.url }}" target="_blank" class="ic-btn info" title="Voir capture">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+          </a>
+          {% endif %}
+          {% if v.statut_validation == 'approved' %}
+          <a href="{% url 'admin_versement_pdf' v.pk %}" class="ic-btn" title="Télécharger reçu PDF" target="_blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </a>
+          {% endif %}
+          {% if v.statut_validation == 'pending' %}
+          <button class="ic-btn ok" title="Valider" onclick="actionVersement('{{ v.pk }}','approve')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+          <button class="ic-btn del" title="Refuser" onclick="actionVersement('{{ v.pk }}','reject')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          {% endif %}
+          {% if not v.source_inscription %}
+          <button class="ic-btn del" title="Supprimer" onclick="actionVersement('{{ v.pk }}','delete')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div style="padding:32px 20px;text-align:center;color:rgba(11,11,11,.35);font-size:13px;">
+        Aucun versement — <a href="{% url 'admin_versement_add' cotisation.pk %}" style="color:var(--green);">Enregistrer le premier</a>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if plan.nb_partiels %}
+    <div class="alert-info" style="margin-top:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      {{ plan.nb_partiels }} échéance(s) en cours d'acompte — un versement complémentaire est en attente.
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Échéancier -->
+  <div>
+    <p style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.38);margin-bottom:12px;">Échéancier (10 × 100 000 FCFA)</p>
+    <div style="background:#fff;border:1px solid rgba(11,11,11,.08);border-radius:13px;padding:14px 16px;">
+      {% for e in plan.echeances %}
+      <div class="echeance {{ e.statut }}">
+        <div class="ech-num {% if e.statut == 'solde' %}ok{% elif e.statut == 'partiel' %}partial{% else %}ko{% endif %}">
+          {% if e.statut == 'solde' %}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="width:13px;height:13px;"><polyline points="20 6 9 17 4 12"/></svg>
+          {% elif e.statut == 'partiel' %}~{% else %}{{ e.num }}{% endif %}
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:12.5px;font-weight:500;color:var(--ink);">{{ e.label }}</div>
+          {% if e.statut == 'partiel' %}
+          <div style="font-size:10px;color:#B45309;">Acompte : {{ e.montant_paye|floatformat:0 }} F · Reste : {{ e.montant_restant|floatformat:0 }} F</div>
+          {% endif %}
+        </div>
+        <div style="font-family:var(--font-mono);font-size:11.5px;font-weight:700;text-align:right;flex-shrink:0;color:{% if e.statut == 'solde' %}#059669{% elif e.statut == 'partiel' %}#B45309{% else %}rgba(11,11,11,.38){% endif %};">
+          {{ e.montant_attendu|floatformat:0 }} F
+        </div>
+      </div>
+      {% endfor %}
+      <div style="display:flex;justify-content:space-between;padding:10px 14px 0;border-top:1.5px solid rgba(11,11,11,.08);margin-top:4px;">
+        <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(11,11,11,.4);">Total</span>
+        <span style="font-family:var(--font-mono);font-size:13px;font-weight:700;">1 000 000 F</span>
+      </div>
+    </div>
+
+    <!-- Infos joueur -->
+    <div style="background:#fff;border:1px solid rgba(11,11,11,.08);border-radius:13px;padding:14px 16px;margin-top:12px;">
+      <p style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.38);margin-bottom:10px;">Joueur</p>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        {% if cotisation.joueur.photo %}
+        <img src="{{ cotisation.joueur.photo.url }}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">
+        {% else %}
+        <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#C8161D,#8A0D12);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:700;">
+          {{ cotisation.joueur.prenom|slice:":1"|upper }}{{ cotisation.joueur.nom|slice:":1"|upper }}
+        </div>
+        {% endif %}
+        <div>
+          <div style="font-weight:500;font-size:14px;">{{ cotisation.joueur.nom_complet }}</div>
+          <div style="font-size:11.5px;color:rgba(11,11,11,.5);">{{ cotisation.joueur.categorie }} · N°{{ cotisation.joueur.numero }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const CSRF = '{{ csrf_token }}';
+
+function actionVersement(pk, action) {
+  if (action === 'delete' && !confirm('Supprimer ce versement ?')) return;
+  if (action === 'reject' && !confirm('Refuser ce versement ?')) return;
+
+  fetch('/admin-cfld/paiements/cotisations/versement/' + pk + '/action/', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'action=' + action,
+  }).then(r => r.json()).then(d => {
+    if (!d.ok) return;
+    if (d.deleted) { window.location.reload(); return; }
+    const cell = document.getElementById('sv-' + pk);
+    if (d.statut === 'approved') {
+      cell.innerHTML = '<span class="badge-status bs-accepted">Validé</span>';
+      window.location.reload(); // recharger pour recalculer l'échéancier
+    } else {
+      cell.innerHTML = '<span class="badge-status bs-refused">Refusé</span>';
+      window.location.reload();
+    }
+  });
+}
+</script>
+{% endblock %}

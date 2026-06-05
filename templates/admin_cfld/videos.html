@@ -1,13 +1,31 @@
 {% extends "admin_cfld/base.html" %}
 {% block title %}Vidéos{% endblock %}
 
+{% block extra_css %}
+<style>
+.vid-col { grid-template-columns: 80px 1fr 110px 120px 80px 80px; }
+
+.vid-thumb { position:relative;width:68px;height:46px;border-radius:7px;overflow:hidden;flex-shrink:0; }
+.vid-thumb img { width:100%;height:100%;object-fit:cover;display:block; }
+.vid-thumb-fb { width:68px;height:46px;border-radius:7px;background:#130505;display:grid;place-items:center;flex-shrink:0; }
+.vid-play {
+  position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.35);
+}
+.vid-play-icon { width:22px;height:22px;background:rgba(255,255,255,.9);border-radius:50%;display:grid;place-items:center; }
+.vid-play-icon svg { width:9px;height:9px;margin-left:1px; }
+
+.es-lg { padding:64px 24px;text-align:center; }
+.es-lg .es-ico { width:52px;height:52px;border-radius:12px;background:rgba(11,11,11,.05);display:grid;place-items:center;margin:0 auto 14px;color:rgba(11,11,11,.25); }
+.es-lg .es-ico svg { width:24px;height:24px; }
+.es-lg .es-ttl { font-family:var(--font-display);font-size:17px;font-weight:500;color:rgba(11,11,11,.4);margin:0 0 5px; }
+.es-lg .es-sub { font-family:var(--font-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:rgba(11,11,11,.28);margin:0; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-hd">
   <div class="page-hd-left">
-    <div class="pg-eyebrow">
-      <a href="{% url 'admin_dashboard' %}">Accueil</a>
-      <span class="sep">›</span> Contenu
-    </div>
+    <div class="pg-eyebrow"><a href="{% url 'admin_dashboard' %}">Accueil</a><span class="sep">›</span>Contenu</div>
     <h1 class="pg-title">Vidéos <span class="pg-count">{{ videos|length }}</span></h1>
   </div>
   <div class="page-hd-right">
@@ -19,7 +37,7 @@
 </div>
 
 <div class="t-wrap">
-  <div class="t-row t-head" style="grid-template-columns:68px 1fr 100px 120px 80px 80px;">
+  <div class="t-row t-head vid-col">
     <div class="th">Miniature</div>
     <div class="th">Titre</div>
     <div class="th">Type</div>
@@ -27,30 +45,38 @@
     <div class="th">Statut</div>
     <div class="th" style="text-align:right;">Actions</div>
   </div>
+
   {% for v in videos %}
-  <div class="t-row" id="row-v{{ v.pk }}" style="grid-template-columns:68px 1fr 100px 120px 80px 80px;">
+  <div class="t-row vid-col" id="row-v{{ v.pk }}">
+
     <div>
       {% if v.thumbnail %}
-        <div style="position:relative;width:54px;height:38px;">
-          <img src="{{ v.thumbnail.url }}" alt="" style="width:54px;height:38px;object-fit:cover;border-radius:5px;display:block;">
-          <div style="position:absolute;inset:0;display:grid;place-items:center;">
-            <div style="width:18px;height:18px;background:rgba(0,0,0,.5);border-radius:50%;display:grid;place-items:center;">
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <div class="vid-thumb">
+          <img src="{{ v.thumbnail.url }}" alt="{{ v.titre }}">
+          <div class="vid-play">
+            <div class="vid-play-icon">
+              <svg viewBox="0 0 24 24" fill="#130505"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             </div>
           </div>
         </div>
       {% else %}
-        <div style="width:54px;height:38px;background:#130505;border-radius:5px;display:grid;place-items:center;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2" stroke-linecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        <div class="vid-thumb-fb">
+          <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="2" stroke-linecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
         </div>
       {% endif %}
     </div>
-    <div>
-      <div style="font-weight:500;font-size:13px;color:var(--ink);line-height:1.35;">{{ v.titre|truncatechars:65 }}</div>
-      {% if v.description %}<div style="font-size:11.5px;color:rgba(11,11,11,.45);margin-top:2px;">{{ v.description|truncatechars:80 }}</div>{% endif %}
+
+    <div style="min-width:0;">
+      <div style="font-weight:500;font-size:13px;color:var(--ink);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ v.titre|truncatechars:65 }}</div>
+      {% if v.description %}<div style="font-size:11.5px;color:rgba(11,11,11,.42);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ v.description|truncatechars:80 }}</div>{% endif %}
     </div>
+
     <div><span class="pill">{{ v.get_type_video_display }}</span></div>
-    <div style="font-family:var(--font-mono);font-size:11px;color:rgba(11,11,11,.55);">{{ v.date|date:"d/m/Y" }}</div>
+
+    <div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--ink);">{{ v.date|date:"d/m/Y" }}</div>
+    </div>
+
     <div>
       {% if v.afficher %}
         <span class="badge-status bs-publie">Visible</span>
@@ -58,6 +84,7 @@
         <span class="badge-status bs-brouillon">Masquée</span>
       {% endif %}
     </div>
+
     <div class="row-actions">
       <a href="{% url 'admin_video_edit' v.pk %}" class="ic-btn" title="Modifier">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -68,9 +95,10 @@
     </div>
   </div>
   {% empty %}
-  <div class="empty-state">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-    <p>Aucune vidéo</p>
+  <div class="es-lg">
+    <div class="es-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+    <div class="es-ttl">Aucune vidéo</div>
+    <p class="es-sub">Ajoutez des vidéos pour enrichir la médiathèque</p>
   </div>
   {% endfor %}
 </div>

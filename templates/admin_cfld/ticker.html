@@ -1,13 +1,45 @@
 {% extends "admin_cfld/base.html" %}
-{% block title %}Ticker{% endblock %}
+{% block title %}Ticker live{% endblock %}
+
+{% block extra_css %}
+<style>
+.tk-col { grid-template-columns: 44px 100px 1fr 95px 70px 80px; }
+
+/* Ordre chip */
+.tk-ordre { width:32px;height:32px;border-radius:7px;background:rgba(11,11,11,.06);display:grid;place-items:center;font-family:var(--font-mono);font-size:13px;font-weight:800;color:rgba(11,11,11,.35);flex-shrink:0; }
+
+/* Row active */
+.row-active { background:#FFFBF5 !important;border-left:2.5px solid #059669; }
+.row-inactive { opacity:.65; }
+
+/* Score ticker */
+.tk-score { display:inline-flex;align-items:center;gap:4px; }
+.tk-team { font-size:13px;font-weight:500;color:var(--ink); }
+.tk-vs { font-family:var(--font-mono);font-size:14px;font-weight:800;color:var(--ink);margin:0 4px; }
+.tk-minute { font-family:var(--font-mono);font-size:9.5px;color:#C8161D;background:rgba(200,22,29,.1);border-radius:4px;padding:1px 6px;margin-left:4px; }
+
+/* Type pill couleurs */
+.type-texte   { background:#EFF6FF;color:#1D4ED8; }
+.type-score   { background:rgba(200,22,29,.1);color:#9B0D13; }
+
+/* Info banner */
+.info-banner { background:#EEF2FF;border:1px solid #C7D2FE;border-left:3px solid #4F46E5;border-radius:8px;padding:12px 16px;display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#312E81;margin-bottom:16px; }
+.info-banner svg { width:15px;height:15px;flex-shrink:0;margin-top:1px;color:#4F46E5; }
+.info-banner strong { font-weight:600; }
+
+/* Empty */
+.es-lg { padding:64px 24px;text-align:center; }
+.es-lg .es-ico { width:52px;height:52px;border-radius:12px;background:rgba(11,11,11,.05);display:grid;place-items:center;margin:0 auto 14px;color:rgba(11,11,11,.25); }
+.es-lg .es-ico svg { width:24px;height:24px; }
+.es-lg .es-ttl { font-family:var(--font-display);font-size:17px;font-weight:500;color:rgba(11,11,11,.4);margin:0 0 5px; }
+.es-lg .es-sub { font-family:var(--font-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:rgba(11,11,11,.28);margin:0; }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="page-hd">
   <div class="page-hd-left">
-    <div class="pg-eyebrow">
-      <a href="{% url 'admin_dashboard' %}">Accueil</a>
-      <span class="sep">›</span> Contenu
-    </div>
+    <div class="pg-eyebrow"><a href="{% url 'admin_dashboard' %}">Accueil</a><span class="sep">›</span>Contenu</div>
     <h1 class="pg-title">Ticker live <span class="pg-count">{{ items|length }}</span></h1>
   </div>
   <div class="page-hd-right">
@@ -18,13 +50,13 @@
   </div>
 </div>
 
-<div class="alert-info">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-  Les éléments <strong>actifs</strong> s'affichent en défilement dans la barre d'information du site. Utilisez le champ <strong>Ordre</strong> pour contrôler leur séquence (plus petit = premier affiché).
+<div class="info-banner">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  Les éléments <strong>actifs</strong> s'affichent en défilement sur le site. Le champ <strong>Ordre</strong> contrôle la séquence — plus petit = affiché en premier.
 </div>
 
 <div class="t-wrap">
-  <div class="t-row t-head" style="grid-template-columns:40px 120px 1fr 90px 60px 80px;">
+  <div class="t-row t-head tk-col">
     <div class="th">Ord.</div>
     <div class="th">Type</div>
     <div class="th">Contenu</div>
@@ -32,27 +64,42 @@
     <div class="th">Actif</div>
     <div class="th" style="text-align:right;">Actions</div>
   </div>
+
   {% for item in items %}
-  <div class="t-row" id="row-tk{{ item.pk }}" style="grid-template-columns:40px 120px 1fr 90px 60px 80px;{% if item.actif %}background:#FDFCF8;{% endif %}">
-    <div style="font-family:var(--font-mono);font-size:13px;font-weight:700;color:rgba(11,11,11,.35);">{{ item.ordre }}</div>
-    <div><span class="pill">{{ item.get_type_display }}</span></div>
+  <div class="t-row tk-col {% if item.actif %}row-active{% else %}row-inactive{% endif %}" id="row-tk{{ item.pk }}">
+
+    <div style="display:flex;align-items:center;">
+      <div class="tk-ordre">{{ item.ordre }}</div>
+    </div>
+
     <div>
+      <span class="pill {% if item.type == 'texte' %}type-texte{% else %}type-score{% endif %}">{{ item.get_type_display }}</span>
+    </div>
+
+    <div style="min-width:0;">
       {% if item.type in 'score_live,score_resultat' %}
-        <div style="font-size:13px;font-weight:500;color:var(--ink);">{{ item.equipe_dom }} <span style="font-family:var(--font-mono);font-weight:700;margin:0 4px;">{% if item.score_dom is not None %}{{ item.score_dom }}&thinsp;—&thinsp;{{ item.score_ext }}{% else %}vs{% endif %}</span> {{ item.equipe_ext }}</div>
-        {% if item.minute %}<div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);margin-top:2px;">{{ item.minute }}' en cours</div>{% endif %}
+        <div class="tk-score">
+          <span class="tk-team">{{ item.equipe_dom }}</span>
+          <span class="tk-vs">{% if item.score_dom is not None %}{{ item.score_dom }}&thinsp;—&thinsp;{{ item.score_ext }}{% else %}vs{% endif %}</span>
+          <span class="tk-team">{{ item.equipe_ext }}</span>
+          {% if item.minute %}<span class="tk-minute">{{ item.minute }}'</span>{% endif %}
+        </div>
       {% else %}
-        <div style="font-size:13px;color:var(--ink);">{{ item.texte|truncatechars:80 }}</div>
-        {% if item.equipe_dom %}<div style="font-size:11.5px;color:rgba(11,11,11,.45);margin-top:2px;">{{ item.equipe_dom }} vs {{ item.equipe_ext }}</div>{% endif %}
+        <div style="font-size:13px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.texte|truncatechars:90 }}</div>
+        {% if item.equipe_dom %}<div style="font-size:11.5px;color:rgba(11,11,11,.42);margin-top:2px;">{{ item.equipe_dom }} vs {{ item.equipe_ext }}</div>{% endif %}
       {% endif %}
     </div>
-    <div style="font-size:12px;color:rgba(11,11,11,.55);">{{ item.categorie|default:"—" }}</div>
+
+    <div style="font-size:12px;color:rgba(11,11,11,.5);">{{ item.categorie|default:"—" }}</div>
+
     <div>
       {% if item.actif %}
-        <span class="badge-status bs-accepted">Oui</span>
+        <span class="badge-status bs-accepted">Actif</span>
       {% else %}
-        <span class="badge-status bs-refused">Non</span>
+        <span class="badge-status bs-refused">Inactif</span>
       {% endif %}
     </div>
+
     <div class="row-actions">
       <a href="{% url 'admin_ticker_edit' item.pk %}" class="ic-btn" title="Modifier">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -63,9 +110,10 @@
     </div>
   </div>
   {% empty %}
-  <div class="empty-state">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-    <p>Aucun élément dans le ticker</p>
+  <div class="es-lg">
+    <div class="es-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+    <div class="es-ttl">Ticker vide</div>
+    <p class="es-sub">Ajoutez des éléments pour alimenter le ticker</p>
   </div>
   {% endfor %}
 </div>

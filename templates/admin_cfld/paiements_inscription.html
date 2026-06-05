@@ -1,0 +1,250 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}Paiements — Inscription{% endblock %}
+
+{% block extra_css %}
+<style>
+.pay-kpi-row { display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px; }
+.pay-kpi { background:#fff;border:1px solid rgba(11,11,11,.1);border-radius:10px;padding:18px 20px;position:relative;overflow:hidden; }
+.pay-kpi::after { content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0; }
+.pay-kpi.k-amber::after { background:linear-gradient(90deg,#B45309,#F59E0B); }
+.pay-kpi.k-green::after { background:linear-gradient(90deg,#059669,#10B981); }
+.pay-kpi.k-red::after   { background:linear-gradient(90deg,#C8161D,#EE2630); }
+.pay-kpi-watermark { position:absolute;right:-6px;bottom:-6px;width:70px;height:70px;opacity:.05;pointer-events:none; }
+.pay-kpi-watermark svg { width:100%;height:100%; }
+.pay-kpi-ico { width:30px;height:30px;border-radius:7px;display:grid;place-items:center;margin-bottom:10px; }
+.pay-kpi-ico svg { width:14px;height:14px; }
+.pay-kpi-lbl { font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.45);margin-bottom:4px; }
+.pay-kpi-val { font-family:var(--font-display);font-size:44px;font-weight:500;line-height:1;letter-spacing:-.03em;color:var(--ink); }
+.mode-wave   { background:#EDE9FE;color:#5B21B6; }
+.mode-orange { background:#FEF3C7;color:#92400E; }
+.mode-moov   { background:#DBEAFE;color:#1E40AF; }
+.mode-mtn    { background:#FEF9C3;color:#713F12; }
+.mode-other  { background:#F3F4F6;color:#374151; }
+.act-btn { display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;font-size:11.5px;font-weight:500;font-family:var(--font-text);cursor:pointer;border:1px solid transparent;transition:all .14s;white-space:nowrap; }
+.act-btn svg { width:12px;height:12px;flex-shrink:0; }
+.act-btn.validate { background:rgba(5,150,105,.1);color:#065F46;border-color:rgba(5,150,105,.25); }
+.act-btn.validate:hover { background:#059669;color:#fff;border-color:#059669; }
+.act-btn.reject   { background:rgba(200,22,29,.08);color:#9B0D13;border-color:rgba(200,22,29,.2); }
+.act-btn.reject:hover   { background:#C8161D;color:#fff;border-color:#C8161D; }
+.act-btn.spin { pointer-events:none;opacity:.6; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.spinner { width:11px;height:11px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0; }
+.pay-av { width:36px;height:36px;border-radius:9px;object-fit:cover;flex-shrink:0;border:1.5px solid rgba(11,11,11,.07); }
+.pay-av-fb { width:36px;height:36px;border-radius:9px;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0;letter-spacing:.03em; }
+.modal-overlay { position:fixed;inset:0;background:rgba(11,11,11,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .18s; }
+.modal-overlay.open { opacity:1;pointer-events:all; }
+.modal-box { background:#fff;border-radius:12px;padding:28px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(11,11,11,.2);transform:scale(.96) translateY(6px);transition:transform .18s cubic-bezier(.34,1.56,.64,1); }
+.modal-overlay.open .modal-box { transform:scale(1) translateY(0); }
+.modal-icon { width:44px;height:44px;border-radius:10px;background:rgba(200,22,29,.1);display:grid;place-items:center;margin-bottom:16px;color:#C8161D; }
+.modal-icon svg { width:20px;height:20px; }
+.modal-title { font-family:var(--font-display);font-size:20px;font-weight:500;margin:0 0 8px;color:var(--ink); }
+.modal-body { font-size:13.5px;color:rgba(11,11,11,.6);line-height:1.55;margin:0; }
+.modal-actions { display:flex;gap:8px;margin-top:22px; }
+.modal-actions .btn { flex:1;justify-content:center; }
+.empty-state-lg { padding:64px 24px;text-align:center; }
+.empty-state-lg .es-icon { width:52px;height:52px;border-radius:12px;background:rgba(11,11,11,.05);display:grid;place-items:center;margin:0 auto 14px;color:rgba(11,11,11,.25); }
+.empty-state-lg .es-icon svg { width:24px;height:24px; }
+.empty-state-lg .es-title { font-family:var(--font-display);font-size:17px;font-weight:500;color:rgba(11,11,11,.4);margin:0 0 5px; }
+.empty-state-lg .es-sub { font-family:var(--font-mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:rgba(11,11,11,.28);margin:0; }
+.row-pending { background:#FFFBF5 !important;border-left:2.5px solid #D97706; }
+@media (max-width:768px) { .pay-kpi-row { grid-template-columns:1fr; } .pay-kpi-val { font-size:36px; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow">
+      <a href="{% url 'admin_dashboard' %}">Accueil</a><span class="sep">›</span>Paiements
+    </div>
+    <h1 class="pg-title">Frais d'inscription <span class="pg-count">{{ total }}</span></h1>
+  </div>
+  <div class="page-hd-right">
+    <a href="{% url 'admin_paiement_inscription_add' %}" class="btn btn-dark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Enregistrer un paiement
+    </a>
+  </div>
+</div>
+
+<!-- ── KPI ── -->
+<div class="pay-kpi-row">
+  <div class="pay-kpi k-amber">
+    <div class="pay-kpi-watermark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+    <div class="pay-kpi-ico" style="background:rgba(180,83,9,.1);color:#B45309;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+    <div class="pay-kpi-lbl">En attente</div>
+    <div class="pay-kpi-val" style="{% if nb_pending %}color:#92400E;{% endif %}">{{ nb_pending }}</div>
+  </div>
+  <div class="pay-kpi k-green">
+    <div class="pay-kpi-watermark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div class="pay-kpi-ico" style="background:rgba(5,150,105,.1);color:#059669;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div class="pay-kpi-lbl">Validés</div>
+    <div class="pay-kpi-val" style="color:#065F46;">{{ nb_approved }}</div>
+  </div>
+  <div class="pay-kpi k-red">
+    <div class="pay-kpi-watermark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    <div class="pay-kpi-ico" style="background:rgba(200,22,29,.1);color:#C8161D;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    <div class="pay-kpi-lbl">Refusés</div>
+    <div class="pay-kpi-val" style="{% if nb_rejected %}color:#9B0D13;{% endif %}">{{ nb_rejected }}</div>
+  </div>
+</div>
+
+<!-- ── Filtres ── -->
+<form method="get">
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" name="q" value="{{ q }}" placeholder="Rechercher joueur, référence candidature…">
+    </div>
+    <div class="f-pills">
+      <a href="?{% if q %}q={{ q }}&{% endif %}statut=all" class="f-pill {% if statut_actif == 'all' %}active{% endif %}">Tous</a>
+      <a href="?{% if q %}q={{ q }}&{% endif %}statut=pending" class="f-pill {% if statut_actif == 'pending' %}active{% endif %}">En attente{% if nb_pending %} · {{ nb_pending }}{% endif %}</a>
+      <a href="?{% if q %}q={{ q }}&{% endif %}statut=approved" class="f-pill {% if statut_actif == 'approved' %}active{% endif %}">Validés</a>
+      <a href="?{% if q %}q={{ q }}&{% endif %}statut=rejected" class="f-pill {% if statut_actif == 'rejected' %}active{% endif %}">Refusés</a>
+    </div>
+    {% if q %}<button type="submit" class="btn btn-dark btn-sm">Chercher</button><a href="?" class="btn btn-ghost btn-sm">Effacer</a>{% endif %}
+  </div>
+</form>
+
+<!-- ── Tableau ── -->
+<div class="t-wrap">
+  <div class="t-row t-head" style="grid-template-columns:1.4fr 110px 130px 115px 95px 80px auto;">
+    <div class="th">Candidat / Référence</div>
+    <div class="th">Montant</div>
+    <div class="th">Mode / Compte</div>
+    <div class="th">Date paiement</div>
+    <div class="th">Statut</div>
+    <div class="th">Capture</div>
+    <div class="th" style="text-align:right;">Actions</div>
+  </div>
+
+  {% for p in paiements %}
+  <div class="t-row {% if p.statut_validation == 'pending' %}row-pending{% endif %}" id="row-pi{{ p.pk }}" style="grid-template-columns:1.4fr 110px 130px 115px 95px 80px auto;align-items:center;">
+
+    <div style="display:flex;align-items:center;gap:10px;">
+      {% if p.candidature.photo %}
+        <img src="{{ p.candidature.photo.url }}" class="pay-av" alt="{{ p.candidature.prenom }}">
+      {% else %}
+        <div class="pay-av-fb" style="background:linear-gradient(135deg,#1D4ED8,#1E40AF);">{{ p.candidature.prenom|slice:":1"|upper }}{{ p.candidature.nom|slice:":1"|upper }}</div>
+      {% endif %}
+      <div style="min-width:0;">
+        <div style="font-weight:500;font-size:13px;color:var(--ink);">{{ p.candidature.prenom }} {{ p.candidature.nom }}</div>
+        <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.42);">{{ p.candidature.reference }} · {{ p.candidature.categorie }}</div>
+      </div>
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--ink);">{{ p.montant|floatformat:0 }} <span style="font-size:10px;font-weight:400;color:rgba(11,11,11,.45);">FCFA</span></div>
+
+    <div>
+      {% if p.compte_paiement %}
+        <span class="pill {% if p.compte_paiement.mode == 'wave' %}mode-wave{% elif p.compte_paiement.mode == 'orange_money' %}mode-orange{% elif p.compte_paiement.mode == 'moov' %}mode-moov{% elif p.compte_paiement.mode == 'mtn' %}mode-mtn{% else %}mode-other{% endif %}" style="font-size:10px;">{{ p.compte_paiement.get_mode_display }}</span>
+        <div style="font-family:var(--font-mono);font-size:10px;color:rgba(11,11,11,.45);margin-top:3px;">{{ p.compte_paiement.numero }}</div>
+      {% else %}<span style="color:rgba(11,11,11,.3);font-size:12px;">—</span>{% endif %}
+    </div>
+
+    <div style="font-family:var(--font-mono);font-size:11.5px;color:rgba(11,11,11,.6);">{{ p.date_paiement|date:"d/m/Y" }}</div>
+
+    <div id="statut-pi{{ p.pk }}">
+      {% if p.statut_validation == 'approved' %}<span class="badge-status bs-accepted">Validé</span>
+      {% elif p.statut_validation == 'pending' %}<span class="badge-status bs-pending">En attente</span>
+      {% else %}<span class="badge-status bs-refused">Refusé</span>{% endif %}
+    </div>
+
+    <div>
+      {% if p.capture_depot %}
+        <a href="{{ p.capture_depot.url }}" target="_blank" class="ic-btn info" title="Voir la capture">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+        </a>
+      {% else %}<span style="color:rgba(11,11,11,.25);font-size:12px;">—</span>{% endif %}
+    </div>
+
+    <div style="display:flex;gap:4px;justify-content:flex-end;align-items:center;">
+      {% if p.statut_validation == 'pending' %}
+      <button class="act-btn validate" onclick="actionInscription('{{ p.pk }}','approve',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Valider</span>
+      </button>
+      <button class="act-btn reject" onclick="openRejectModal('{{ p.pk }}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <span>Refuser</span>
+      </button>
+      {% endif %}
+      <a href="{% url 'admin_inscription_detail' p.pk %}" class="ic-btn info" title="Voir le détail">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </a>
+      {% if p.statut_validation == 'approved' %}
+      <a href="{% url 'admin_inscription_pdf' p.pk %}" class="ic-btn" title="Reçu PDF" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </a>
+      {% endif %}
+      <a href="{% url 'admin_paiement_inscription_edit' p.pk %}" class="ic-btn" title="Modifier">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </a>
+      <button class="ic-btn del" title="Supprimer" onclick="openDeleteModal('{{ p.pk }}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+      </button>
+    </div>
+  </div>
+  {% empty %}
+  <div class="empty-state-lg">
+    <div class="es-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+    <div class="es-title">Aucun paiement</div>
+    <p class="es-sub">{% if q %}Aucun résultat pour « {{ q }} »{% else %}Les paiements d'inscription apparaîtront ici{% endif %}</p>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="modal-overlay" id="rejectModal">
+  <div class="modal-box">
+    <div class="modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    <h2 class="modal-title">Refuser ce paiement</h2>
+    <p class="modal-body">Ce paiement sera marqué comme refusé. Vous pourrez le valider ultérieurement si nécessaire.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('rejectModal')">Annuler</button>
+      <button class="btn btn-dark" style="background:#C8161D;border-color:#C8161D;" onclick="confirmReject()">Confirmer le refus</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <div class="modal-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></div>
+    <h2 class="modal-title">Supprimer ce paiement</h2>
+    <p class="modal-body">Cette action est irréversible. Le paiement sera définitivement supprimé.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('deleteModal')">Annuler</button>
+      <button class="btn btn-dark" style="background:#C8161D;border-color:#C8161D;" onclick="confirmDelete_pay()">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CSRF = '{{ csrf_token }}';
+let _activePk = null;
+
+function actionInscription(pk, action, btn) {
+  if (btn) { btn.classList.add('spin'); btn.innerHTML = '<span class="spinner"></span>'; }
+  fetch('/admin-cfld/paiements/inscription/' + pk + '/action/', {
+    method:'POST', headers:{'X-CSRFToken':CSRF,'Content-Type':'application/x-www-form-urlencoded'}, body:'action='+action,
+  }).then(r=>r.json()).then(d=>{
+    if(!d.ok) { showToast('Erreur','err'); if(btn){btn.classList.remove('spin');} return; }
+    if(d.deleted) { const row=document.getElementById('row-pi'+pk); if(row){row.style.opacity='0';row.style.transform='translateX(10px)';setTimeout(()=>row.remove(),300);} return; }
+    const cell=document.getElementById('statut-pi'+pk);
+    if(d.statut==='approved') { cell.innerHTML='<span class="badge-status bs-accepted">Validé</span>'; showToast('Paiement validé','ok'); }
+    else { cell.innerHTML='<span class="badge-status bs-refused">Refusé</span>'; showToast('Paiement refusé','ok'); }
+    const row=document.getElementById('row-pi'+pk);
+    if(row) { row.classList.remove('row-pending'); row.querySelectorAll('.act-btn').forEach(b=>b.remove()); }
+  }).catch(()=>showToast('Erreur réseau','err'));
+}
+
+function openRejectModal(pk) { _activePk=pk; document.getElementById('rejectModal').classList.add('open'); document.body.style.overflow='hidden'; }
+function openDeleteModal(pk) { _activePk=pk; document.getElementById('deleteModal').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; _activePk=null; }
+function confirmReject() { if(!_activePk) return; actionInscription(_activePk,'reject',null); closeModal('rejectModal'); }
+function confirmDelete_pay() { if(!_activePk) return; actionInscription(_activePk,'delete',null); closeModal('deleteModal'); }
+['rejectModal','deleteModal'].forEach(id=>{ document.getElementById(id).addEventListener('click',function(e){ if(e.target===this) closeModal(id); }); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeModal('rejectModal');closeModal('deleteModal');} });
+</script>
+{% endblock %}
