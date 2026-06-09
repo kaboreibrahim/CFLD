@@ -1,9 +1,9 @@
+from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.contrib import messages
 
 from recrutement.models import Candidature
-from .models import ComptePaiement, PaiementVisiteMedicale, PaiementInscription
+from payments.models import ComptePaiement, PaiementInscription, PaiementVisiteMedicale
 
 
 TYPE_CHOICES = [

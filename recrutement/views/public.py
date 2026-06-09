@@ -1,12 +1,13 @@
 import os
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse, FileResponse, Http404
-from django.conf import settings
 
-from .forms import CandidatureForm
-from .models import Candidature
-from .whatsapp import notifier_admin, confirmer_candidat
-from .pdf_utils import generer_pdf_inscription
+from django.conf import settings
+from django.http import FileResponse, Http404, JsonResponse
+from django.shortcuts import get_object_or_404, render
+
+from recrutement.forms import CandidatureForm
+from recrutement.models import Candidature
+from recrutement.pdf_utils import generer_pdf_inscription
+from recrutement.whatsapp import confirmer_candidat, notifier_admin
 
 
 def inscription(request):
@@ -15,7 +16,6 @@ def inscription(request):
         if form.is_valid():
             candidature = form.save()
 
-            # Génération du PDF
             pdf_url = None
             try:
                 generer_pdf_inscription(candidature)
@@ -25,7 +25,6 @@ def inscription(request):
             except Exception:
                 pass
 
-            # Notification admin WhatsApp (silencieux si échec)
             try:
                 notifier_admin(candidature)
                 confirmer_candidat(candidature)
@@ -52,7 +51,6 @@ def telecharger_pdf_inscription(request, reference):
     candidature = get_object_or_404(Candidature, reference=reference)
 
     if not candidature.pdf_inscription:
-        # Essayer de le générer à la volée si manquant
         try:
             generer_pdf_inscription(candidature)
             candidature.refresh_from_db()

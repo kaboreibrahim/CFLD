@@ -15,7 +15,16 @@
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\LENOVO\\\\Desktop\\\\PROJET\\\\CFLD\" -Directory)",
       "Bash(Select-Object Name)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\LENOVO\\\\Desktop\\\\PROJET\\\\CFLD\" -Recurse -ErrorAction SilentlyContinue)",
-      "Bash(Select-Object FullName)"
+      "Bash(Select-Object FullName)",
+      "Bash(wc -l /c/Users/LENOVO/Desktop/PROJET/CFLD/*/models.py)",
+      "Bash(wc -l /c/Users/LENOVO/Desktop/PROJET/CFLD/*/views.py)",
+      "Bash(wc -l /c/Users/LENOVO/Desktop/PROJET/CFLD/*/forms.py)",
+      "Bash(xargs -I {} sh -c 'echo \"=== {} ===\" && find {} -type f -name \"*.html\" | sort')",
+      "Bash(xargs -I {} sh -c 'echo \"=== {} ===\" && ls {} | head -20')",
+      "Bash(python -c \"import django; django.setup\\(\\); from recrutement import views; print\\('inscription:', views.inscription\\); from recrutement import admin_views; print\\('admin_dashboard:', admin_views.admin_dashboard\\)\")",
+      "Bash(DJANGO_SETTINGS_MODULE=core.settings python -c \"import django; django.setup\\(\\); from recrutement import views; print\\('inscription:', views.inscription\\); from recrutement import admin_views; print\\('admin_dashboard:', admin_views.admin_dashboard\\)\")",
+      "Bash(python -c ':*)",
+      "Bash(DJANGO_SETTINGS_MODULE=core.settings python manage.py check)"
     ]
   }
 }
