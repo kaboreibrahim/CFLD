@@ -1,0 +1,428 @@
+{% extends "admin_cfld/base.html" %}
+{% block title %}Journal d'audit{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── KPI Stats ── */
+.audit-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+.audit-stat { background: #fff; border: 1px solid rgba(11,11,11,.1); border-radius: var(--radius-md); padding: 18px 20px; position: relative; overflow: hidden; transition: box-shadow .15s, transform .15s; }
+.audit-stat:hover { box-shadow: 0 4px 16px rgba(11,11,11,.08); transform: translateY(-1px); }
+.audit-stat::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+.audit-stat.s-blue::after { background: linear-gradient(90deg,#2563EB,#60A5FA); }
+.audit-stat.s-green::after { background: linear-gradient(90deg,#059669,#34D399); }
+.audit-stat.s-amber::after { background: linear-gradient(90deg,#B45309,#F59E0B); }
+.audit-stat.s-red::after { background: linear-gradient(90deg,#C8161D,#EE2630); }
+.audit-stat-ico { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; margin-bottom: 12px; }
+.audit-stat-ico svg { width: 16px; height: 16px; }
+.audit-stat-ico.red { background: rgba(200,22,29,.1); color: #C8161D; }
+.audit-stat-ico.blue { background: rgba(37,99,235,.1); color: #2563EB; }
+.audit-stat-ico.green { background: rgba(5,150,105,.1); color: #059669; }
+.audit-stat-ico.amber { background: rgba(180,83,9,.1); color: #B45309; }
+.audit-stat-lbl { font-family: var(--font-mono); font-size: 8px; letter-spacing: .22em; text-transform: uppercase; color: rgba(11,11,11,.45); margin-bottom: 4px; }
+.audit-stat-val { font-family: var(--font-display); font-size: 32px; font-weight: 500; line-height: 1; color: var(--ink); }
+
+/* ── Filter Bar ── */
+.audit-filter-bar { background: #fff; border: 1px solid rgba(11,11,11,.1); border-radius: 8px; padding: 14px 18px; display: flex; gap: 12px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(11,11,11,.02); }
+.audit-search { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #F5F3EE; border: 1px solid rgba(11,11,11,.05); border-radius: 6px; transition: border-color .13s, box-shadow .13s; }
+.audit-search:focus-within { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(200,22,29,.05); }
+.audit-search svg { width: 14px; height: 14px; color: rgba(11,11,11,.35); flex-shrink: 0; }
+.audit-search input { flex: 1; border: 0; background: transparent; font-size: 13px; font-family: var(--font-text); color: var(--ink); outline: none; }
+.audit-search input::placeholder { color: rgba(11,11,11,.3); }
+.audit-select { padding: 8px 12px; border: 1px solid rgba(11,11,11,.15); border-radius: 6px; font-size: 12.5px; font-family: var(--font-text); background: #fff; color: var(--ink); outline: none; min-width: 140px; cursor: pointer; transition: border-color .13s; }
+.audit-select:focus { border-color: var(--primary); }
+.audit-date-input { padding: 8px 12px; border: 1px solid rgba(11,11,11,.15); border-radius: 6px; font-size: 12.5px; font-family: var(--font-text); background: #fff; color: var(--ink); outline: none; min-width: 140px; cursor: pointer; transition: border-color .13s; }
+.audit-date-input:focus { border-color: var(--primary); }
+
+/* ── Table Premium ── */
+.t-wrap { background: #fff; border: 1px solid rgba(11,11,11,.1); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(11,11,11,.02); }
+.audit-col { grid-template-columns: 100px 1.5fr 1.2fr 130px 140px 60px; }
+.t-head { background: #FAFAF7; border-bottom: 1px solid rgba(11,11,11,.08) !important; padding: 14px 18px; }
+.t-head .th { font-family: var(--font-mono); font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: rgba(11,11,11,.4); font-weight: 600; }
+
+.audit-row { padding: 16px 18px; gap: 16px; border-bottom: 1px solid rgba(11,11,11,.04); transition: background .15s ease; align-items: start; }
+.audit-row:hover { background: #FAFAFA; }
+
+.audit-time { font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--ink); }
+.audit-date { font-family: var(--font-mono); font-size: 10px; color: rgba(11,11,11,.4); margin-top: 3px; }
+
+.audit-action { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.audit-desc { font-size: 12.5px; color: rgba(11,11,11,.6); line-height: 1.45; }
+.audit-meta { font-family: var(--font-mono); font-size: 9.5px; color: rgba(11,11,11,.35); margin-top: 5px; display: flex; gap: 8px; align-items: center; }
+.audit-meta span { display: inline-flex; align-items: center; gap: 3px; background: rgba(11,11,11,.03); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(11,11,11,.04); }
+
+.user-cell { display: flex; align-items: center; gap: 10px; }
+.user-av { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #F3F2EF, #E5E3DC); color: var(--ink); display: grid; place-items: center; font-size: 11px; font-weight: 600; flex-shrink: 0; border: 1px solid rgba(11,11,11,.05); }
+.user-info { min-width: 0; }
+.audit-user { font-size: 13px; color: var(--ink); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.audit-uid { font-family: var(--font-mono); font-size: 9.5px; color: rgba(11,11,11,.4); margin-top: 2px; }
+
+.model-badge { display: inline-block; font-family: var(--font-mono); font-size: 10.5px; color: var(--ink); background: rgba(11,11,11,.04); padding: 4px 8px; border-radius: 5px; font-weight: 500; }
+.model-id { font-family: var(--font-mono); font-size: 10px; color: rgba(11,11,11,.4); margin-top: 4px; margin-left: 2px; }
+
+.ip-badge { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink); background: #F8F9FA; border: 1px solid rgba(11,11,11,.06); padding: 3px 6px; border-radius: 4px; display: inline-block; }
+.audit-loc { font-size: 11px; color: rgba(11,11,11,.45); margin-top: 4px; margin-left: 2px; display: flex; align-items: center; gap: 4px; }
+.audit-loc svg { width: 10px; height: 10px; opacity: 0.6; }
+
+/* ── Action Badges ── */
+.action-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px 4px 6px; border-radius: 6px; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .05em; text-transform: uppercase; font-weight: 600; }
+.action-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.ab-login { background: #D1FAE5; color: #064E3B; } .ab-login::before { background: #059669; }
+.ab-logout { background: #F3F2EF; color: #64605A; } .ab-logout::before { background: #9CA3AF; }
+.ab-create { background: #DBEAFE; color: #1E3A8A; } .ab-create::before { background: #2563EB; }
+.ab-update { background: #FEF3C7; color: #78350F; } .ab-update::before { background: #D97706; }
+.ab-delete { background: #FEE2E2; color: #7F1D1D; } .ab-delete::before { background: #C8161D; }
+.ab-view { background: #F3F2EF; color: #64605A; } .ab-view::before { background: #9CA3AF; }
+.ab-download { background: #E0E7FF; color: #3730A3; } .ab-download::before { background: #4F46E5; }
+.ab-export { background: #DCFCE7; color: #166534; } .ab-export::before { background: #16A34A; }
+.ab-export_excel { background: #DCFCE7; color: #166534; } .ab-export_excel::before { background: #16A34A; }
+.ab-export_pdf { background: #DCFCE7; color: #166534; } .ab-export_pdf::before { background: #16A34A; }
+.ab-failed_login { background: #FEE2E2; color: #7F1D1D; } .ab-failed_login::before { background: #C8161D; }
+.ab-print { background: #E0E7FF; color: #3730A3; } .ab-print::before { background: #4F46E5; }
+
+/* ── Bouton détail dans la grille ── */
+.audit-detail-cell { display: flex; align-items: center; justify-content: flex-end; height: 100%; padding-top: 4px; }
+.ic-btn.info { background: #fff; border-color: rgba(37,99,235,.2); color: #2563EB; box-shadow: 0 2px 4px rgba(37,99,235,.05); }
+.ic-btn.info:hover { background: #2563EB; border-color: #2563EB; color: #fff; box-shadow: 0 4px 8px rgba(37,99,235,.2); transform: translateY(-1px); }
+
+/* ── Empty State ── */
+.es-lg { padding: 80px 24px; text-align: center; }
+.es-lg .es-ico { width: 64px; height: 64px; border-radius: 16px; background: rgba(11,11,11,.03); border: 1px solid rgba(11,11,11,.05); display: grid; place-items: center; margin: 0 auto 20px; color: rgba(11,11,11,.2); }
+.es-lg .es-ico svg { width: 28px; height: 28px; }
+.es-lg .es-ttl { font-family: var(--font-display); font-size: 20px; font-weight: 500; color: var(--ink); margin: 0 0 8px; }
+.es-lg .es-sub { font-size: 13px; color: rgba(11,11,11,.4); margin: 0; }
+
+/* ── Modale détail élargie ── */
+.audit-modal .g-modal-box { max-width: 600px; padding: 32px; }
+.audit-modal .g-modal-ico { background: rgba(37,99,235,.1); color: #2563EB; margin-bottom: 20px; }
+.audit-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 20px; }
+.audit-detail-item { padding: 12px 0; border-bottom: 1px solid rgba(11,11,11,.05); }
+.audit-detail-item:nth-last-child(-n+2) { border-bottom: 0; }
+.audit-detail-item.full { grid-column: span 2; }
+.audit-detail-lbl { font-family: var(--font-mono); font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: rgba(11,11,11,.4); margin-bottom: 4px; }
+.audit-detail-val { font-size: 13.5px; color: var(--ink); word-break: break-all; line-height: 1.5; }
+.audit-detail-val.mono { font-family: var(--font-mono); font-size: 11.5px; }
+
+/* ── Diff des valeurs ── */
+.audit-diff { margin-top: 20px; border-top: 1px solid rgba(11,11,11,.08); padding-top: 20px; }
+.audit-diff-title { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: rgba(11,11,11,.5); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.audit-diff-title svg { width: 14px; height: 14px; color: var(--primary); }
+.diff-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(11,11,11,.06); }
+.diff-table th { font-family: var(--font-mono); font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: rgba(11,11,11,.5); text-align: left; padding: 10px 12px; background: #FAFAF7; font-weight: 600; border-bottom: 1px solid rgba(11,11,11,.06); }
+.diff-table td { padding: 10px 12px; border-bottom: 1px solid rgba(11,11,11,.04); vertical-align: top; font-family: var(--font-mono); font-size: 11.5px; word-break: break-all; }
+.diff-table tr:last-child td { border-bottom: 0; }
+.diff-table .diff-field { color: var(--ink); font-weight: 600; background: #fff; width: 25%; border-right: 1px solid rgba(11,11,11,.04); }
+.diff-table .diff-old { color: #9B0D13; background: #FFF5F5; width: 37.5%; border-right: 1px solid #FFEBEB; }
+.diff-table .diff-new { color: #065F46; background: #ECFDF5; width: 37.5%; }
+.diff-none { font-family: var(--font-mono); font-size: 11px; color: rgba(11,11,11,.3); font-style: italic; padding: 12px 16px; background: rgba(11,11,11,.02); border-radius: 6px; }
+
+@media (max-width: 1100px) {
+  .audit-stats { grid-template-columns: 1fr 1fr; }
+  .audit-col { grid-template-columns: 100px 1fr 120px 100px 60px; }
+  .audit-col .audit-ip-cell { display: none; }
+  .t-head .th:nth-child(5) { display: none; }
+}
+@media (max-width: 768px) {
+  .audit-stats { grid-template-columns: 1fr; }
+  .audit-filter-bar { flex-direction: column; align-items: stretch; }
+  .audit-search, .audit-select, .audit-date-input { width: 100%; }
+  .audit-col { grid-template-columns: 1fr; gap: 12px; }
+  .audit-row { padding: 16px; flex-direction: column; }
+  .audit-detail-cell { justify-content: flex-start; margin-top: 8px; }
+  .audit-detail-grid { grid-template-columns: 1fr; }
+  .audit-detail-item.full { grid-column: span 1; }
+  .audit-modal .g-modal-box { max-width: 100%; padding: 24px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hd">
+  <div class="page-hd-left">
+    <div class="pg-eyebrow"><a href="{% url 'admin_dashboard' %}">Accueil</a><span class="sep">›</span>Système</div>
+    <h1 class="pg-title">Journal d'audit <span class="pg-count">{{ stats.total }}</span></h1>
+  </div>
+</div>
+
+<!-- ── Stats KPI ── -->
+<div class="audit-stats">
+  <div class="audit-stat s-blue">
+    <div class="audit-stat-ico blue">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    </div>
+    <div class="audit-stat-lbl">Total logs</div>
+    <div class="audit-stat-val">{{ stats.total }}</div>
+  </div>
+  <div class="audit-stat s-green">
+    <div class="audit-stat-ico green">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+    <div class="audit-stat-lbl">Types d'actions</div>
+    <div class="audit-stat-val">{{ stats.actions|length }}</div>
+  </div>
+  <div class="audit-stat s-amber">
+    <div class="audit-stat-ico amber">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+    </div>
+    <div class="audit-stat-lbl">Modèles</div>
+    <div class="audit-stat-val">{{ stats.models|length }}</div>
+  </div>
+  <div class="audit-stat s-red">
+    <div class="audit-stat-ico red">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <div class="audit-stat-lbl">Résultats affichés</div>
+    <div class="audit-stat-val">{{ logs|length }}</div>
+  </div>
+</div>
+
+<!-- ── Filter Bar ── -->
+<form method="get" class="audit-filter-bar">
+  <div class="audit-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" name="q" placeholder="Rechercher (action, user, ip)..." value="{{ q }}">
+  </div>
+  
+  <select name="action" class="audit-select">
+    <option value="all" {% if action_filter == 'all' %}selected{% endif %}>Toutes actions</option>
+    {% for value, label in action_choices %}
+    <option value="{{ value }}" {% if action_filter == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  
+  <select name="model" class="audit-select">
+    <option value="all" {% if model_filter == 'all' %}selected{% endif %}>Tous modèles</option>
+    {% for m in stats.models %}
+    <option value="{{ m.model_name }}" {% if model_filter == m.model_name %}selected{% endif %}>{{ m.model_name }}</option>
+    {% endfor %}
+  </select>
+  
+  <input type="text" name="user" class="audit-date-input" placeholder="Utilisateur..." value="{{ user_filter }}">
+  
+  <input type="date" name="date_from" class="audit-date-input" value="{{ date_from }}">
+  <input type="date" name="date_to" class="audit-date-input" value="{{ date_to }}">
+  
+  <button type="submit" class="btn btn-dark btn-sm">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    Filtrer
+  </button>
+  <a href="?" class="btn btn-ghost btn-sm">Réinitialiser</a>
+</form>
+
+<!-- ── Logs Table ── -->
+<div class="t-wrap">
+  <div class="t-row t-head audit-col">
+    <div class="th">Horodatage</div>
+    <div class="th">Action & Description</div>
+    <div class="th">Utilisateur</div>
+    <div class="th">Cible</div>
+    <div class="th">Réseau</div>
+    <div class="th" style="text-align:right;"></div>
+  </div>
+
+  {% for log in logs %}
+  <div class="t-row audit-row audit-col">
+    <div>
+      <div class="audit-time">{{ log.date_action|date:"H:i:s" }}</div>
+      <div class="audit-date">{{ log.date_action|date:"d/m/Y" }}</div>
+    </div>
+    
+    <div style="min-width:0;">
+      <div class="audit-action">
+        {% with action_class=log.action|lower %}
+        <span class="action-badge ab-{{ action_class }}">{{ log.get_action_display }}</span>
+        {% endwith %}
+      </div>
+      <div class="audit-desc">{{ log.description|truncatechars:80 }}</div>
+      {% if log.url %}
+      <div class="audit-meta">
+        <span title="{{ log.url }}">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          {{ log.url|truncatechars:35 }}
+        </span>
+        {% if log.http_method %}
+        <span>{{ log.http_method }}</span>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+    
+    <div class="user-cell">
+      <div class="user-av">{{ log.username|slice:":1"|upper }}</div>
+      <div class="user-info">
+        <div class="audit-user">{{ log.username }}</div>
+        {% if log.user %}
+        <div class="audit-uid">UID: {{ log.user.id }}</div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <div>
+      <div class="model-badge">{{ log.model_name }}</div>
+      {% if log.object_id %}
+      <div class="model-id">#{{ log.object_id }}</div>
+      {% endif %}
+    </div>
+    
+    <div class="audit-ip-cell">
+      <div class="ip-badge">{{ log.ip_address|default:"—" }}</div>
+      {% if log.localisation %}
+      <div class="audit-loc">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        {{ log.localisation }}
+      </div>
+      {% endif %}
+    </div>
+    
+    <div class="audit-detail-cell">
+      <button type="button" class="ic-btn info" title="Voir les détails complets" onclick="showAuditDetails({{ log.id }})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+  {% empty %}
+  <div class="es-lg">
+    <div class="es-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    </div>
+    <div class="es-ttl">Aucun log d'audit</div>
+    <p class="es-sub">Modifiez vos filtres pour trouver ce que vous cherchez.</p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ── Modal Details ── -->
+<div class="g-modal-overlay audit-modal" id="auditModal">
+  <div class="g-modal-box">
+    <div class="g-modal-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    </div>
+    <h3 class="g-modal-title">Détails de l'action</h3>
+    <div id="auditModalBody">
+      <p style="text-align:center;padding:20px;"><span class="spinner"></span></p>
+    </div>
+    <div class="g-modal-actions">
+      <button class="btn btn-ghost" onclick="closeAuditModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showAuditDetails(logId) {
+  const modal = document.getElementById('auditModal');
+  const body = document.getElementById('auditModalBody');
+  
+  body.innerHTML = '<p style="text-align:center;padding:40px;"><span class="spinner"></span></p>';
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  
+  fetch(`{% url 'admin_audit' %}${logId}/detail/`)
+    .then(r => {
+      if (!r.ok) throw new Error('Erreur réseau');
+      return r.json();
+    })
+    .then(d => {
+      let html = '<div class="audit-detail-grid">';
+      html += detailItem('Date & Heure', d.date_action);
+      html += detailItem('Action', `<span class="action-badge ab-${d.action.toLowerCase()}">${d.action_display}</span>`);
+      html += detailItem('Utilisateur', d.username + (d.user_id ? ` <span class="model-badge" style="margin-left:6px;font-size:9.5px;">UID: ${d.user_id}</span>` : ''));
+      html += detailItem('Cible', `<span class="model-badge" style="font-size:9.5px;">${d.model_name}</span>` + (d.object_id ? ` <span class="model-id">#${d.object_id}</span>` : ''));
+      html += detailItem('Adresse IP', `<span class="ip-badge">${d.ip_address}</span>`, true);
+      html += detailItem('Localisation', d.localisation, false);
+      html += detailItemFull('Description', d.description);
+      if (d.url) {
+        html += detailItemFull('URL de la requête', `<span class="mono" style="background:rgba(11,11,11,.03);padding:4px 8px;border-radius:4px;display:inline-block;border:1px solid rgba(11,11,11,.05);">${d.http_method ? '<strong>'+d.http_method+'</strong> ' : ''}${d.url}</span>`);
+      }
+      if (d.user_agent && d.user_agent !== '—') {
+        html += detailItemFull('User Agent', `<span style="font-size:10.5px;color:rgba(11,11,11,.5);word-break:break-all;font-family:var(--font-mono);">${d.user_agent}</span>`);
+      }
+      html += '</div>';
+      
+      // Diff anciennes / nouvelles valeurs
+      if (d.ancienne_valeur || d.nouvelle_valeur) {
+        html += '<div class="audit-diff">';
+        html += '<div class="audit-diff-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg> Modifications apportées</div>';
+        html += buildDiffTable(d.ancienne_valeur, d.nouvelle_valeur);
+        html += '</div>';
+      }
+      
+      body.innerHTML = html;
+    })
+    .catch(err => {
+      body.innerHTML = `<p style="text-align:center;padding:30px;color:#C8161D;background:#FFF0F0;border-radius:8px;margin-top:20px;font-weight:500;">Impossible de charger les détails.</p>`;
+    });
+}
+
+function detailItem(label, value, isMono) {
+  return `<div class="audit-detail-item">
+    <div class="audit-detail-lbl">${label}</div>
+    <div class="audit-detail-val${isMono ? ' mono' : ''}">${value}</div>
+  </div>`;
+}
+
+function detailItemFull(label, value) {
+  return `<div class="audit-detail-item full">
+    <div class="audit-detail-lbl">${label}</div>
+    <div class="audit-detail-val">${value}</div>
+  </div>`;
+}
+
+function buildDiffTable(oldVal, newVal) {
+  if (!oldVal && !newVal) return '<div class="diff-none">Aucune donnée de modification enregistrée.</div>';
+  
+  const allKeys = new Set();
+  if (oldVal && typeof oldVal === 'object') Object.keys(oldVal).forEach(k => allKeys.add(k));
+  if (newVal && typeof newVal === 'object') Object.keys(newVal).forEach(k => allKeys.add(k));
+  
+  if (allKeys.size === 0) {
+    // Valeurs brutes (non objet)
+    let html = '<table class="diff-table"><thead><tr><th>Ancienne valeur</th><th>Nouvelle valeur</th></tr></thead><tbody>';
+    html += `<tr><td class="diff-old">${formatVal(oldVal)}</td><td class="diff-new">${formatVal(newVal)}</td></tr>`;
+    html += '</tbody></table>';
+    return html;
+  }
+  
+  let html = '<table class="diff-table"><thead><tr><th>Champ</th><th>Avant</th><th>Après</th></tr></thead><tbody>';
+  for (const key of allKeys) {
+    const ov = oldVal ? oldVal[key] : undefined;
+    const nv = newVal ? newVal[key] : undefined;
+    const changed = JSON.stringify(ov) !== JSON.stringify(nv);
+    if (changed) {
+      html += `<tr>
+        <td class="diff-field">${key}</td>
+        <td class="diff-old">${formatVal(ov)}</td>
+        <td class="diff-new">${formatVal(nv)}</td>
+      </tr>`;
+    }
+  }
+  html += '</tbody></table>';
+  return html;
+}
+
+function formatVal(v) {
+  if (v === null || v === undefined) return '<span style="color:rgba(11,11,11,.25);">—</span>';
+  if (typeof v === 'object') return escapeHtml(JSON.stringify(v, null, 2));
+  return escapeHtml(String(v));
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function closeAuditModal() {
+  document.getElementById('auditModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Fermer au clic sur l'overlay
+document.getElementById('auditModal').addEventListener('click', function(e) {
+  if (e.target === this) closeAuditModal();
+});
+
+// Fermer avec Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeAuditModal();
+});
+</script>
+{% endblock %}

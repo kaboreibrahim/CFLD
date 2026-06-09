@@ -101,8 +101,4 @@ urlpatterns = [
     # Paiements — Inscription détail & PDF
     path('paiements/inscription/<uuid:pk>/detail/', pv.admin_inscription_detail, name='admin_inscription_detail'),
     path('paiements/inscription/<uuid:pk>/pdf/',    pv.admin_inscription_pdf,    name='admin_inscription_pdf'),
-
-    # Audit
-    path('audit/', v.admin_audit, name='admin_audit'),
-    path('audit/<int:pk>/detail/', v.admin_audit_detail, name='admin_audit_detail'),
 ]

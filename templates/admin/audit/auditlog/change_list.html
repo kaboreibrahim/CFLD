@@ -1,0 +1,21 @@
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+  {% if audit_stats %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:0 0 18px;">
+      <div style="padding:12px;border:1px solid var(--hairline-color);border-radius:6px;">
+        <strong>{{ audit_stats.logins_today }}</strong><br>Connexions aujourd'hui
+      </div>
+      <div style="padding:12px;border:1px solid var(--hairline-color);border-radius:6px;">
+        <strong>{{ audit_stats.creates }}</strong><br>Creations
+      </div>
+      <div style="padding:12px;border:1px solid var(--hairline-color);border-radius:6px;">
+        <strong>{{ audit_stats.updates }}</strong><br>Modifications
+      </div>
+      <div style="padding:12px;border:1px solid var(--hairline-color);border-radius:6px;">
+        <strong>{{ audit_stats.deletes }}</strong><br>Suppressions
+      </div>
+    </div>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

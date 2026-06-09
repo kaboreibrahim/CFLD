@@ -1102,28 +1102,3 @@ def admin_audit(request):
         'action_choices': AuditLog.ACTION_CHOICES,
     })
     return render(request, 'admin_cfld/audit.html', ctx)
-
-
-@staff_required
-def admin_audit_detail(request, pk):
-    """Retourne les détails d'un log d'audit en JSON."""
-    log = get_object_or_404(AuditLog, pk=pk)
-    data = {
-        'id': log.id,
-        'action': log.action,
-        'action_display': log.get_action_display(),
-        'username': log.username,
-        'user_id': log.user_id,
-        'model_name': log.model_name,
-        'object_id': log.object_id or '',
-        'description': log.description,
-        'ip_address': log.ip_address or '—',
-        'localisation': log.localisation or '—',
-        'user_agent': log.user_agent or '—',
-        'url': log.url or '',
-        'http_method': log.http_method or '',
-        'date_action': log.date_action.strftime('%d/%m/%Y à %H:%M:%S'),
-        'ancienne_valeur': log.ancienne_valeur,
-        'nouvelle_valeur': log.nouvelle_valeur,
-    }
-    return JsonResponse(data)

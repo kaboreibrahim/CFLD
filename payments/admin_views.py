@@ -14,6 +14,7 @@ from django.utils import timezone as tz
 from effectif.models import Joueur
 from recrutement.models import Candidature
 from contact.models import Message
+from audit.utils import log_download, log_view
 
 from .forms import (
     ComptePaiementForm, PaiementInscriptionForm, PaiementVisiteForm,
@@ -59,6 +60,7 @@ def _base_ctx(request, section=''):
 @staff_required
 def admin_comptes_paiement(request):
     comptes = ComptePaiement.objects.all()
+    log_view(request, "ComptePaiement", "Consultation de la liste des comptes de paiement.")
     ctx = _base_ctx(request, 'comptes_paiement')
     ctx['comptes'] = comptes
     ctx['total'] = comptes.count()
@@ -103,6 +105,7 @@ def admin_paiements_visite(request):
     if statut != 'all':
         qs = qs.filter(statut_validation=statut)
 
+    log_view(request, "PaiementVisiteMedicale", "Consultation de la liste des paiements visite medicale.")
     ctx = _base_ctx(request, 'paiements_visite')
     ctx.update({
         'paiements': qs,
@@ -174,6 +177,7 @@ def admin_paiements_inscription(request):
     if statut != 'all':
         qs = qs.filter(statut_validation=statut)
 
+    log_view(request, "PaiementInscription", "Consultation de la liste des paiements inscription.")
     ctx = _base_ctx(request, 'paiements_inscription')
     ctx.update({
         'paiements': qs,
@@ -318,6 +322,7 @@ def admin_cotisations_dashboard(request):
         cotisations_annuelles__annee=annee
     ).order_by('nom', 'prenom')
 
+    log_view(request, "CotisationAnnuelle", f"Consultation du tableau de bord cotisations {annee}.")
     ctx = _base_ctx(request, 'cotisations')
     ctx.update({
         'cotisations': cotisations,
@@ -385,6 +390,7 @@ def admin_cotisation_detail(request, pk):
 
     plan = calculer_echeances(cotisation)
 
+    log_view(request, "CotisationAnnuelle", f"Consultation du detail de la cotisation {cotisation}.", cotisation.pk)
     ctx = _base_ctx(request, 'cotisations')
     ctx.update({
         'cotisation': cotisation,
@@ -473,6 +479,7 @@ def admin_inscription_detail(request, pk):
     if versement_auto:
         plan = calculer_echeances(versement_auto.cotisation)
 
+    log_view(request, "PaiementInscription", f"Consultation du detail du paiement inscription {paiement}.", paiement.pk)
     ctx = _base_ctx(request, "paiements_inscription")
     ctx.update({
         "paiement": paiement,
@@ -486,6 +493,7 @@ def admin_inscription_detail(request, pk):
 def admin_inscription_pdf(request, pk):
     from django.http import HttpResponse
     paiement = get_object_or_404(PaiementInscription, pk=pk, statut_validation="approved")
+    log_download(request, "PaiementInscription", f"Telechargement du recu inscription {paiement}.", paiement.pk)
     buf = generer_recu_inscription(paiement)
     numero = paiement.candidature.reference
     response = HttpResponse(buf, content_type="application/pdf")
@@ -497,6 +505,7 @@ def admin_inscription_pdf(request, pk):
 def admin_versement_pdf(request, pk):
     from django.http import HttpResponse
     versement = get_object_or_404(VersementCotisation, pk=pk, statut_validation="approved")
+    log_download(request, "VersementCotisation", f"Telechargement du recu versement {versement}.", versement.pk)
     buf = generer_recu_versement(versement)
     joueur = versement.cotisation.joueur.nom.replace(" ", "_")
     response = HttpResponse(buf, content_type="application/pdf")
@@ -508,6 +517,7 @@ def admin_versement_pdf(request, pk):
 def admin_visite_pdf(request, pk):
     from django.http import HttpResponse
     paiement = get_object_or_404(PaiementVisiteMedicale, pk=pk, statut_validation='approved')
+    log_download(request, "PaiementVisiteMedicale", f"Telechargement du recu visite medicale {paiement}.", paiement.pk)
     buf = generer_recu_visite_medicale(paiement)
     ref = paiement.candidature.reference
     response = HttpResponse(buf, content_type='application/pdf')

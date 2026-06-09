@@ -104,5 +104,4 @@ urlpatterns = [
 
     # Audit
     path('audit/', v.admin_audit, name='admin_audit'),
-    path('audit/<int:pk>/detail/', v.admin_audit_detail, name='admin_audit_detail'),
 ]
