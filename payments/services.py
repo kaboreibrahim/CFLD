@@ -5,9 +5,10 @@ Toute la logique de calcul est ici, indépendante des vues.
 from decimal import Decimal
 from django.utils import timezone
 
+MONTANT_INSCRIPTION = Decimal("200000")
 MONTANT_ECHEANCE = Decimal("100000")
-NB_ECHEANCES = 10
-MONTANT_TOTAL = MONTANT_ECHEANCE * NB_ECHEANCES  # 1 000 000 FCFA
+NB_ECHEANCES_MENSUELLES = 10
+MONTANT_TOTAL = MONTANT_INSCRIPTION + (MONTANT_ECHEANCE * NB_ECHEANCES_MENSUELLES)
 
 
 # ── CALCUL DES ÉCHÉANCES ────────────────────────────────────
@@ -24,49 +25,64 @@ def calculer_echeances(cotisation):
       quand le cumul atteint 100 000 FCFA.
     - Les calculs se basent UNIQUEMENT sur les versements validés (approved).
     """
-    total_verse = cotisation.total_verse  # sum of approved versements (Decimal)
+    total_verse = cotisation.total_verse
     montant_restant = total_verse
+    montant_total = cotisation.montant_total or MONTANT_TOTAL
+
+    plan = [{"num": 1, "label": "Inscription", "montant_attendu": MONTANT_INSCRIPTION}]
+    plan.extend(
+        {
+            "num": num + 1,
+            "label": f"Versement mensuel {num}",
+            "montant_attendu": MONTANT_ECHEANCE,
+        }
+        for num in range(1, NB_ECHEANCES_MENSUELLES + 1)
+    )
 
     echeances = []
-    for num in range(1, NB_ECHEANCES + 1):
-        if montant_restant >= MONTANT_ECHEANCE:
+    for item in plan:
+        montant_attendu = item["montant_attendu"]
+        if montant_restant >= montant_attendu:
             statut = "solde"
-            montant_paye = MONTANT_ECHEANCE
+            montant_paye = montant_attendu
             montant_restant_ech = Decimal("0")
         elif montant_restant > 0:
             statut = "partiel"
             montant_paye = montant_restant
-            montant_restant_ech = MONTANT_ECHEANCE - montant_restant
+            montant_restant_ech = montant_attendu - montant_restant
         else:
             statut = "non_paye"
             montant_paye = Decimal("0")
-            montant_restant_ech = MONTANT_ECHEANCE
+            montant_restant_ech = montant_attendu
 
         echeances.append({
-            "num": num,
-            "label": "1er versement" if num == 1 else f"Versement {num}",
-            "montant_attendu": MONTANT_ECHEANCE,
+            "num": item["num"],
+            "label": item["label"],
+            "montant_attendu": montant_attendu,
             "montant_paye": montant_paye,
             "montant_restant": montant_restant_ech,
             "statut": statut,
         })
-        montant_restant = max(montant_restant - MONTANT_ECHEANCE, Decimal("0"))
+        montant_restant = max(montant_restant - montant_attendu, Decimal("0"))
 
     nb_soldes = sum(1 for e in echeances if e["statut"] == "solde")
     nb_partiels = sum(1 for e in echeances if e["statut"] == "partiel")
     nb_non_payes = sum(1 for e in echeances if e["statut"] == "non_paye")
-    total_restant = max(MONTANT_TOTAL - total_verse, Decimal("0"))
+    total_restant = max(montant_total - total_verse, Decimal("0"))
 
     return {
         "echeances": echeances,
         "nb_soldes": nb_soldes,
         "nb_partiels": nb_partiels,
         "nb_non_payes": nb_non_payes,
-        "nb_echeances": NB_ECHEANCES,
-        "montant_total": MONTANT_TOTAL,
+        "nb_echeances": len(echeances),
+        "nb_mensualites": NB_ECHEANCES_MENSUELLES,
+        "montant_inscription": MONTANT_INSCRIPTION,
+        "montant_mensuel": MONTANT_ECHEANCE,
+        "montant_total": montant_total,
         "total_verse": total_verse,
         "total_restant": total_restant,
-        "progression_pct": min(int((total_verse / MONTANT_TOTAL) * 100), 100) if MONTANT_TOTAL > 0 else 0,
+        "progression_pct": min(int((total_verse / montant_total) * 100), 100) if montant_total > 0 else 0,
     }
 
 

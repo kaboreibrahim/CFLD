@@ -305,6 +305,7 @@ def generer_recu_inscription(paiement):
             f"Restant : {int(plan['total_restant']):,} F".replace(",", " "),
             f"Échéances soldées : {plan['nb_soldes']}/10",
         ]]
+        summary_data[0][2] = f"Echeances soldees : {plan['nb_soldes']}/{plan['nb_echeances']}"
         st = Table(summary_data, colWidths=[CW / 3, CW / 3, CW / 3])
         st.setStyle(TableStyle([
             ("FONTNAME", (0, 0), (-1, -1), "Helvetica-Bold"),

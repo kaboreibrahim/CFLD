@@ -17,15 +17,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-h6_@1$8kjsvjz9(h_7csg+*mevfp8_ey+lb(wy)#5a_w)5sx)h'
 
-DEBUG=False    
+DEBUG=False   
 
 ALLOWED_HOSTS = ['*']
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://fxfp90z0wq71.share.zrok.io',
-    'http://localhost:8000',
-    'http://127.0.0.1:8000'
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     'http://localhost:8000',
+#     'http://127.0.0.1:8000'
+# ]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -151,10 +150,10 @@ LOGIN_REDIRECT_URL = '/admin-cfld/'
 
 
 # Infobip WhatsApp
-INFOBIP_BASE_URL = '9j1jjd.api.infobip.com'
-INFOBIP_API_KEY = 'abb3057f456cfc4132df4b223fd0fec6-6c2d70df-74b7-435f-9b48-26bea4ae792e'
-INFOBIP_WHATSAPP_SENDER = '+447860088970'
-INFOBIP_ADMIN_PHONE = '+2250584603011'
+# INFOBIP_BASE_URL = '9j1jjd.api.infobip.com'
+# INFOBIP_API_KEY = 'abb3057f456cfc4132df4b223fd0fec6-6c2d70df-74b7-435f-9b48-26bea4ae792e'
+# INFOBIP_WHATSAPP_SENDER = '+447860088970'
+# INFOBIP_ADMIN_PHONE = '+2250584603011'
 
 # smtp
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

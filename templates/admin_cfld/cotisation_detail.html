@@ -59,7 +59,7 @@
 <!-- Barre de progression -->
 <div style="background:#fff;border:1px solid rgba(11,11,11,.08);border-radius:13px;padding:16px 22px;margin-bottom:22px;">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-    <span style="font-weight:500;font-size:13px;">Progression vers 1 000 000 FCFA</span>
+    <span style="font-weight:500;font-size:13px;">Progression vers {{ plan.montant_total|floatformat:0 }} FCFA</span>
     <span style="font-family:var(--font-mono);font-size:11px;color:rgba(11,11,11,.5);">
       {{ plan.nb_soldes }} soldées · {{ plan.nb_partiels }} partielle(s) · {{ plan.nb_non_payes }} impayée(s)
     </span>
@@ -73,7 +73,7 @@
     <span>400k</span>
     <span>600k</span>
     <span>800k</span>
-    <span>1 000k</span>
+    <span>1 200k</span>
   </div>
 </div>
 
@@ -164,7 +164,7 @@
 
   <!-- Échéancier -->
   <div>
-    <p style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.38);margin-bottom:12px;">Échéancier (10 × 100 000 FCFA)</p>
+    <p style="font-family:var(--font-mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(11,11,11,.38);margin-bottom:12px;">Échéancier (inscription 200 000 FCFA + 10 × 100 000 FCFA)</p>
     <div style="background:#fff;border:1px solid rgba(11,11,11,.08);border-radius:13px;padding:14px 16px;">
       {% for e in plan.echeances %}
       <div class="echeance {{ e.statut }}">
@@ -186,7 +186,7 @@
       {% endfor %}
       <div style="display:flex;justify-content:space-between;padding:10px 14px 0;border-top:1.5px solid rgba(11,11,11,.08);margin-top:4px;">
         <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(11,11,11,.4);">Total</span>
-        <span style="font-family:var(--font-mono);font-size:13px;font-weight:700;">1 000 000 F</span>
+        <span style="font-family:var(--font-mono);font-size:13px;font-weight:700;">{{ plan.montant_total|floatformat:0 }} F</span>
       </div>
     </div>
 
@@ -237,3 +237,4 @@ function actionVersement(pk, action) {
 }
 </script>
 {% endblock %}
+

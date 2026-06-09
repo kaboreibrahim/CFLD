@@ -32,7 +32,7 @@
     <div style="height:6px;background:rgba(11,11,11,.08);border-radius:999px;overflow:hidden;">
       <div style="height:100%;border-radius:999px;background:{% if cotisation.progression_pct >= 100 %}#059669{% elif cotisation.progression_pct >= 50 %}#B45309{% else %}#C8161D{% endif %};width:{{ cotisation.progression_pct }}%;transition:width .5s;"></div>
     </div>
-    <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.38);margin-top:3px;">{{ cotisation.nb_versements_valides }}/9 · {{ cotisation.progression_pct }}%</div>
+    <div style="font-family:var(--font-mono);font-size:9.5px;color:rgba(11,11,11,.38);margin-top:3px;">{{ cotisation.nb_versements_valides }}/11 · {{ cotisation.progression_pct }}%</div>
   </div>
 </div>
 
@@ -116,3 +116,4 @@
 })();
 </script>
 {% endblock %}
+
