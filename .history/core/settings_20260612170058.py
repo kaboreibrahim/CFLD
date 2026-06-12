@@ -10,16 +10,21 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-h6_@1$8kjsvjz9(h_7csg+*mevfp8_ey+lb(wy)#5a_w)5sx)h'
 
-DEBUG=True
+DEBUG=True   
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://y5cd11fjo166.share.zrok.io']
+
+# CSRF_TRUSTED_ORIGINS = [
+#     'http://localhost:8000',
+#     'http://127.0.0.1:8000'
+# ]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -28,6 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
     # Apps CFLD
     'pages',
     'effectif',
@@ -35,11 +41,16 @@ INSTALLED_APPS = [
     'medias',
     'recrutement',
     'contact',
+    'seo',
+    'audit.apps.AuditConfig',
+    'payments',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'audit.middleware.AuditMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -61,6 +72,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.debug',
                 'pages.context_processors.ticker',
+                'seo.context_processors.seo',
             ],
         },
     },
@@ -72,12 +84,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
@@ -113,20 +125,91 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'assets']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# ── Cache (performance) ──────────────────────────────────────
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'TIMEOUT': 300,  # 5 minutes
+    }
+}
+
+# ── Whitenoise (compression CSS/JS) ─────────────────────────
+WHITENOISE_MAX_AGE = 31536000  # 1 an pour les fichiers statiques
+
+# ── Sécurité HTTP headers ────────────────────────────────────
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 LOGIN_URL = '/admin-cfld/login/'
 LOGIN_REDIRECT_URL = '/admin-cfld/'
 
+
+#Infobip WhatsApp
+INFOBIP_BASE_URL = '9j1jjd.api.infobip.com'
+INFOBIP_API_KEY = 'abb3057f456cfc4132df4b223fd0fec6-6c2d70df-74b7-435f-9b48-26bea4ae792e'
+INFOBIP_WHATSAPP_SENDER = '+447860088970'
+INFOBIP_ADMIN_PHONE = '+2250584603011'
 
 # smtp
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'empotageoilsofafrica@gmail.com'  # Replace with your Gmail address
-EMAIL_HOST_PASSWORD = 'vlym rhmk nmht rhge'
+EMAIL_HOST_USER = 'ibrahimkabore025@gmail.com'  # Replace with your Gmail address
+EMAIL_HOST_PASSWORD = 'hrwc jlvv ksqy gfeq'
+
+"""
+# Base de données MySQL
+# Remplacez les valeurs par celles de votre hébergeur
+"""
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME":'c2804120c_CFLD',
+#         "USER":'c2804120c_user',
+#         "PASSWORD": ";x#TqQ#=##RE+Gud",  # mettre le vrai mot de passe
+#         "HOST": os.environ.get("MYSQL_HOST", "127.0.0.1"),   # ou l’host fourni par ton hébergeur
+#         "PORT": os.environ.get("MYSQL_PORT", "3306"),
+#         'OPTIONS': {
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+#         },
+#     }
+# }
+
+"""
+#Base de données PostgreSQL
+"""
+
+DATABASES = {
+
+    'default': {
+
+        'ENGINE': 'django.db.backends.postgresql',
+
+        'NAME': 'CFLD',
+
+        'USER': 'postgres',
+
+        'PASSWORD': '1234',
+
+        'HOST': 'localhost',  # Essayez 'localhost' au lieu de '127.0.0.1'
+
+        'PORT': '5432',
+
+        'OPTIONS': {
+
+            'client_encoding': 'UTF8',
+
+        },
+
+    }
+
+}
